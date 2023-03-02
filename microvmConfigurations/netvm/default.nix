@@ -7,7 +7,14 @@
 }:
 nixpkgs.lib.nixosSystem {
   inherit system;
-  modules = [
+  modules = 
+  let  
+  pkgs = import nixpkgs { inherit system; overlays = [mvm];
+       /*microvm.overlays = "12"; microvm.microvm-kernel = "12";*/ };
+  mvm = final: prev: { /*final.microvm.microvm-kernel = builtins.trace "overlay" "overlay";*/};
+  in
+  [
+    { nixpkgs = { inherit pkgs; };}
     # TODO: Enable only for development builds
     ../../modules/development/authentication.nix
     ../../modules/development/ssh.nix

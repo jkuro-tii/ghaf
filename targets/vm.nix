@@ -9,10 +9,14 @@
   name = "vm";
   system = "x86_64-linux";
   formatModule = nixos-generators.nixosModules.vm;
+  microvmm-kernel = final: prev: { microvm1-kernel = builtins.trace "Overlay" "Overlay";};
+  pkgs = import nixpkgs { inherit system; overlays = [microvmm-kernel];
+          microvm-kernel = 12;};
   vm = variant: let
     hostConfiguration = nixpkgs.lib.nixosSystem {
       inherit system;
       modules = [
+        { nixpkgs = { inherit pkgs; };}
         (import ../modules/host {
           inherit self microvm netvm;
         })
@@ -25,11 +29,13 @@
     };
     netvm = "netvm-${name}-${variant}";
   in {
-    inherit hostConfiguration netvm;
+    inherit hostConfiguration netvm pkgs;
     name = "${name}-${variant}";
-    netvmConfiguration = import ../microvmConfigurations/netvm {
+    netvmConfiguration = 
+    let tmp = import ../microvmConfigurations/netvm {
       inherit nixpkgs microvm system;
     };
+    in builtins.trace tmp.pkgs.microvm-kernel.version  tmp;
     package = hostConfiguration.config.system.build.${hostConfiguration.config.formatAttr};
   };
   targets = [
