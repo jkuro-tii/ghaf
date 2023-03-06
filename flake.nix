@@ -24,7 +24,9 @@
     nixos-hardware.url = "github:nixos/nixos-hardware";
     microvm = {
       # TODO: change back to url = "github:astro/microvm.nix";
-      url = "github:mikatammi/microvm.nix/wip_hacks_2";
+      # url = "github:mikatammi/microvm.nix/wip_hacks_2";
+      # url = "github:jkuro-tii/microvm.nix/wip_hacks_2";
+      url = "path:/home/jk/tmp/flakes/microvm.nix/";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-utils.follows = "flake-utils";
     };
@@ -42,14 +44,28 @@
     nixos-hardware,
     microvm,
     jetpack-nixos,
-  }: let
-    systems = with flake-utils.lib.system; [
+  }: 
+  let
+    systems = with flake-utils.lib.system;
+      #builtins.trace "microvm: outputs" 
+    # builtins.trace (builtins.trace ("flakes: microvm= " + (builtins.toString microvm.outputs.overlay))) 
+    [
       x86_64-linux
       aarch64-linux
     ];
+    mm = nixpkgs.lib.attrsets.recursiveUpdate microvm {packages.x86_64-linux.microvm-kernel = "asasa";};
+
   in
+    let microvm = mm; in
     # nixpksgs.overlays  { aaa="asasas"; };
     # Combine list of attribute sets together
+    # /*  config.*/nixpkgs.packageOverrides = builtins.trace "----------------" (pkgs: {
+    # microvm-kernel = pkgs.microvm-kernel.override {
+    #   extraConfig = ''
+    #   ...
+    # '';
+    # };});
+
     nixpkgs.lib.foldr nixpkgs.lib.recursiveUpdate {} [
       # Documentation
       (flake-utils.lib.eachSystem systems (system: {
@@ -58,14 +74,21 @@
         in {
           doc = pkgs.callPackage ./docs/doc.nix {};
         };
-
+        overlays = final: prev: { 
+          microvm-kernel = builtins.trace "----------" "";
+          boot.kernelPackages = builtins.trace "--------------------boot.kernelPackages" "????";
+        }; # goes into top namespace, outputs.overlays
         formatter = nixpkgs.legacyPackages.${system}.alejandra;
       }))
+      # overlays = final: prev: { }
+      # (overlay = final: prev: {
+      # microvm-kernel = builtins.trace "flake.nix:82 setting local overlay variable" "xxx";})
 
       # Target configurations
       (import ./targets {inherit self nixpkgs nixos-generators nixos-hardware microvm jetpack-nixos;})
 
       # Hydra jobs
       (import ./hydrajobs.nix {inherit self;})
+
     ];
 }

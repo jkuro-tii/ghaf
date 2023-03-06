@@ -2,21 +2,37 @@
 # SPDX-License-Identifier: Apache-2.0
 {
   self,
-  nixpkgs,
+  nixpkgs, /* [ "_type" "checks" "htmlDocs" "inputs" "lastModified" "lastModifiedDate" "legacyPackages" "lib" "narHash" "nixosModules" "outPath" "outputs" "rev" "shortRev" "sourceInfo" ]*/
+          /* no microvm!!! */
   nixos-generators,
   microvm,
 }: let
-  name = "vm";
+  name = # builtins.trace (/*"vm.nix:9 nixpkgs: " + */(builtins.attrNames nixpkgs.legacyPackages.x86_64-linux.microvm-kernel)) 
+  "vm";
   system = "x86_64-linux";
   formatModule = nixos-generators.nixosModules.vm;
-  microvmm-kernel = final: prev: { microvm1-kernel = builtins.trace "Overlay" "Overlay";};
-  pkgs = import nixpkgs { inherit system; overlays = [microvmm-kernel];
-          microvm-kernel = 12;};
+  overlay-kernel = self: super: /*final: prev: */{
+    microvm-kernel =  builtins.trace ("microvm-kernel!") "overlay-kernel";
+    # pkkgs.microvm-kernel = builtins.trace ("!!!!overlay + super = " +/*(builtins.toString*/(builtins.toString (builtins.attrNames pkgs.execFormat)))
+    # super.microvm-kernel.override {
+    #   extraConfig = ''
+    #     ERROR = error;
+    #   '';
+    #     /* microvm-kernel = builtins.trace "Overlay" "Overlay"; */
+    #     /*pkgs.*/microvm-kernel = "xxx" /*builtins.trace "Oversssslay" "Overlaassay"*/;
+    # };
+  #  "microvm kernel" ;
+  };
+
+  # outputs.nixosConfigurations.vm-debug.pkgs.overlays
+  pkgs = import nixpkgs { inherit system; overlays = builtins.trace "netvm/vm.nix:27  overlays set" [ overlay-kernel ]; };
   vm = variant: let
-    hostConfiguration = nixpkgs.lib.nixosSystem {
+    hostConfiguration = 
+      #builtins.trace  ("hostConfiguration: microvm.pkgs.microvm-kernel.version = " + (/*toString*/ microvm/*.packages.x86_64-linux.microvm-kernel.version*/))
+      nixpkgs.lib.nixosSystem {
       inherit system;
-      modules = [
-        { nixpkgs = { inherit pkgs; };}
+      modules = let tmp = [
+       { nixpkgs = { inherit pkgs; }; }
         (import ../modules/host {
           inherit self microvm netvm;
         })
@@ -26,17 +42,28 @@
 
         formatModule
       ];
+      in (builtins.trace (tmp) tmp);
     };
     netvm = "netvm-${name}-${variant}";
   in {
     inherit hostConfiguration netvm pkgs;
     name = "${name}-${variant}";
+    overlays = overlay-kernel;
+
     netvmConfiguration = 
-    let tmp = import ../microvmConfigurations/netvm {
-      inherit nixpkgs microvm system;
-    };
-    in builtins.trace tmp.pkgs.microvm-kernel.version  tmp;
-    package = hostConfiguration.config.system.build.${hostConfiguration.config.formatAttr};
+      let tmp = import ../microvmConfigurations/netvm {
+        inherit nixpkgs microvm system;
+      };
+      in 
+        builtins.trace  ("vm.nix 58: Got netvmConfiguration.pkgs.microvm-kernel.version = " + toString tmp.pkgs.microvm-kernel.version)   
+        (builtins.trace  ("vm.nix 59: microvm = " + microvm))  
+    tmp;
+                                                                                  
+    package = let package_ = hostConfiguration.config.system.build.${hostConfiguration.config.formatAttr};
+    in 
+    builtins.trace  ("vm.nix 56: package = "+ package_) 
+    package_
+    ;
   };
   targets = [
     (vm "debug")

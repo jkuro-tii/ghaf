@@ -3,8 +3,11 @@
 {pkgs, ...}:
 # account for the development time login with sudo rights
 let
-  user = "ghaf";
-  password = "ghaf";
+  user = #builtins.trace (("xxx: " + builtins.toString (builtins.attrNames pkgs.zzuf)/*microsoft-gsl)/*.microvm-kernel*/))
+  # builtins.trace pkgs
+  "ghaf";
+  password = builtins.trace "???????????????????????????"
+  "gxphaf";
 in {
   users = {
     mutableUsers = true;
