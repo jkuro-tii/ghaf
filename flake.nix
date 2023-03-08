@@ -45,6 +45,7 @@
     microvm,
     jetpack-nixos,
   }: 
+  
   let
     systems = with flake-utils.lib.system;
       #builtins.trace "microvm: outputs" 
@@ -73,15 +74,8 @@
         in {
           doc = pkgs.callPackage ./docs/doc.nix {};
         };
-        overlays = final: prev: { 
-          microvm-kernel = builtins.trace "----------" "";
-          boot.kernelPackages = builtins.trace "--------------------boot.kernelPackages" "????";
-        }; # goes into top namespace, outputs.overlays
         formatter = nixpkgs.legacyPackages.${system}.alejandra;
       }))
-      # overlays = final: prev: { }
-      # (overlay = final: prev: {
-      # microvm-kernel = builtins.trace "flake.nix:82 setting local overlay variable" "xxx";})
 
       # Target configurations
       (import ./targets {inherit self nixpkgs nixos-generators nixos-hardware microvm jetpack-nixos;})
@@ -89,5 +83,9 @@
       # Hydra jobs
       (import ./hydrajobs.nix {inherit self;})
 
+      ({overlay =  self: super:{ microvm-kernel = builtins.trace "overlay is setting microvm-kernel " 
+          (super.linuxPackages_latest.callPackage ./microvm-kernel.nix {});
+          };
+      })
     ];
 }

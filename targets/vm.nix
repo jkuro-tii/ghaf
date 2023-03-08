@@ -52,7 +52,7 @@
 
     netvmConfiguration = 
       let tmp = import ../microvmConfigurations/netvm {
-        inherit nixpkgs microvm system;
+        inherit self nixpkgs microvm system;
       };
       in 
         builtins.trace  ("vm.nix 58: Got netvmConfiguration.pkgs.microvm-kernel.version = " + toString tmp.pkgs.microvm-kernel.version)   

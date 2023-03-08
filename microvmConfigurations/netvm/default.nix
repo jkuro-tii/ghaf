@@ -1,28 +1,14 @@
 # Copyright 2022-2023 TII (SSRC) and the Ghaf contributors
 # SPDX-License-Identifier: Apache-2.0
 {
+  self,
   nixpkgs,
-  microvm, /* still clean path */
+  microvm,
   system,
 }:
-let mm =  /*builtins.trace ("netvm/default.nix 8 microvm = " + microvm)*/
-nixpkgs.lib.attrsets.recursiveUpdate microvm    {packages.x86_64-linux.microvm-kernel = "asasa";};
-in
 nixpkgs.lib.nixosSystem {
   inherit system;
-  modules = 
-  let  
-  pkgs = #builtins.trace ("mm =" + mm) builtins.trace (/*"netvm/default.nix 15 nixpkgs: " + */((builtins.attrNames(import nixpkgs {inherit system;}) )) )
-    import nixpkgs { inherit system; overlays = 
-  builtins.trace "netvm/default.nix 15: overlays set" [mvm];
-       };
-  mvm = /*final: prev:*/ self: super: { microvm-kernel = builtins.trace "My overlay called microvm-kernel=!" 
-    (builtins.trace super.linuxPackages_latest.callPackage ./pkgs/microvm-kernel.nix {}) 
-    (super.linuxPackages_latest.callPackage ./pkgs/microvm-kernel.nix {}); 
-  };
-  in
-  [
-    # { nixpkgs = builtins.trace (microvm.nixosModules.microvm ({pkgs, ...}: {  })) { inherit pkgs; }; }
+  modules = [
     # TODO: Enable only for development builds
     ../../modules/development/authentication.nix
     ../../modules/development/ssh.nix
@@ -31,30 +17,20 @@ nixpkgs.lib.nixosSystem {
     microvm.nixosModules.microvm
     ({pkgs, config, ...}: {
 
-      # config.nixpkgs.packageOverrides = builtins.trace "----------------" (pkgs: {
-      #   microvm-kernel = pkgs.microvm-kernel.override {
-      #     extraConfig = ''
-      #     ...
-      #   '';
-      #   };});
       config = {
-        nixpkgs.overlays = builtins.trace ("-----------> " + "microvmConfigurations/netvm default.nix:41 overlays set!") [
-          mvm
+        nixpkgs.overlays = [ 
+          self.overlay
         ];
       
-        # boot.kernelPackages = /nix/store/f4mszwls2xfyd0qg5vahlrx53r11bwm2-linux-6.2 ; #(pkgs.linuxPackages_latest.callPackage /* ./pkgs/microvm-kernel.nix*/ {});
-
-        # nixpkgs.config.packageOverrides = builtins.trace ("packageOverrides set>>>>" ) (pkgs: rec {
-        #    microvm-kernel =  builtins.trace "--------->>>>>>>>>>>>" pkgs.microvm-kernel.override {
-        #     extraConfig = ''
-        #     ''
-        #     ;
-        #    };
-        #   });        
+        boot.kernelPackages = 
+        (builtins.trace (">> JKL: Setting boot.kernelPackages to:" + pkgs.microvm-kernel))
+          pkgs.linuxPackages_latest.extend (_: _: {
+          kernel = pkgs.microvm-kernel;
+        });
       };
       
     })
-    # { builtins.trace (microvm.nixosModules.microvm ({pkgs, ...}: {  })) 1212}
+    # { builtins.trace (microvm.nixosModules.microvm ()) 1212}
       # networking.hostName = 
       # builtins.trace ("### microvm.nixosModules.microvm: pkgs.microvm-kernel.version = " + (builtins.toString pkgs.microvm-kernel.version))
       # "netvm";
