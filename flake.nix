@@ -65,7 +65,6 @@
     #   ...
     # '';
     # };});
-
     nixpkgs.lib.foldr nixpkgs.lib.recursiveUpdate {} [
       # Documentation
       (flake-utils.lib.eachSystem systems (system: {

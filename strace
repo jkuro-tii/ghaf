@@ -1,0 +1,909 @@
+734609 10:40:08 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734609 10:40:08 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734609 10:40:08 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734609 10:40:08 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734609 10:40:08 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734609 10:40:08 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734609 10:40:08 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734609 10:40:08 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734609 10:40:08 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734609 10:40:08 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734609 10:40:08 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734609 10:40:08 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734609 10:40:08 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734609 10:40:08 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734609 10:40:09 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734609 10:40:09 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734609 10:40:09 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734609 10:40:09 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734596 10:40:09 newfstatat(AT_FDCWD, "/home/jk/.local/share/mime//mime.cache", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:09 newfstatat(AT_FDCWD, "/home/jk/.local/share/mime//globs", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:09 newfstatat(AT_FDCWD, "/home/jk/.local/share/mime//magic", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:09 newfstatat(AT_FDCWD, "/home/jk/.local/share/flatpak/exports/share/mime//mime.cache", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:09 newfstatat(AT_FDCWD, "/home/jk/.local/share/flatpak/exports/share/mime//globs", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:09 newfstatat(AT_FDCWD, "/home/jk/.local/share/flatpak/exports/share/mime//magic", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:09 newfstatat(AT_FDCWD, "/var/lib/flatpak/exports/share/mime//mime.cache", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:09 newfstatat(AT_FDCWD, "/var/lib/flatpak/exports/share/mime//globs", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:09 newfstatat(AT_FDCWD, "/var/lib/flatpak/exports/share/mime//magic", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:09 newfstatat(AT_FDCWD, "/usr/local/share//mime//mime.cache", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:09 newfstatat(AT_FDCWD, "/usr/local/share//mime//globs", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:09 newfstatat(AT_FDCWD, "/usr/local/share//mime//magic", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:09 newfstatat(AT_FDCWD, "/usr/share//mime//mime.cache", {st_mode=S_IFREG|0644, st_size=160508, ...}, 0) = 0
+734596 10:40:09 newfstatat(AT_FDCWD, "/var/lib/snapd/desktop/mime//mime.cache", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:09 newfstatat(AT_FDCWD, "/var/lib/snapd/desktop/mime//globs", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:09 newfstatat(AT_FDCWD, "/var/lib/snapd/desktop/mime//magic", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734609 10:40:09 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734609 10:40:09 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734609 10:40:09 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734609 10:40:09 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734609 10:40:09 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734609 10:40:09 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734609 10:40:09 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734609 10:40:09 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734609 10:40:10 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734609 10:40:10 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734609 10:40:10 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734609 10:40:10 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734609 10:40:10 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734609 10:40:10 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:10 stat("/usr/bin/git", {st_mode=S_IFREG|0755, st_size=3970000, ...}) = 0
+734666 10:40:10 stat("/usr/bin/git", {st_mode=S_IFREG|0755, st_size=3970000, ...}) = 0
+734666 10:40:10 stat("/usr/bin", {st_mode=S_IFDIR|0555, st_size=50488, ...}) = 0
+734666 10:40:10 stat("/usr/bin/git", {st_mode=S_IFREG|0755, st_size=3970000, ...}) = 0
+734666 10:40:10 openat(AT_FDCWD, "/dev/null", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 62
+734901 10:40:10 execve("/usr/local/smartgit/jre/lib/jspawnhelper", ["67:70"], 0x7ffe2e123198 /* 63 vars */) = 0
+734901 10:40:10 access("/etc/ld.so.preload", R_OK) = -1 ENOENT (No such file or directory)
+734901 10:40:10 openat(AT_FDCWD, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 43
+734901 10:40:10 newfstatat(43, "", {st_mode=S_IFREG|0644, st_size=93439, ...}, AT_EMPTY_PATH) = 0
+734901 10:40:10 openat(AT_FDCWD, "/lib64/libc.so.6", O_RDONLY|O_CLOEXEC) = 43
+734901 10:40:10 newfstatat(43, "", {st_mode=S_IFREG|0755, st_size=2224288, ...}, AT_EMPTY_PATH) = 0
+734901 10:40:10 openat(AT_FDCWD, "/proc/self/fd", O_RDONLY|O_NONBLOCK|O_CLOEXEC|O_DIRECTORY) = 4
+734901 10:40:10 newfstatat(4, "", {st_mode=S_IFDIR|0500, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734901 10:40:10 chdir("/usr/bin")       = 0
+734901 10:40:10 execve("/usr/bin/git", ["/usr/bin/git", "--version"], 0x55990c3bdc00 /* 67 vars */) = 0
+734901 10:40:10 access("/etc/ld.so.preload", R_OK) = -1 ENOENT (No such file or directory)
+734901 10:40:10 openat(AT_FDCWD, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC <unfinished ...>
+734666 10:40:10 openat(AT_FDCWD, "/proc/734901/stat", O_RDONLY <unfinished ...>
+734901 10:40:10 <... openat resumed>)   = 3
+734901 10:40:10 newfstatat(3, "",  <unfinished ...>
+734666 10:40:10 <... openat resumed>)   = 63
+734901 10:40:10 <... newfstatat resumed>{st_mode=S_IFREG|0644, st_size=93439, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:10 newfstatat(63, "", {st_mode=S_IFREG|0444, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734901 10:40:10 openat(AT_FDCWD, "/lib64/libpcre2-8.so.0", O_RDONLY|O_CLOEXEC) = 3
+734901 10:40:10 newfstatat(3, "", {st_mode=S_IFREG|0755, st_size=642072, ...}, AT_EMPTY_PATH) = 0
+734901 10:40:10 openat(AT_FDCWD, "/lib64/libz.so.1", O_RDONLY|O_CLOEXEC) = 3
+734901 10:40:10 newfstatat(3, "", {st_mode=S_IFREG|0755, st_size=103296, ...}, AT_EMPTY_PATH) = 0
+734901 10:40:10 openat(AT_FDCWD, "/lib64/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+734901 10:40:10 newfstatat(3, "", {st_mode=S_IFREG|0755, st_size=2224288, ...}, AT_EMPTY_PATH) = 0
+734901 10:40:10 openat(AT_FDCWD, "/dev/null", O_RDWR) = 3
+734901 10:40:10 openat(AT_FDCWD, "/usr/lib/locale/locale-archive", O_RDONLY|O_CLOEXEC) = 3
+734901 10:40:10 newfstatat(3, "", {st_mode=S_IFREG|0644, st_size=224104272, ...}, AT_EMPTY_PATH) = 0
+734901 10:40:10 newfstatat(AT_FDCWD, "/usr/share/locale", {st_mode=S_IFDIR|0755, st_size=4978, ...}, 0) = 0
+734901 10:40:10 access("/etc/gitconfig", R_OK) = -1 ENOENT (No such file or directory)
+734901 10:40:10 access("/home/jk/.config/git/config", R_OK) = -1 ENOENT (No such file or directory)
+734901 10:40:10 access("/home/jk/.gitconfig", R_OK) = 0
+734901 10:40:10 openat(AT_FDCWD, "/home/jk/.gitconfig", O_RDONLY) = 3
+734901 10:40:10 newfstatat(3, "", {st_mode=S_IFREG|0644, st_size=731, ...}, AT_EMPTY_PATH) = 0
+734901 10:40:10 newfstatat(3, "", {st_mode=S_IFREG|0644, st_size=731, ...}, AT_EMPTY_PATH) = 0
+734901 10:40:10 getcwd("/usr/bin", 129) = 9
+734901 10:40:10 newfstatat(1, "", {st_mode=S_IFIFO|0600, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734901 10:40:10 newfstatat(1, "", {st_mode=S_IFIFO|0600, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734901 10:40:10 +++ exited with 0 +++
+734666 10:40:10 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=734901, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+734609 10:40:10 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY <unfinished ...>
+734666 10:40:10 stat("/usr/bin/git",  <unfinished ...>
+734609 10:40:10 <... openat resumed>)   = 62
+734666 10:40:10 <... stat resumed>{st_mode=S_IFREG|0755, st_size=3970000, ...}) = 0
+734609 10:40:10 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:10 stat("/usr/bin", {st_mode=S_IFDIR|0555, st_size=50488, ...}) = 0
+734666 10:40:10 stat("/usr/bin/git", {st_mode=S_IFREG|0755, st_size=3970000, ...}) = 0
+734666 10:40:10 openat(AT_FDCWD, "/dev/null", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 62
+734902 10:40:10 execve("/usr/local/smartgit/jre/lib/jspawnhelper", ["67:70"], 0x7ffe2e123198 /* 63 vars */) = 0
+734902 10:40:10 access("/etc/ld.so.preload", R_OK) = -1 ENOENT (No such file or directory)
+734902 10:40:10 openat(AT_FDCWD, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 43
+734902 10:40:10 newfstatat(43, "", {st_mode=S_IFREG|0644, st_size=93439, ...}, AT_EMPTY_PATH) = 0
+734902 10:40:10 openat(AT_FDCWD, "/lib64/libc.so.6", O_RDONLY|O_CLOEXEC) = 43
+734902 10:40:10 newfstatat(43, "", {st_mode=S_IFREG|0755, st_size=2224288, ...}, AT_EMPTY_PATH) = 0
+734902 10:40:10 openat(AT_FDCWD, "/proc/self/fd", O_RDONLY|O_NONBLOCK|O_CLOEXEC|O_DIRECTORY) = 4
+734902 10:40:10 newfstatat(4, "", {st_mode=S_IFDIR|0500, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734902 10:40:10 chdir("/usr/bin")       = 0
+734902 10:40:10 execve("/usr/bin/git", ["/usr/bin/git", "--version"], 0x55ef473efc00 /* 67 vars */) = 0
+734902 10:40:10 access("/etc/ld.so.preload", R_OK) = -1 ENOENT (No such file or directory)
+734666 10:40:10 openat(AT_FDCWD, "/proc/734902/stat", O_RDONLY <unfinished ...>
+734902 10:40:10 openat(AT_FDCWD, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC <unfinished ...>
+734666 10:40:10 <... openat resumed>)   = 63
+734902 10:40:10 <... openat resumed>)   = 3
+734666 10:40:10 newfstatat(63, "",  <unfinished ...>
+734902 10:40:10 newfstatat(3, "",  <unfinished ...>
+734666 10:40:10 <... newfstatat resumed>{st_mode=S_IFREG|0444, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734902 10:40:10 <... newfstatat resumed>{st_mode=S_IFREG|0644, st_size=93439, ...}, AT_EMPTY_PATH) = 0
+734902 10:40:10 openat(AT_FDCWD, "/lib64/libpcre2-8.so.0", O_RDONLY|O_CLOEXEC) = 3
+734902 10:40:10 newfstatat(3, "", {st_mode=S_IFREG|0755, st_size=642072, ...}, AT_EMPTY_PATH) = 0
+734902 10:40:10 openat(AT_FDCWD, "/lib64/libz.so.1", O_RDONLY|O_CLOEXEC) = 3
+734902 10:40:10 newfstatat(3, "", {st_mode=S_IFREG|0755, st_size=103296, ...}, AT_EMPTY_PATH) = 0
+734902 10:40:10 openat(AT_FDCWD, "/lib64/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+734902 10:40:10 newfstatat(3, "", {st_mode=S_IFREG|0755, st_size=2224288, ...}, AT_EMPTY_PATH) = 0
+734902 10:40:10 openat(AT_FDCWD, "/dev/null", O_RDWR) = 3
+734902 10:40:10 openat(AT_FDCWD, "/usr/lib/locale/locale-archive", O_RDONLY|O_CLOEXEC) = 3
+734902 10:40:10 newfstatat(3, "", {st_mode=S_IFREG|0644, st_size=224104272, ...}, AT_EMPTY_PATH) = 0
+734902 10:40:10 newfstatat(AT_FDCWD, "/usr/share/locale", {st_mode=S_IFDIR|0755, st_size=4978, ...}, 0) = 0
+734902 10:40:10 access("/etc/gitconfig", R_OK) = -1 ENOENT (No such file or directory)
+734902 10:40:10 access("/home/jk/.config/git/config", R_OK) = -1 ENOENT (No such file or directory)
+734902 10:40:10 access("/home/jk/.gitconfig", R_OK) = 0
+734902 10:40:10 openat(AT_FDCWD, "/home/jk/.gitconfig", O_RDONLY) = 3
+734902 10:40:10 newfstatat(3, "", {st_mode=S_IFREG|0644, st_size=731, ...}, AT_EMPTY_PATH) = 0
+734902 10:40:10 newfstatat(3, "", {st_mode=S_IFREG|0644, st_size=731, ...}, AT_EMPTY_PATH) = 0
+734902 10:40:10 getcwd("/usr/bin", 129) = 9
+734902 10:40:10 newfstatat(1, "", {st_mode=S_IFIFO|0600, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734902 10:40:10 newfstatat(1, "", {st_mode=S_IFIFO|0600, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734902 10:40:10 +++ exited with 0 +++
+734672 10:40:10 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=734902, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+734666 10:40:10 stat("/etc/gitconfig", 0x7fc544a462a0) = -1 ENOENT (No such file or directory)
+734666 10:40:10 stat("/etc/gitconfig", 0x7fc544a462b0) = -1 ENOENT (No such file or directory)
+734666 10:40:10 stat("/home/jk/.gitconfig", {st_mode=S_IFREG|0644, st_size=731, ...}) = 0
+734666 10:40:10 stat("/home/jk/.gitconfig", {st_mode=S_IFREG|0644, st_size=731, ...}) = 0
+734666 10:40:10 openat(AT_FDCWD, "/etc/gitconfig", O_RDONLY) = -1 ENOENT (No such file or directory)
+734666 10:40:10 openat(AT_FDCWD, "/home/jk/.gitconfig", O_RDONLY) = 62
+734666 10:40:10 access("/.flatpak-info", F_OK) = -1 ENOENT (No such file or directory)
+734666 10:40:10 stat("/usr/bin", {st_mode=S_IFDIR|0555, st_size=50488, ...}) = 0
+734666 10:40:10 stat("/usr/bin/git", {st_mode=S_IFREG|0755, st_size=3970000, ...}) = 0
+734666 10:40:10 stat("/usr/bin/git", {st_mode=S_IFREG|0755, st_size=3970000, ...}) = 0
+734666 10:40:10 stat("/usr/bin", {st_mode=S_IFDIR|0555, st_size=50488, ...}) = 0
+734666 10:40:10 stat("/usr/bin/git", {st_mode=S_IFREG|0755, st_size=3970000, ...}) = 0
+734666 10:40:10 openat(AT_FDCWD, "/dev/null", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 62
+734904 10:40:10 execve("/usr/local/smartgit/jre/lib/jspawnhelper", ["67:70"], 0x7ffe2e123198 /* 63 vars */) = 0
+734904 10:40:10 access("/etc/ld.so.preload", R_OK) = -1 ENOENT (No such file or directory)
+734904 10:40:10 openat(AT_FDCWD, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 43
+734904 10:40:10 newfstatat(43, "", {st_mode=S_IFREG|0644, st_size=93439, ...}, AT_EMPTY_PATH) = 0
+734904 10:40:10 openat(AT_FDCWD, "/lib64/libc.so.6", O_RDONLY|O_CLOEXEC) = 43
+734904 10:40:10 newfstatat(43, "", {st_mode=S_IFREG|0755, st_size=2224288, ...}, AT_EMPTY_PATH) = 0
+734904 10:40:10 openat(AT_FDCWD, "/proc/self/fd", O_RDONLY|O_NONBLOCK|O_CLOEXEC|O_DIRECTORY) = 4
+734904 10:40:10 newfstatat(4, "", {st_mode=S_IFDIR|0500, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734904 10:40:10 chdir("/usr/bin")       = 0
+734904 10:40:10 execve("/usr/bin/git", ["/usr/bin/git", "--version"], 0x561e5cef9c00 /* 67 vars */) = 0
+734904 10:40:10 access("/etc/ld.so.preload", R_OK) = -1 ENOENT (No such file or directory)
+734904 10:40:10 openat(AT_FDCWD, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC <unfinished ...>
+734666 10:40:10 openat(AT_FDCWD, "/proc/734904/stat", O_RDONLY <unfinished ...>
+734904 10:40:10 <... openat resumed>)   = 3
+734904 10:40:10 newfstatat(3, "",  <unfinished ...>
+734666 10:40:10 <... openat resumed>)   = 63
+734904 10:40:10 <... newfstatat resumed>{st_mode=S_IFREG|0644, st_size=93439, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:10 newfstatat(63, "", {st_mode=S_IFREG|0444, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734904 10:40:10 openat(AT_FDCWD, "/lib64/libpcre2-8.so.0", O_RDONLY|O_CLOEXEC) = 3
+734904 10:40:10 newfstatat(3, "", {st_mode=S_IFREG|0755, st_size=642072, ...}, AT_EMPTY_PATH) = 0
+734904 10:40:10 openat(AT_FDCWD, "/lib64/libz.so.1", O_RDONLY|O_CLOEXEC) = 3
+734904 10:40:10 newfstatat(3, "", {st_mode=S_IFREG|0755, st_size=103296, ...}, AT_EMPTY_PATH) = 0
+734904 10:40:10 openat(AT_FDCWD, "/lib64/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+734904 10:40:10 newfstatat(3, "", {st_mode=S_IFREG|0755, st_size=2224288, ...}, AT_EMPTY_PATH) = 0
+734904 10:40:10 openat(AT_FDCWD, "/dev/null", O_RDWR) = 3
+734904 10:40:10 openat(AT_FDCWD, "/usr/lib/locale/locale-archive", O_RDONLY|O_CLOEXEC) = 3
+734904 10:40:10 newfstatat(3, "", {st_mode=S_IFREG|0644, st_size=224104272, ...}, AT_EMPTY_PATH) = 0
+734904 10:40:10 newfstatat(AT_FDCWD, "/usr/share/locale", {st_mode=S_IFDIR|0755, st_size=4978, ...}, 0) = 0
+734904 10:40:10 access("/etc/gitconfig", R_OK) = -1 ENOENT (No such file or directory)
+734904 10:40:10 access("/home/jk/.config/git/config", R_OK) = -1 ENOENT (No such file or directory)
+734904 10:40:10 access("/home/jk/.gitconfig", R_OK) = 0
+734904 10:40:10 openat(AT_FDCWD, "/home/jk/.gitconfig", O_RDONLY) = 3
+734904 10:40:10 newfstatat(3, "", {st_mode=S_IFREG|0644, st_size=731, ...}, AT_EMPTY_PATH) = 0
+734904 10:40:10 newfstatat(3, "", {st_mode=S_IFREG|0644, st_size=731, ...}, AT_EMPTY_PATH) = 0
+734904 10:40:10 getcwd("/usr/bin", 129) = 9
+734904 10:40:10 newfstatat(1, "", {st_mode=S_IFIFO|0600, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734904 10:40:10 newfstatat(1, "", {st_mode=S_IFIFO|0600, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734904 10:40:10 +++ exited with 0 +++
+734672 10:40:10 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=734904, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+734666 10:40:10 stat("/etc/gitconfig", 0x7fc544a462a0) = -1 ENOENT (No such file or directory)
+734903 10:40:10 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734903 10:40:10 newfstatat(62, "",  <unfinished ...>
+734609 10:40:10 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY <unfinished ...>
+734903 10:40:10 <... newfstatat resumed>{st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:10 stat("/etc/gitconfig",  <unfinished ...>
+734609 10:40:10 <... openat resumed>)   = 63
+734666 10:40:10 <... stat resumed>0x7fc544a462b0) = -1 ENOENT (No such file or directory)
+734609 10:40:10 newfstatat(63, "",  <unfinished ...>
+734666 10:40:10 stat("/home/jk/.gitconfig",  <unfinished ...>
+734609 10:40:10 <... newfstatat resumed>{st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:10 <... stat resumed>{st_mode=S_IFREG|0644, st_size=731, ...}) = 0
+734666 10:40:10 stat("/home/jk/.gitconfig", {st_mode=S_IFREG|0644, st_size=731, ...}) = 0
+734666 10:40:10 openat(AT_FDCWD, "/etc/gitconfig", O_RDONLY) = -1 ENOENT (No such file or directory)
+734666 10:40:10 openat(AT_FDCWD, "/home/jk/.gitconfig", O_RDONLY) = 62
+734666 10:40:10 stat("/usr/local/bin", {st_mode=S_IFDIR|0755, st_size=0, ...}) = 0
+734666 10:40:10 stat("/usr/local/bin/git", 0x7fc544a46430) = -1 ENOENT (No such file or directory)
+734666 10:40:10 stat("/usr/local/git/bin", 0x7fc544a46460) = -1 ENOENT (No such file or directory)
+734666 10:40:10 stat("/home/jk/.nix-profile/bin", {st_mode=S_IFDIR|0555, st_size=264, ...}) = 0
+734666 10:40:10 stat("/home/jk/.nix-profile/bin/git", 0x7fc544a46430) = -1 ENOENT (No such file or directory)
+734666 10:40:10 stat("/home/jk/.nix-profile/bin", {st_mode=S_IFDIR|0555, st_size=264, ...}) = 0
+734666 10:40:10 stat("/home/jk/.nix-profile/bin/git", 0x7fc544a46430) = -1 ENOENT (No such file or directory)
+734666 10:40:10 stat("/home/jk/.local/bin", 0x7fc544a46460) = -1 ENOENT (No such file or directory)
+734666 10:40:10 stat("/home/jk/bin", 0x7fc544a46460) = -1 ENOENT (No such file or directory)
+734666 10:40:10 stat("/usr/local/bin", {st_mode=S_IFDIR|0755, st_size=0, ...}) = 0
+734666 10:40:10 stat("/usr/local/bin/git", 0x7fc544a46430) = -1 ENOENT (No such file or directory)
+734666 10:40:10 stat("/usr/local/sbin", {st_mode=S_IFDIR|0755, st_size=0, ...}) = 0
+734666 10:40:10 stat("/usr/local/sbin/git", 0x7fc544a46430) = -1 ENOENT (No such file or directory)
+734666 10:40:10 stat("/usr/bin", {st_mode=S_IFDIR|0555, st_size=50488, ...}) = 0
+734666 10:40:10 stat("/usr/bin/git", {st_mode=S_IFREG|0755, st_size=3970000, ...}) = 0
+734666 10:40:10 stat("/usr/bin/git", {st_mode=S_IFREG|0755, st_size=3970000, ...}) = 0
+734666 10:40:10 stat("/usr/bin", {st_mode=S_IFDIR|0555, st_size=50488, ...}) = 0
+734666 10:40:10 stat("/usr/bin/git", {st_mode=S_IFREG|0755, st_size=3970000, ...}) = 0
+734666 10:40:10 openat(AT_FDCWD, "/dev/null", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 62
+734905 10:40:10 execve("/usr/local/smartgit/jre/lib/jspawnhelper", ["67:70"], 0x7ffe2e123198 /* 63 vars */) = 0
+734905 10:40:10 access("/etc/ld.so.preload", R_OK) = -1 ENOENT (No such file or directory)
+734905 10:40:10 openat(AT_FDCWD, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 43
+734905 10:40:10 newfstatat(43, "", {st_mode=S_IFREG|0644, st_size=93439, ...}, AT_EMPTY_PATH) = 0
+734905 10:40:10 openat(AT_FDCWD, "/lib64/libc.so.6", O_RDONLY|O_CLOEXEC) = 43
+734905 10:40:10 newfstatat(43, "", {st_mode=S_IFREG|0755, st_size=2224288, ...}, AT_EMPTY_PATH) = 0
+734905 10:40:10 openat(AT_FDCWD, "/proc/self/fd", O_RDONLY|O_NONBLOCK|O_CLOEXEC|O_DIRECTORY) = 4
+734905 10:40:10 newfstatat(4, "", {st_mode=S_IFDIR|0500, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734905 10:40:10 chdir("/usr/bin")       = 0
+734905 10:40:10 execve("/usr/bin/git", ["/usr/bin/git", "--version"], 0x55f446537c00 /* 67 vars */) = 0
+734905 10:40:10 access("/etc/ld.so.preload", R_OK) = -1 ENOENT (No such file or directory)
+734666 10:40:10 openat(AT_FDCWD, "/proc/734905/stat", O_RDONLY <unfinished ...>
+734905 10:40:10 openat(AT_FDCWD, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC <unfinished ...>
+734666 10:40:10 <... openat resumed>)   = 63
+734905 10:40:10 <... openat resumed>)   = 3
+734666 10:40:10 newfstatat(63, "",  <unfinished ...>
+734905 10:40:10 newfstatat(3, "",  <unfinished ...>
+734666 10:40:10 <... newfstatat resumed>{st_mode=S_IFREG|0444, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734905 10:40:10 <... newfstatat resumed>{st_mode=S_IFREG|0644, st_size=93439, ...}, AT_EMPTY_PATH) = 0
+734905 10:40:10 openat(AT_FDCWD, "/lib64/libpcre2-8.so.0", O_RDONLY|O_CLOEXEC) = 3
+734905 10:40:10 newfstatat(3, "", {st_mode=S_IFREG|0755, st_size=642072, ...}, AT_EMPTY_PATH) = 0
+734905 10:40:10 openat(AT_FDCWD, "/lib64/libz.so.1", O_RDONLY|O_CLOEXEC) = 3
+734905 10:40:10 newfstatat(3, "", {st_mode=S_IFREG|0755, st_size=103296, ...}, AT_EMPTY_PATH) = 0
+734905 10:40:10 openat(AT_FDCWD, "/lib64/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+734905 10:40:10 newfstatat(3, "", {st_mode=S_IFREG|0755, st_size=2224288, ...}, AT_EMPTY_PATH) = 0
+734905 10:40:10 openat(AT_FDCWD, "/dev/null", O_RDWR) = 3
+734905 10:40:10 openat(AT_FDCWD, "/usr/lib/locale/locale-archive", O_RDONLY|O_CLOEXEC) = 3
+734905 10:40:10 newfstatat(3, "", {st_mode=S_IFREG|0644, st_size=224104272, ...}, AT_EMPTY_PATH) = 0
+734905 10:40:10 newfstatat(AT_FDCWD, "/usr/share/locale", {st_mode=S_IFDIR|0755, st_size=4978, ...}, 0) = 0
+734905 10:40:10 access("/etc/gitconfig", R_OK) = -1 ENOENT (No such file or directory)
+734905 10:40:10 access("/home/jk/.config/git/config", R_OK) = -1 ENOENT (No such file or directory)
+734905 10:40:10 access("/home/jk/.gitconfig", R_OK) = 0
+734905 10:40:10 openat(AT_FDCWD, "/home/jk/.gitconfig", O_RDONLY) = 3
+734905 10:40:10 newfstatat(3, "", {st_mode=S_IFREG|0644, st_size=731, ...}, AT_EMPTY_PATH) = 0
+734905 10:40:10 newfstatat(3, "", {st_mode=S_IFREG|0644, st_size=731, ...}, AT_EMPTY_PATH) = 0
+734905 10:40:10 getcwd("/usr/bin", 129) = 9
+734905 10:40:10 newfstatat(1, "", {st_mode=S_IFIFO|0600, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734905 10:40:10 newfstatat(1, "", {st_mode=S_IFIFO|0600, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734905 10:40:10 +++ exited with 0 +++
+734666 10:40:10 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=734905, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+734666 10:40:10 stat("/etc/gitconfig", 0x7fc544a462a0) = -1 ENOENT (No such file or directory)
+734666 10:40:10 stat("/etc/gitconfig", 0x7fc544a462b0) = -1 ENOENT (No such file or directory)
+734666 10:40:10 stat("/home/jk/.gitconfig", {st_mode=S_IFREG|0644, st_size=731, ...}) = 0
+734666 10:40:10 stat("/home/jk/.gitconfig", {st_mode=S_IFREG|0644, st_size=731, ...}) = 0
+734666 10:40:10 openat(AT_FDCWD, "/etc/gitconfig", O_RDONLY) = -1 ENOENT (No such file or directory)
+734666 10:40:10 openat(AT_FDCWD, "/home/jk/.gitconfig", O_RDONLY) = 62
+734666 10:40:10 stat("/usr/sbin", {st_mode=S_IFDIR|0555, st_size=13454, ...}) = 0
+734666 10:40:10 stat("/usr/sbin/git", 0x7fc544a46430) = -1 ENOENT (No such file or directory)
+734666 10:40:10 stat("/var/lib/snapd/snap/bin", {st_mode=S_IFDIR|0755, st_size=14, ...}) = 0
+734666 10:40:10 stat("/var/lib/snapd/snap/bin/git", 0x7fc544a46430) = -1 ENOENT (No such file or directory)
+734666 10:40:10 stat("/usr/local/smartgit/git/bin", {st_mode=S_IFDIR|0755, st_size=170, ...}) = 0
+734666 10:40:10 stat("/usr/local/smartgit/git/bin/git", {st_mode=S_IFREG|0755, st_size=19411752, ...}) = 0
+734666 10:40:10 stat("/usr/local/smartgit/git/etc/gitconfig", 0x7fc544a461b0) = -1 ENOENT (No such file or directory)
+734666 10:40:10 stat("/usr/local/smartgit/etc/gitconfig", 0x7fc544a461b0) = -1 ENOENT (No such file or directory)
+734666 10:40:10 stat("/usr/local/smartgit/git/bin/cygpath.exe", 0x7fc544a461b0) = -1 ENOENT (No such file or directory)
+734666 10:40:10 stat("/usr/local/smartgit/git/bin/git", {st_mode=S_IFREG|0755, st_size=19411752, ...}) = 0
+734666 10:40:10 stat("/usr/local/smartgit/git/bin", {st_mode=S_IFDIR|0755, st_size=170, ...}) = 0
+734666 10:40:10 stat("/usr/local/smartgit/git/libexec/git-core", {st_mode=S_IFDIR|0755, st_size=4578, ...}) = 0
+734666 10:40:10 stat("/usr/local/smartgit/git/bin/git", {st_mode=S_IFREG|0755, st_size=19411752, ...}) = 0
+734666 10:40:10 openat(AT_FDCWD, "/dev/null", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 62
+734906 10:40:10 execve("/usr/local/smartgit/jre/lib/jspawnhelper", ["67:70"], 0x7ffe2e123198 /* 63 vars */) = 0
+734906 10:40:10 access("/etc/ld.so.preload", R_OK) = -1 ENOENT (No such file or directory)
+734906 10:40:10 openat(AT_FDCWD, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 43
+734906 10:40:10 newfstatat(43, "", {st_mode=S_IFREG|0644, st_size=93439, ...}, AT_EMPTY_PATH) = 0
+734906 10:40:10 openat(AT_FDCWD, "/lib64/libc.so.6", O_RDONLY|O_CLOEXEC) = 43
+734906 10:40:10 newfstatat(43, "", {st_mode=S_IFREG|0755, st_size=2224288, ...}, AT_EMPTY_PATH) = 0
+734906 10:40:10 openat(AT_FDCWD, "/proc/self/fd", O_RDONLY|O_NONBLOCK|O_CLOEXEC|O_DIRECTORY) = 4
+734906 10:40:10 newfstatat(4, "", {st_mode=S_IFDIR|0500, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734906 10:40:10 chdir("/usr/local/smartgit/git/bin") = 0
+734906 10:40:10 execve("/usr/local/smartgit/git/bin/git", ["/usr/local/smartgit/git/bin/git", "--version"], 0x55a22930cc80 /* 68 vars */) = 0
+734906 10:40:10 access("/etc/ld.so.preload", R_OK <unfinished ...>
+734666 10:40:10 openat(AT_FDCWD, "/proc/734906/stat", O_RDONLY <unfinished ...>
+734906 10:40:10 <... access resumed>)   = -1 ENOENT (No such file or directory)
+734666 10:40:10 <... openat resumed>)   = 63
+734906 10:40:10 openat(AT_FDCWD, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC <unfinished ...>
+734666 10:40:10 newfstatat(63, "",  <unfinished ...>
+734906 10:40:10 <... openat resumed>)   = 3
+734666 10:40:10 <... newfstatat resumed>{st_mode=S_IFREG|0444, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734906 10:40:10 newfstatat(3, "", {st_mode=S_IFREG|0644, st_size=93439, ...}, AT_EMPTY_PATH) = 0
+734906 10:40:10 openat(AT_FDCWD, "/lib64/libz.so.1", O_RDONLY|O_CLOEXEC) = 3
+734906 10:40:10 newfstatat(3, "", {st_mode=S_IFREG|0755, st_size=103296, ...}, AT_EMPTY_PATH) = 0
+734906 10:40:10 openat(AT_FDCWD, "/lib64/libpthread.so.0", O_RDONLY|O_CLOEXEC) = 3
+734906 10:40:10 newfstatat(3, "", {st_mode=S_IFREG|0755, st_size=15904, ...}, AT_EMPTY_PATH) = 0
+734906 10:40:10 openat(AT_FDCWD, "/lib64/librt.so.1", O_RDONLY|O_CLOEXEC) = 3
+734906 10:40:10 newfstatat(3, "", {st_mode=S_IFREG|0755, st_size=16600, ...}, AT_EMPTY_PATH) = 0
+734906 10:40:10 openat(AT_FDCWD, "/lib64/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+734906 10:40:10 newfstatat(3, "", {st_mode=S_IFREG|0755, st_size=2224288, ...}, AT_EMPTY_PATH) = 0
+734906 10:40:10 openat(AT_FDCWD, "/dev/null", O_RDWR) = 3
+734906 10:40:10 lstat("/proc", {st_mode=S_IFDIR|0555, st_size=0, ...}) = 0
+734906 10:40:10 lstat("/proc/self", {st_mode=S_IFLNK|0777, st_size=0, ...}) = 0
+734906 10:40:10 readlink("/proc/self", "734906", 32) = 6
+734906 10:40:10 lstat("/proc/734906", {st_mode=S_IFDIR|0555, st_size=0, ...}) = 0
+734906 10:40:10 lstat("/proc/734906/exe", {st_mode=S_IFLNK|0777, st_size=0, ...}) = 0
+734906 10:40:10 readlink("/proc/734906/exe", "/usr/local/smartgit/git/bin/git", 32) = 31
+734906 10:40:10 lstat("/usr", {st_mode=S_IFDIR|0755, st_size=168, ...}) = 0
+734906 10:40:10 lstat("/usr/local", {st_mode=S_IFDIR|0755, st_size=106, ...}) = 0
+734906 10:40:10 lstat("/usr/local/smartgit", {st_mode=S_IFDIR|0755, st_size=226, ...}) = 0
+734906 10:40:10 lstat("/usr/local/smartgit/git", {st_mode=S_IFDIR|0755, st_size=44, ...}) = 0
+734906 10:40:10 lstat("/usr/local/smartgit/git/bin", {st_mode=S_IFDIR|0755, st_size=170, ...}) = 0
+734906 10:40:10 lstat("/usr/local/smartgit/git/bin/git", {st_mode=S_IFREG|0755, st_size=19411752, ...}) = 0
+734906 10:40:10 access("/usr/local/smartgit/git/etc/gitconfig", R_OK) = -1 ENOENT (No such file or directory)
+734906 10:40:10 access("/home/jk/.config/git/config", R_OK) = -1 ENOENT (No such file or directory)
+734906 10:40:10 access("/home/jk/.gitconfig", R_OK) = 0
+734906 10:40:10 openat(AT_FDCWD, "/home/jk/.gitconfig", O_RDONLY) = 3
+734906 10:40:10 newfstatat(3, "", {st_mode=S_IFREG|0644, st_size=731, ...}, AT_EMPTY_PATH) = 0
+734906 10:40:10 getcwd("/usr/local/smartgit/git/bin", 129) = 28
+734906 10:40:10 newfstatat(1, "", {st_mode=S_IFIFO|0600, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734906 10:40:10 +++ exited with 0 +++
+734672 10:40:10 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=734906, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+734666 10:40:10 stat("/usr/local/smartgit/git/bin/git", {st_mode=S_IFREG|0755, st_size=19411752, ...}) = 0
+734666 10:40:10 stat("/usr/local/smartgit/git/bin", {st_mode=S_IFDIR|0755, st_size=170, ...}) = 0
+734666 10:40:10 stat("/usr/local/smartgit/git/libexec/git-core", {st_mode=S_IFDIR|0755, st_size=4578, ...}) = 0
+734666 10:40:10 stat("/usr/local/smartgit/git/bin/git", {st_mode=S_IFREG|0755, st_size=19411752, ...}) = 0
+734666 10:40:10 openat(AT_FDCWD, "/dev/null", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 62
+734903 10:40:10 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 71
+734903 10:40:10 newfstatat(71, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734907 10:40:10 execve("/usr/local/smartgit/jre/lib/jspawnhelper", ["67:70"], 0x7ffe2e123198 /* 63 vars */) = 0
+734907 10:40:10 access("/etc/ld.so.preload", R_OK) = -1 ENOENT (No such file or directory)
+734907 10:40:10 openat(AT_FDCWD, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 43
+734907 10:40:10 newfstatat(43, "", {st_mode=S_IFREG|0644, st_size=93439, ...}, AT_EMPTY_PATH) = 0
+734907 10:40:10 openat(AT_FDCWD, "/lib64/libc.so.6", O_RDONLY|O_CLOEXEC) = 43
+734907 10:40:10 newfstatat(43, "", {st_mode=S_IFREG|0755, st_size=2224288, ...}, AT_EMPTY_PATH) = 0
+734907 10:40:10 openat(AT_FDCWD, "/proc/self/fd", O_RDONLY|O_NONBLOCK|O_CLOEXEC|O_DIRECTORY) = 4
+734907 10:40:10 newfstatat(4, "", {st_mode=S_IFDIR|0500, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734907 10:40:10 chdir("/usr/local/smartgit/git/bin") = 0
+734907 10:40:10 execve("/usr/local/smartgit/git/bin/git", ["/usr/local/smartgit/git/bin/git", "--version"], 0x55cd244bcc80 /* 68 vars */) = 0
+734907 10:40:10 access("/etc/ld.so.preload", R_OK <unfinished ...>
+734666 10:40:10 openat(AT_FDCWD, "/proc/734907/stat", O_RDONLY <unfinished ...>
+734907 10:40:10 <... access resumed>)   = -1 ENOENT (No such file or directory)
+734666 10:40:10 <... openat resumed>)   = 63
+734907 10:40:10 openat(AT_FDCWD, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC <unfinished ...>
+734666 10:40:10 newfstatat(63, "",  <unfinished ...>
+734907 10:40:10 <... openat resumed>)   = 3
+734666 10:40:10 <... newfstatat resumed>{st_mode=S_IFREG|0444, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734907 10:40:10 newfstatat(3, "", {st_mode=S_IFREG|0644, st_size=93439, ...}, AT_EMPTY_PATH) = 0
+734907 10:40:10 openat(AT_FDCWD, "/lib64/libz.so.1", O_RDONLY|O_CLOEXEC) = 3
+734907 10:40:10 newfstatat(3, "", {st_mode=S_IFREG|0755, st_size=103296, ...}, AT_EMPTY_PATH) = 0
+734907 10:40:10 openat(AT_FDCWD, "/lib64/libpthread.so.0", O_RDONLY|O_CLOEXEC) = 3
+734907 10:40:10 newfstatat(3, "", {st_mode=S_IFREG|0755, st_size=15904, ...}, AT_EMPTY_PATH) = 0
+734907 10:40:10 openat(AT_FDCWD, "/lib64/librt.so.1", O_RDONLY|O_CLOEXEC) = 3
+734907 10:40:10 newfstatat(3, "", {st_mode=S_IFREG|0755, st_size=16600, ...}, AT_EMPTY_PATH) = 0
+734907 10:40:10 openat(AT_FDCWD, "/lib64/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+734907 10:40:10 newfstatat(3, "", {st_mode=S_IFREG|0755, st_size=2224288, ...}, AT_EMPTY_PATH) = 0
+734907 10:40:10 openat(AT_FDCWD, "/dev/null", O_RDWR) = 3
+734907 10:40:10 lstat("/proc", {st_mode=S_IFDIR|0555, st_size=0, ...}) = 0
+734907 10:40:10 lstat("/proc/self", {st_mode=S_IFLNK|0777, st_size=0, ...}) = 0
+734907 10:40:10 readlink("/proc/self", "734907", 32) = 6
+734907 10:40:10 lstat("/proc/734907", {st_mode=S_IFDIR|0555, st_size=0, ...}) = 0
+734907 10:40:10 lstat("/proc/734907/exe", {st_mode=S_IFLNK|0777, st_size=0, ...}) = 0
+734907 10:40:10 readlink("/proc/734907/exe", "/usr/local/smartgit/git/bin/git", 32) = 31
+734907 10:40:10 lstat("/usr", {st_mode=S_IFDIR|0755, st_size=168, ...}) = 0
+734907 10:40:10 lstat("/usr/local", {st_mode=S_IFDIR|0755, st_size=106, ...}) = 0
+734907 10:40:10 lstat("/usr/local/smartgit", {st_mode=S_IFDIR|0755, st_size=226, ...}) = 0
+734907 10:40:10 lstat("/usr/local/smartgit/git", {st_mode=S_IFDIR|0755, st_size=44, ...}) = 0
+734907 10:40:10 lstat("/usr/local/smartgit/git/bin", {st_mode=S_IFDIR|0755, st_size=170, ...}) = 0
+734907 10:40:10 lstat("/usr/local/smartgit/git/bin/git", {st_mode=S_IFREG|0755, st_size=19411752, ...}) = 0
+734907 10:40:10 access("/usr/local/smartgit/git/etc/gitconfig", R_OK) = -1 ENOENT (No such file or directory)
+734907 10:40:10 access("/home/jk/.config/git/config", R_OK) = -1 ENOENT (No such file or directory)
+734907 10:40:10 access("/home/jk/.gitconfig", R_OK) = 0
+734907 10:40:10 openat(AT_FDCWD, "/home/jk/.gitconfig", O_RDONLY) = 3
+734907 10:40:10 newfstatat(3, "", {st_mode=S_IFREG|0644, st_size=731, ...}, AT_EMPTY_PATH) = 0
+734907 10:40:10 getcwd("/usr/local/smartgit/git/bin", 129) = 28
+734907 10:40:10 newfstatat(1, "", {st_mode=S_IFIFO|0600, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734907 10:40:10 +++ exited with 0 +++
+734672 10:40:10 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=734907, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+734666 10:40:10 stat("/etc/gitconfig", 0x7fc544a462a0) = -1 ENOENT (No such file or directory)
+734666 10:40:10 stat("/etc/gitconfig", 0x7fc544a462b0) = -1 ENOENT (No such file or directory)
+734666 10:40:10 stat("/home/jk/.gitconfig", {st_mode=S_IFREG|0644, st_size=731, ...}) = 0
+734666 10:40:10 stat("/home/jk/.gitconfig", {st_mode=S_IFREG|0644, st_size=731, ...}) = 0
+734666 10:40:10 openat(AT_FDCWD, "/etc/gitconfig", O_RDONLY) = -1 ENOENT (No such file or directory)
+734666 10:40:10 openat(AT_FDCWD, "/home/jk/.gitconfig", O_RDONLY) = 62
+734609 10:40:10 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734609 10:40:10 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734596 10:40:10 stat("/usr/etc/gitconfig", 0x7fc5e2ffd6b0) = -1 ENOENT (No such file or directory)
+734596 10:40:10 stat("/etc/gitconfig", 0x7fc5e2ffd6b0) = -1 ENOENT (No such file or directory)
+734596 10:40:10 stat("/usr/bin/cygpath.exe", 0x7fc5e2ffd6b0) = -1 ENOENT (No such file or directory)
+734596 10:40:10 openat(AT_FDCWD, "/etc/gitconfig", O_RDONLY) = -1 ENOENT (No such file or directory)
+734596 10:40:10 openat(AT_FDCWD, "/home/jk/.gitconfig", O_RDONLY) = 62
+734903 10:40:10 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734903 10:40:10 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734609 10:40:10 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734609 10:40:10 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734903 10:40:11 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734903 10:40:11 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734903 10:40:11 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734903 10:40:11 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734903 10:40:11 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734903 10:40:11 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734903 10:40:11 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734903 10:40:11 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734903 10:40:12 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734903 10:40:12 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734903 10:40:13 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734903 10:40:13 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734903 10:40:13 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734903 10:40:13 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734596 10:40:14 newfstatat(AT_FDCWD, "/home/jk/.local/share/mime//mime.cache", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:14 newfstatat(AT_FDCWD, "/home/jk/.local/share/mime//globs", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:14 newfstatat(AT_FDCWD, "/home/jk/.local/share/mime//magic", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:14 newfstatat(AT_FDCWD, "/home/jk/.local/share/flatpak/exports/share/mime//mime.cache", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:14 newfstatat(AT_FDCWD, "/home/jk/.local/share/flatpak/exports/share/mime//globs", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:14 newfstatat(AT_FDCWD, "/home/jk/.local/share/flatpak/exports/share/mime//magic", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:14 newfstatat(AT_FDCWD, "/var/lib/flatpak/exports/share/mime//mime.cache", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:14 newfstatat(AT_FDCWD, "/var/lib/flatpak/exports/share/mime//globs", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:14 newfstatat(AT_FDCWD, "/var/lib/flatpak/exports/share/mime//magic", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:14 newfstatat(AT_FDCWD, "/usr/local/share//mime//mime.cache", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:14 newfstatat(AT_FDCWD, "/usr/local/share//mime//globs", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:14 newfstatat(AT_FDCWD, "/usr/local/share//mime//magic", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:14 newfstatat(AT_FDCWD, "/usr/share//mime//mime.cache", {st_mode=S_IFREG|0644, st_size=160508, ...}, 0) = 0
+734596 10:40:14 newfstatat(AT_FDCWD, "/var/lib/snapd/desktop/mime//mime.cache", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:14 newfstatat(AT_FDCWD, "/var/lib/snapd/desktop/mime//globs", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:14 newfstatat(AT_FDCWD, "/var/lib/snapd/desktop/mime//magic", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734903 10:40:14 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734903 10:40:14 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734903 10:40:14 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734903 10:40:14 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734903 10:40:14 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734903 10:40:14 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734609 10:40:14 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734609 10:40:14 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734609 10:40:15 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY <unfinished ...>
+734903 10:40:15 +++ exited with 0 +++
+734609 10:40:15 <... openat resumed>)   = 62
+734609 10:40:15 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734628 10:40:15 openat(AT_FDCWD, "/home/jk/.config/smartgit/22.1/10941135293358041087.tmp", O_WRONLY|O_CREAT|O_EXCL, 0600) = 62
+734628 10:40:15 openat(AT_FDCWD, "/home/jk/.config/smartgit/22.1/10941135293358041087.tmp", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 62
+734609 10:40:15 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 63
+734609 10:40:15 newfstatat(63, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734628 10:40:15 lstat("/home/jk/.config/smartgit/22.1/10941135293358041087.tmp", {st_mode=S_IFREG|0600, st_size=4019, ...}) = 0
+734628 10:40:15 lstat("/home/jk/.config/smartgit/22.1/preferences.yml", {st_mode=S_IFREG|0600, st_size=4019, ...}) = 0
+734628 10:40:15 unlink("/home/jk/.config/smartgit/22.1/preferences.yml") = 0
+734628 10:40:15 rename("/home/jk/.config/smartgit/22.1/10941135293358041087.tmp", "/home/jk/.config/smartgit/22.1/preferences.yml") = 0
+734608 10:40:15 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734608 10:40:15 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734941 10:40:15 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734941 10:40:15 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734941 10:40:16 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734941 10:40:16 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734939 10:40:16 +++ exited with 0 +++
+734941 10:40:16 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734941 10:40:16 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734938 10:40:16 +++ exited with 0 +++
+734941 10:40:16 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734941 10:40:16 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734608 10:40:17 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734608 10:40:17 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734940 10:40:17 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY <unfinished ...>
+734941 10:40:17 +++ exited with 0 +++
+734940 10:40:17 <... openat resumed>)   = 62
+734940 10:40:17 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734608 10:40:17 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734608 10:40:17 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734608 10:40:18 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734608 10:40:18 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734940 10:40:18 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734940 10:40:18 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734608 10:40:18 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734608 10:40:18 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734940 10:40:18 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734940 10:40:18 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734940 10:40:18 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734940 10:40:18 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734940 10:40:18 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734940 10:40:18 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734940 10:40:18 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734940 10:40:18 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734940 10:40:18 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734940 10:40:18 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734940 10:40:19 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734940 10:40:19 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734596 10:40:20 newfstatat(AT_FDCWD, "/home/jk/.local/share/mime//mime.cache", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:20 newfstatat(AT_FDCWD, "/home/jk/.local/share/mime//globs", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:20 newfstatat(AT_FDCWD, "/home/jk/.local/share/mime//magic", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:20 newfstatat(AT_FDCWD, "/home/jk/.local/share/flatpak/exports/share/mime//mime.cache", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:20 newfstatat(AT_FDCWD, "/home/jk/.local/share/flatpak/exports/share/mime//globs", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:20 newfstatat(AT_FDCWD, "/home/jk/.local/share/flatpak/exports/share/mime//magic", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:20 newfstatat(AT_FDCWD, "/var/lib/flatpak/exports/share/mime//mime.cache", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:20 newfstatat(AT_FDCWD, "/var/lib/flatpak/exports/share/mime//globs", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:20 newfstatat(AT_FDCWD, "/var/lib/flatpak/exports/share/mime//magic", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:20 newfstatat(AT_FDCWD, "/usr/local/share//mime//mime.cache", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:20 newfstatat(AT_FDCWD, "/usr/local/share//mime//globs", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:20 newfstatat(AT_FDCWD, "/usr/local/share//mime//magic", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:20 newfstatat(AT_FDCWD, "/usr/share//mime//mime.cache", {st_mode=S_IFREG|0644, st_size=160508, ...}, 0) = 0
+734596 10:40:20 newfstatat(AT_FDCWD, "/var/lib/snapd/desktop/mime//mime.cache", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:20 newfstatat(AT_FDCWD, "/var/lib/snapd/desktop/mime//globs", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734596 10:40:20 newfstatat(AT_FDCWD, "/var/lib/snapd/desktop/mime//magic", 0x7fc5e2fecf10, 0) = -1 ENOENT (No such file or directory)
+734940 10:40:21 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734940 10:40:21 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734940 10:40:21 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734940 10:40:21 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734940 10:40:21 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734940 10:40:21 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734609 10:40:21 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734609 10:40:21 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734940 10:40:21 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734940 10:40:21 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734940 10:40:21 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734940 10:40:21 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734609 10:40:22 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY <unfinished ...>
+734940 10:40:22 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY <unfinished ...>
+734609 10:40:22 <... openat resumed>)   = 62
+734940 10:40:22 <... openat resumed>)   = 63
+734609 10:40:22 newfstatat(62, "",  <unfinished ...>
+734940 10:40:22 newfstatat(63, "",  <unfinished ...>
+734609 10:40:22 <... newfstatat resumed>{st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734940 10:40:22 <... newfstatat resumed>{st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734602 10:40:22 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/cpu.max", O_RDONLY) = 62
+734602 10:40:22 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734602 10:40:22 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/cpu.max", O_RDONLY) = 62
+734602 10:40:22 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734602 10:40:22 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/cpu.weight", O_RDONLY) = 62
+734602 10:40:22 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734609 10:40:22 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734609 10:40:22 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734602 10:40:22 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/cpu.max", O_RDONLY) = 62
+734602 10:40:22 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734602 10:40:22 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/cpu.max", O_RDONLY) = 62
+734602 10:40:22 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734602 10:40:22 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/cpu.weight", O_RDONLY) = 62
+734602 10:40:22 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734940 10:40:22 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734940 10:40:22 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:22 stat("/usr/local/smartgit/jre/conf/security/policy/unlimited", {st_mode=S_IFDIR|0755, st_size=88, ...}) = 0
+734666 10:40:22 access("/usr/local/smartgit/jre/conf/security/policy/unlimited", R_OK) = 0
+734666 10:40:22 openat(AT_FDCWD, "/usr/local/smartgit/jre/conf/security/policy/unlimited", O_RDONLY) = 62
+734666 10:40:22 newfstatat(62, "", {st_mode=S_IFDIR|0755, st_size=88, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:22 openat(AT_FDCWD, "/usr/local/smartgit/jre/conf/security/policy/unlimited/default_US_export.policy", O_RDONLY) = 64
+734666 10:40:22 openat(AT_FDCWD, "/usr/local/smartgit/jre/conf/security/policy/unlimited/default_local.policy", O_RDONLY) = 64
+734608 10:40:22 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734608 10:40:22 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734940 10:40:22 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 62
+734940 10:40:22 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:22 stat("/usr/local/smartgit/jre/lib/security/jssecacerts", 0x7fc544a44bd0) = -1 ENOENT (No such file or directory)
+734666 10:40:22 stat("/usr/local/smartgit/jre/lib/security/cacerts", {st_mode=S_IFREG|0644, st_size=155038, ...}) = 0
+734666 10:40:22 access("/usr/local/smartgit/jre/lib/security/cacerts", R_OK) = 0
+734666 10:40:22 stat("/usr/local/smartgit/jre/lib/security/cacerts", {st_mode=S_IFREG|0644, st_size=155038, ...}) = 0
+734666 10:40:22 openat(AT_FDCWD, "/usr/local/smartgit/jre/lib/security/cacerts", O_RDONLY) = 62
+734602 10:40:22 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/cpu.max", O_RDONLY) = 63
+734602 10:40:22 newfstatat(63, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734602 10:40:22 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/cpu.max", O_RDONLY) = 63
+734602 10:40:22 newfstatat(63, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734602 10:40:22 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/cpu.weight", O_RDONLY) = 63
+734602 10:40:22 newfstatat(63, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734608 10:40:22 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 63
+734608 10:40:22 newfstatat(63, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734962 10:40:22 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 63
+734962 10:40:22 newfstatat(63, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734962 10:40:22 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 63
+734962 10:40:22 newfstatat(63, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:22 stat("/usr/local/smartgit/jre/lib/libnet.so", {st_mode=S_IFREG|0755, st_size=109080, ...}) = 0
+734666 10:40:22 readlink("/usr", 0x7fc544a42a00, 1023) = -1 EINVAL (Invalid argument)
+734666 10:40:22 readlink("/usr/local", 0x7fc544a42a00, 1023) = -1 EINVAL (Invalid argument)
+734666 10:40:22 readlink("/usr/local/smartgit", 0x7fc544a42a00, 1023) = -1 EINVAL (Invalid argument)
+734666 10:40:22 readlink("/usr/local/smartgit/jre", 0x7fc544a42a00, 1023) = -1 EINVAL (Invalid argument)
+734666 10:40:22 readlink("/usr/local/smartgit/jre/lib", 0x7fc544a42a00, 1023) = -1 EINVAL (Invalid argument)
+734666 10:40:22 readlink("/usr/local/smartgit/jre/lib/libnet.so", 0x7fc544a42a00, 1023) = -1 EINVAL (Invalid argument)
+734666 10:40:22 openat(AT_FDCWD, "/usr/local/smartgit/jre/lib/libgio-2.0.so", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+734666 10:40:22 openat(AT_FDCWD, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 62
+734666 10:40:22 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=93439, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:22 openat(AT_FDCWD, "/lib64/glibc-hwcaps/x86-64-v3/libgio-2.0.so", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+734666 10:40:22 newfstatat(AT_FDCWD, "/lib64/glibc-hwcaps/x86-64-v3", 0x7fc544a448c0, 0) = -1 ENOENT (No such file or directory)
+734666 10:40:22 openat(AT_FDCWD, "/lib64/glibc-hwcaps/x86-64-v2/libgio-2.0.so", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+734666 10:40:22 newfstatat(AT_FDCWD, "/lib64/glibc-hwcaps/x86-64-v2", 0x7fc544a448c0, 0) = -1 ENOENT (No such file or directory)
+734666 10:40:22 openat(AT_FDCWD, "/lib64/tls/x86_64/x86_64/libgio-2.0.so", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+734666 10:40:22 newfstatat(AT_FDCWD, "/lib64/tls/x86_64/x86_64", 0x7fc544a448c0, 0) = -1 ENOENT (No such file or directory)
+734666 10:40:22 openat(AT_FDCWD, "/lib64/tls/x86_64/libgio-2.0.so", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+734666 10:40:22 newfstatat(AT_FDCWD, "/lib64/tls/x86_64", 0x7fc544a448c0, 0) = -1 ENOENT (No such file or directory)
+734666 10:40:22 openat(AT_FDCWD, "/lib64/tls/x86_64/libgio-2.0.so", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+734666 10:40:22 newfstatat(AT_FDCWD, "/lib64/tls/x86_64", 0x7fc544a448c0, 0) = -1 ENOENT (No such file or directory)
+734666 10:40:22 openat(AT_FDCWD, "/lib64/tls/libgio-2.0.so", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+734666 10:40:22 newfstatat(AT_FDCWD, "/lib64/tls", 0x7fc544a448c0, 0) = -1 ENOENT (No such file or directory)
+734666 10:40:22 openat(AT_FDCWD, "/lib64/x86_64/x86_64/libgio-2.0.so", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+734666 10:40:22 newfstatat(AT_FDCWD, "/lib64/x86_64/x86_64", 0x7fc544a448c0, 0) = -1 ENOENT (No such file or directory)
+734666 10:40:22 openat(AT_FDCWD, "/lib64/x86_64/libgio-2.0.so", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+734666 10:40:22 newfstatat(AT_FDCWD, "/lib64/x86_64", 0x7fc544a448c0, 0) = -1 ENOENT (No such file or directory)
+734666 10:40:22 openat(AT_FDCWD, "/lib64/x86_64/libgio-2.0.so", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+734666 10:40:22 newfstatat(AT_FDCWD, "/lib64/x86_64", 0x7fc544a448c0, 0) = -1 ENOENT (No such file or directory)
+734666 10:40:22 openat(AT_FDCWD, "/lib64/libgio-2.0.so", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+734666 10:40:22 newfstatat(AT_FDCWD, "/lib64", {st_mode=S_IFDIR|0555, st_size=146658, ...}, 0) = 0
+734666 10:40:22 openat(AT_FDCWD, "/usr/lib64/glibc-hwcaps/x86-64-v3/libgio-2.0.so", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+734666 10:40:22 newfstatat(AT_FDCWD, "/usr/lib64/glibc-hwcaps/x86-64-v3", 0x7fc544a448c0, 0) = -1 ENOENT (No such file or directory)
+734666 10:40:22 openat(AT_FDCWD, "/usr/lib64/glibc-hwcaps/x86-64-v2/libgio-2.0.so", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+734666 10:40:22 newfstatat(AT_FDCWD, "/usr/lib64/glibc-hwcaps/x86-64-v2", 0x7fc544a448c0, 0) = -1 ENOENT (No such file or directory)
+734666 10:40:22 openat(AT_FDCWD, "/usr/lib64/tls/x86_64/x86_64/libgio-2.0.so", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+734666 10:40:22 newfstatat(AT_FDCWD, "/usr/lib64/tls/x86_64/x86_64", 0x7fc544a448c0, 0) = -1 ENOENT (No such file or directory)
+734666 10:40:22 openat(AT_FDCWD, "/usr/lib64/tls/x86_64/libgio-2.0.so", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+734666 10:40:22 newfstatat(AT_FDCWD, "/usr/lib64/tls/x86_64", 0x7fc544a448c0, 0) = -1 ENOENT (No such file or directory)
+734666 10:40:22 openat(AT_FDCWD, "/usr/lib64/tls/x86_64/libgio-2.0.so", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+734666 10:40:22 newfstatat(AT_FDCWD, "/usr/lib64/tls/x86_64", 0x7fc544a448c0, 0) = -1 ENOENT (No such file or directory)
+734666 10:40:22 openat(AT_FDCWD, "/usr/lib64/tls/libgio-2.0.so", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+734666 10:40:22 newfstatat(AT_FDCWD, "/usr/lib64/tls", 0x7fc544a448c0, 0) = -1 ENOENT (No such file or directory)
+734666 10:40:22 openat(AT_FDCWD, "/usr/lib64/x86_64/x86_64/libgio-2.0.so", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+734666 10:40:22 newfstatat(AT_FDCWD, "/usr/lib64/x86_64/x86_64", 0x7fc544a448c0, 0) = -1 ENOENT (No such file or directory)
+734666 10:40:22 openat(AT_FDCWD, "/usr/lib64/x86_64/libgio-2.0.so", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+734666 10:40:22 newfstatat(AT_FDCWD, "/usr/lib64/x86_64", 0x7fc544a448c0, 0) = -1 ENOENT (No such file or directory)
+734666 10:40:22 openat(AT_FDCWD, "/usr/lib64/x86_64/libgio-2.0.so", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+734666 10:40:22 newfstatat(AT_FDCWD, "/usr/lib64/x86_64", 0x7fc544a448c0, 0) = -1 ENOENT (No such file or directory)
+734666 10:40:22 openat(AT_FDCWD, "/usr/lib64/libgio-2.0.so", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+734666 10:40:22 newfstatat(AT_FDCWD, "/usr/lib64", {st_mode=S_IFDIR|0555, st_size=146658, ...}, 0) = 0
+734666 10:40:22 newfstatat(AT_FDCWD, "/usr/lib64/gio/modules/libgiolibproxy.so", {st_mode=S_IFREG|0755, st_size=20176, ...}, 0) = 0
+734666 10:40:22 openat(AT_FDCWD, "/usr/lib64/gio/modules/libgiolibproxy.so", O_RDONLY|O_CLOEXEC) = 62
+734666 10:40:22 newfstatat(62, "", {st_mode=S_IFREG|0755, st_size=20176, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:22 openat(AT_FDCWD, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 62
+734666 10:40:22 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=93439, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:22 openat(AT_FDCWD, "/lib64/libproxy.so.1", O_RDONLY|O_CLOEXEC) = 62
+734666 10:40:22 newfstatat(62, "", {st_mode=S_IFREG|0755, st_size=138800, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:22 newfstatat(AT_FDCWD, "/usr/lib64/gio/modules/libgiognomeproxy.so", {st_mode=S_IFREG|0755, st_size=24280, ...}, 0) = 0
+734666 10:40:22 openat(AT_FDCWD, "/usr/lib64/gio/modules/libgiognomeproxy.so", O_RDONLY|O_CLOEXEC) = 62
+734666 10:40:22 newfstatat(62, "", {st_mode=S_IFREG|0755, st_size=24280, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:22 newfstatat(AT_FDCWD, "/usr/lib64/gio/modules/libgioenvironmentproxy.so", {st_mode=S_IFREG|0755, st_size=16064, ...}, 0) = 0
+734666 10:40:22 openat(AT_FDCWD, "/usr/lib64/gio/modules/libgioenvironmentproxy.so", O_RDONLY|O_CLOEXEC) = 62
+734666 10:40:22 newfstatat(62, "", {st_mode=S_IFREG|0755, st_size=16064, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:22 newfstatat(AT_FDCWD, "/usr/lib64/gio/modules/libgiognomeproxy.so", {st_mode=S_IFREG|0755, st_size=24280, ...}, 0) = 0
+734666 10:40:22 openat(AT_FDCWD, "/usr/lib64/gio/modules/libgiognomeproxy.so", O_RDONLY|O_CLOEXEC) = 62
+734666 10:40:22 newfstatat(62, "", {st_mode=S_IFREG|0755, st_size=24280, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:22 openat(AT_FDCWD, "/var/lib/snapd/desktop/glib-2.0/schemas/gschemas.compiled", O_RDONLY) = -1 ENOENT (No such file or directory)
+734666 10:40:22 openat(AT_FDCWD, "/usr/share/glib-2.0/schemas/gschemas.compiled", O_RDONLY) = 62
+734666 10:40:22 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=198952, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:22 openat(AT_FDCWD, "/usr/local/share/glib-2.0/schemas/gschemas.compiled", O_RDONLY) = -1 ENOENT (No such file or directory)
+734666 10:40:22 openat(AT_FDCWD, "/var/lib/flatpak/exports/share/glib-2.0/schemas/gschemas.compiled", O_RDONLY) = -1 ENOENT (No such file or directory)
+734666 10:40:22 openat(AT_FDCWD, "/home/jk/.local/share/flatpak/exports/share/glib-2.0/schemas/gschemas.compiled", O_RDONLY) = -1 ENOENT (No such file or directory)
+734666 10:40:22 openat(AT_FDCWD, "/home/jk/.local/share/glib-2.0/schemas/gschemas.compiled", O_RDONLY) = -1 ENOENT (No such file or directory)
+734666 10:40:22 newfstatat(AT_FDCWD, "/usr/lib64/gio/modules/libdconfsettings.so", {st_mode=S_IFREG|0755, st_size=62216, ...}, 0) = 0
+734666 10:40:22 openat(AT_FDCWD, "/usr/lib64/gio/modules/libdconfsettings.so", O_RDONLY|O_CLOEXEC) = 62
+734666 10:40:22 newfstatat(62, "", {st_mode=S_IFREG|0755, st_size=62216, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:22 openat(AT_FDCWD, "/run/dconf/user/1000", O_RDONLY) = -1 ENOENT (No such file or directory)
+734666 10:40:22 openat(AT_FDCWD, "/run/user/1000/dconf/profile", O_RDONLY) = -1 ENOENT (No such file or directory)
+734666 10:40:22 openat(AT_FDCWD, "/etc/dconf/profile/user", O_RDONLY) = 62
+734666 10:40:22 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=61, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:22 mkdir("/run/user/1000/dconf", 0700) = -1 EEXIST (File exists)
+734666 10:40:22 newfstatat(AT_FDCWD, "/run/user/1000/dconf", {st_mode=S_IFDIR|0700, st_size=60, ...}, 0) = 0
+734666 10:40:22 openat(AT_FDCWD, "/run/user/1000/dconf/user", O_RDWR|O_CREAT, 0600) = 62
+734666 10:40:22 openat(AT_FDCWD, "/home/jk/.config/dconf/user", O_RDONLY) = 62
+734666 10:40:22 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=8323, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:22 openat(AT_FDCWD, "/etc/dconf/db/local", O_RDONLY) = 62
+734666 10:40:22 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=104, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:22 openat(AT_FDCWD, "/etc/dconf/db/site", O_RDONLY) = 62
+734666 10:40:22 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=104, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:22 openat(AT_FDCWD, "/etc/dconf/db/distro", O_RDONLY) = 62
+734666 10:40:22 newfstatat(62, "", {st_mode=S_IFREG|0644, st_size=731, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:22 newfstatat(AT_FDCWD, "/usr/lib64/gio/modules/libgiolibproxy.so", {st_mode=S_IFREG|0755, st_size=20176, ...}, 0) = 0
+734666 10:40:22 openat(AT_FDCWD, "/usr/lib64/gio/modules/libgiolibproxy.so", O_RDONLY|O_CLOEXEC) = 63
+734666 10:40:22 newfstatat(63, "", {st_mode=S_IFREG|0755, st_size=20176, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:22 openat(AT_FDCWD, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 63
+734666 10:40:22 newfstatat(63, "", {st_mode=S_IFREG|0644, st_size=93439, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:22 openat(AT_FDCWD, "/lib64/libproxy.so.1", O_RDONLY|O_CLOEXEC) = 63
+734666 10:40:22 newfstatat(63, "", {st_mode=S_IFREG|0755, st_size=138800, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:22 newfstatat(AT_FDCWD, "/etc/sysconfig", {st_mode=S_IFDIR|0755, st_size=504, ...}, 0) = 0
+734666 10:40:22 openat(AT_FDCWD, "/usr/lib64/libproxy/0.4.18/modules", O_RDONLY|O_NONBLOCK|O_CLOEXEC|O_DIRECTORY) = 65
+734666 10:40:22 newfstatat(65, "", {st_mode=S_IFDIR|0755, st_size=40, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:22 newfstatat(AT_FDCWD, "/usr/lib64/libproxy/0.4.18/modules/pacrunner_duktape.so", {st_mode=S_IFREG|0755, st_size=28856, ...}, 0) = 0
+734666 10:40:22 openat(AT_FDCWD, "/usr/lib64/libproxy/0.4.18/modules/pacrunner_duktape.so", O_RDONLY|O_CLOEXEC) = 65
+734666 10:40:22 newfstatat(65, "", {st_mode=S_IFREG|0755, st_size=28856, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:22 openat(AT_FDCWD, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 63
+734666 10:40:22 newfstatat(63, "", {st_mode=S_IFREG|0644, st_size=93439, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:22 openat(AT_FDCWD, "/lib64/libduktape.so.206", O_RDONLY|O_CLOEXEC) = 63
+734666 10:40:22 newfstatat(63, "", {st_mode=S_IFREG|0755, st_size=300808, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:22 openat(AT_FDCWD, "/usr/lib64/libproxy/0.4.18/modules", O_RDONLY|O_NONBLOCK|O_CLOEXEC|O_DIRECTORY) = 63
+734666 10:40:22 newfstatat(63, "", {st_mode=S_IFDIR|0755, st_size=40, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:22 newfstatat(AT_FDCWD, "/usr/lib64/libproxy/0.4.18/modules/pacrunner_duktape.so", {st_mode=S_IFREG|0755, st_size=28856, ...}, 0) = 0
+734666 10:40:22 openat(AT_FDCWD, "/usr/lib64/libproxy/0.4.18/modules/pacrunner_duktape.so", O_RDONLY|O_CLOEXEC) = 63
+734666 10:40:22 newfstatat(63, "", {st_mode=S_IFREG|0755, st_size=28856, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:22 openat(AT_FDCWD, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 63
+734666 10:40:22 newfstatat(63, "", {st_mode=S_IFREG|0644, st_size=93439, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:22 openat(AT_FDCWD, "/lib64/libduktape.so.206", O_RDONLY|O_CLOEXEC) = 63
+734666 10:40:22 newfstatat(63, "", {st_mode=S_IFREG|0755, st_size=300808, ...}, AT_EMPTY_PATH) = 0
+734968 10:40:22 newfstatat(AT_FDCWD, "/etc/nsswitch.conf", {st_mode=S_IFREG|0644, st_size=703, ...}, 0) = 0
+734968 10:40:22 openat(AT_FDCWD, "/etc/services", O_RDONLY|O_CLOEXEC) = 63
+734968 10:40:22 newfstatat(63, "", {st_mode=S_IFREG|0644, st_size=701745, ...}, AT_EMPTY_PATH) = 0
+734968 10:40:22 newfstatat(AT_FDCWD, "/etc/nsswitch.conf", {st_mode=S_IFREG|0644, st_size=703, ...}, 0) = 0
+734968 10:40:22 openat(AT_FDCWD, "/etc/services", O_RDONLY|O_CLOEXEC) = 63
+734968 10:40:22 newfstatat(63, "", {st_mode=S_IFREG|0644, st_size=701745, ...}, AT_EMPTY_PATH) = 0
+734962 10:40:22 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 63
+734962 10:40:22 newfstatat(63, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734609 10:40:22 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 63
+734609 10:40:22 newfstatat(63, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:22 newfstatat(AT_FDCWD, "/etc/nsswitch.conf", {st_mode=S_IFREG|0644, st_size=703, ...}, 0) = 0
+734666 10:40:22 newfstatat(AT_FDCWD, "/etc/resolv.conf", {st_mode=S_IFREG|0644, st_size=928, ...}, 0) = 0
+734666 10:40:22 openat(AT_FDCWD, "/etc/host.conf", O_RDONLY|O_CLOEXEC) = 63
+734666 10:40:22 newfstatat(63, "", {st_mode=S_IFREG|0644, st_size=9, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:22 openat(AT_FDCWD, "/etc/resolv.conf", O_RDONLY|O_CLOEXEC) = 63
+734666 10:40:22 newfstatat(63, "", {st_mode=S_IFREG|0644, st_size=928, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:22 newfstatat(63, "", {st_mode=S_IFREG|0644, st_size=928, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:22 openat(AT_FDCWD, "/etc/hosts", O_RDONLY|O_CLOEXEC) = 63
+734666 10:40:22 newfstatat(63, "", {st_mode=S_IFREG|0644, st_size=468, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:22 openat(AT_FDCWD, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 63
+734666 10:40:22 newfstatat(63, "", {st_mode=S_IFREG|0644, st_size=93439, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:22 openat(AT_FDCWD, "/lib64/libnss_myhostname.so.2", O_RDONLY|O_CLOEXEC) = 63
+734666 10:40:22 newfstatat(63, "", {st_mode=S_IFREG|0755, st_size=162472, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:22 openat(AT_FDCWD, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 63
+734666 10:40:22 newfstatat(63, "", {st_mode=S_IFREG|0644, st_size=93439, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:22 openat(AT_FDCWD, "/lib64/libnss_mdns4_minimal.so.2", O_RDONLY|O_CLOEXEC) = 63
+734666 10:40:22 newfstatat(63, "", {st_mode=S_IFREG|0755, st_size=20312, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:22 openat(AT_FDCWD, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 63
+734666 10:40:22 newfstatat(63, "", {st_mode=S_IFREG|0644, st_size=93439, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:22 openat(AT_FDCWD, "/lib64/libnss_resolve.so.2", O_RDONLY|O_CLOEXEC) = 63
+734666 10:40:22 newfstatat(63, "", {st_mode=S_IFREG|0755, st_size=146192, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:22 openat(AT_FDCWD, "/etc/gai.conf", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+734968 10:40:22 newfstatat(AT_FDCWD, "/etc/nsswitch.conf", {st_mode=S_IFREG|0644, st_size=703, ...}, 0) = 0
+734968 10:40:22 openat(AT_FDCWD, "/etc/services", O_RDONLY|O_CLOEXEC) = 65
+734968 10:40:22 newfstatat(65, "", {st_mode=S_IFREG|0644, st_size=701745, ...}, AT_EMPTY_PATH) = 0
+734968 10:40:22 newfstatat(AT_FDCWD, "/etc/nsswitch.conf", {st_mode=S_IFREG|0644, st_size=703, ...}, 0) = 0
+734968 10:40:22 openat(AT_FDCWD, "/etc/services", O_RDONLY|O_CLOEXEC) = 65
+734968 10:40:22 newfstatat(65, "", {st_mode=S_IFREG|0644, st_size=701745, ...}, AT_EMPTY_PATH) = 0
+734963 10:40:22 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 65
+734963 10:40:22 newfstatat(65, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734609 10:40:22 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY <unfinished ...>
+734964 10:40:22 +++ exited with 0 +++
+734609 10:40:22 <... openat resumed>)   = 65
+734963 10:40:22 +++ exited with 0 +++
+734609 10:40:22 newfstatat(65, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734940 10:40:22 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 65
+734608 10:40:22 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY <unfinished ...>
+734940 10:40:22 newfstatat(65, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734608 10:40:22 <... openat resumed>)   = 66
+734608 10:40:22 newfstatat(66, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734608 10:40:22 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 65
+734608 10:40:22 newfstatat(65, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734962 10:40:23 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 65
+734962 10:40:23 newfstatat(65, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734973 10:40:23 +++ exited with 0 +++
+734972 10:40:23 +++ exited with 0 +++
+734666 10:40:23 --- SIGSEGV {si_signo=SIGSEGV, si_code=SEGV_MAPERR, si_addr=0xc} ---
+734609 10:40:23 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 65
+734609 10:40:23 newfstatat(65, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734608 10:40:23 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 65
+734608 10:40:23 newfstatat(65, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:23 openat(AT_FDCWD, "/usr/local/smartgit/jre/lib/security/blocked.certs", O_RDONLY) = 65
+734940 10:40:23 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 65
+734940 10:40:23 newfstatat(65, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734666 10:40:23 openat(AT_FDCWD, "/usr/local/smartgit/jre/lib/security/cacerts", O_RDONLY) = 65
+734602 10:40:23 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/cpu.max", O_RDONLY) = 65
+734602 10:40:23 newfstatat(65, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734602 10:40:23 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/cpu.max", O_RDONLY) = 65
+734602 10:40:23 newfstatat(65, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734602 10:40:23 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/cpu.weight", O_RDONLY) = 65
+734602 10:40:23 newfstatat(65, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734977 10:40:23 +++ exited with 0 +++
+734962 10:40:23 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 65
+734962 10:40:23 newfstatat(65, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734974 10:40:23 +++ exited with 0 +++
+734976 10:40:23 +++ exited with 0 +++
+734975 10:40:23 +++ exited with 0 +++
+734962 10:40:23 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 65
+734962 10:40:23 newfstatat(65, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734609 10:40:23 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 65
+734609 10:40:23 newfstatat(65, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734940 10:40:23 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 66
+734940 10:40:23 newfstatat(66, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734596 10:40:23 access("/.flatpak-info", F_OK) = -1 ENOENT (No such file or directory)
+734962 10:40:23 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 65
+734962 10:40:23 newfstatat(65, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734602 10:40:23 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/cpu.max", O_RDONLY) = 65
+734602 10:40:23 newfstatat(65, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734602 10:40:23 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/cpu.max", O_RDONLY) = 65
+734602 10:40:23 newfstatat(65, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734602 10:40:23 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/cpu.weight", O_RDONLY) = 65
+734602 10:40:23 newfstatat(65, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734596 10:40:23 --- SIGSEGV {si_signo=SIGSEGV, si_code=SEGV_MAPERR, si_addr=0x8} ---
+734962 10:40:23 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 65
+734962 10:40:23 newfstatat(65, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734940 10:40:23 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 65
+734940 10:40:23 newfstatat(65, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734602 10:40:23 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/cpu.max", O_RDONLY) = 65
+734602 10:40:23 newfstatat(65, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734602 10:40:23 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/cpu.max", O_RDONLY) = 65
+734602 10:40:23 newfstatat(65, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734602 10:40:23 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/cpu.weight", O_RDONLY) = 65
+734602 10:40:23 newfstatat(65, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734609 10:40:23 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 65
+734609 10:40:23 newfstatat(65, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734940 10:40:23 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 65
+734940 10:40:23 newfstatat(65, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734940 10:40:23 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 65
+734940 10:40:23 newfstatat(65, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734962 10:40:23 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 66
+734962 10:40:23 newfstatat(66, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734962 10:40:23 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 65
+734962 10:40:23 newfstatat(65, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734608 10:40:23 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 65
+734608 10:40:23 newfstatat(65, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734608 10:40:23 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 65
+734608 10:40:23 newfstatat(65, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734940 10:40:23 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 65
+734940 10:40:23 newfstatat(65, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734962 10:40:24 +++ exited with 0 +++
+734608 10:40:24 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 65
+734608 10:40:24 newfstatat(65, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734940 10:40:24 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY) = 65
+734940 10:40:24 newfstatat(65, "", {st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734982 10:40:24 unlink("/home/jk/.config/smartgit/22.1/logs/log.txt.0.lck") = 0
+734982 10:40:24 +++ exited with 0 +++
+734983 10:40:24 lstat("/home/jk/.config/smartgit/22.1/port.lock", {st_mode=S_IFREG|0644, st_size=0, ...}) = 0
+734983 10:40:24 unlink("/home/jk/.config/smartgit/22.1/port.lock") = 0
+734983 10:40:24 lstat("/home/jk/.config/smartgit/22.1/port.postlock", {st_mode=S_IFREG|0644, st_size=0, ...}) = 0
+734983 10:40:24 unlink("/home/jk/.config/smartgit/22.1/port.postlock") = 0
+734983 10:40:24 lstat("/home/jk/.config/smartgit/22.1/port.prelock", {st_mode=S_IFREG|0644, st_size=0, ...}) = 0
+734983 10:40:24 unlink("/home/jk/.config/smartgit/22.1/port.prelock") = 0
+734983 10:40:24 lstat("/home/jk/.config/smartgit/22.1/_lock_", {st_mode=S_IFREG|0644, st_size=0, ...}) = 0
+734983 10:40:24 unlink("/home/jk/.config/smartgit/22.1/_lock_") = 0
+734983 10:40:24 access("/tmp/smartgit780767569877391537", F_OK) = 0
+734983 10:40:24 lstat("/tmp/smartgit780767569877391537", {st_mode=S_IFDIR|0700, st_size=60, ...}) = 0
+734983 10:40:24 openat(AT_FDCWD, "/tmp/smartgit780767569877391537", O_RDONLY) = 38
+734983 10:40:24 newfstatat(38, "", {st_mode=S_IFDIR|0700, st_size=60, ...}, AT_EMPTY_PATH) = 0
+734983 10:40:24 lstat("/tmp/smartgit780767569877391537/com.syntevo.sc.filemonitor14800851559385674375", {st_mode=S_IFDIR|0700, st_size=40, ...}) = 0
+734940 10:40:24 openat(AT_FDCWD, "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-syntevo\\x2dsmartgit-a42bbbce86c247619d791a88b3bae6f8.scope/memory.max", O_RDONLY <unfinished ...>
+734983 10:40:24 openat(AT_FDCWD, "/tmp/smartgit780767569877391537/com.syntevo.sc.filemonitor14800851559385674375", O_RDONLY <unfinished ...>
+734940 10:40:24 <... openat resumed>)   = 53
+734983 10:40:24 <... openat resumed>)   = 58
+734940 10:40:24 newfstatat(53, "",  <unfinished ...>
+734983 10:40:24 newfstatat(58, "", {st_mode=S_IFDIR|0700, st_size=40, ...}, AT_EMPTY_PATH) = 0
+734940 10:40:24 <... newfstatat resumed>{st_mode=S_IFREG|0644, st_size=0, ...}, AT_EMPTY_PATH) = 0
+734983 10:40:24 lstat("/home/jk/.config/smartgit/22.1/~current-log.1678171176925.tmp", {st_mode=S_IFREG|0644, st_size=47913, ...}) = 0
+734983 10:40:24 unlink("/home/jk/.config/smartgit/22.1/~current-log.1678171176925.tmp") = 0
+734613 10:40:24 +++ exited with 0 +++
+734983 10:40:24 +++ exited with 0 +++
+734600 10:40:24 +++ exited with 0 +++
+734601 10:40:24 +++ exited with 0 +++
+734598 10:40:24 +++ exited with 0 +++
+734602 10:40:24 unlink("/tmp/hsperfdata_jaroslawkurowski/734595") = 0
+734978 10:40:24 +++ exited with 0 +++
+734968 10:40:24 +++ exited with 0 +++
+734967 10:40:24 +++ exited with 0 +++
+734940 10:40:24 +++ exited with 0 +++
+734672 10:40:24 +++ exited with 0 +++
+734670 10:40:24 +++ exited with 0 +++
+734669 10:40:24 +++ exited with 0 +++
+734668 10:40:24 +++ exited with 0 +++
+734666 10:40:24 +++ exited with 0 +++
+734664 10:40:24 +++ exited with 0 +++
+734663 10:40:24 +++ exited with 0 +++
+734662 10:40:24 +++ exited with 0 +++
+734661 10:40:24 +++ exited with 0 +++
+734660 10:40:24 +++ exited with 0 +++
+734659 10:40:24 +++ exited with 0 +++
+734658 10:40:24 +++ exited with 0 +++
+734657 10:40:24 +++ exited with 0 +++
+734656 10:40:24 +++ exited with 0 +++
+734655 10:40:24 +++ exited with 0 +++
+734654 10:40:24 +++ exited with 0 +++
+734653 10:40:24 +++ exited with 0 +++
+734652 10:40:24 +++ exited with 0 +++
+734651 10:40:24 +++ exited with 0 +++
+734650 10:40:24 +++ exited with 0 +++
+734649 10:40:24 +++ exited with 0 +++
+734648 10:40:24 +++ exited with 0 +++
+734647 10:40:24 +++ exited with 0 +++
+734646 10:40:24 +++ exited with 0 +++
+734645 10:40:24 +++ exited with 0 +++
+734644 10:40:24 +++ exited with 0 +++
+734643 10:40:24 +++ exited with 0 +++
+734642 10:40:24 +++ exited with 0 +++
+734641 10:40:24 +++ exited with 0 +++
+734640 10:40:24 +++ exited with 0 +++
+734639 10:40:24 +++ exited with 0 +++
+734638 10:40:24 +++ exited with 0 +++
+734637 10:40:24 +++ exited with 0 +++
+734636 10:40:24 +++ exited with 0 +++
+734635 10:40:24 +++ exited with 0 +++
+734634 10:40:24 +++ exited with 0 +++
+734633 10:40:24 +++ exited with 0 +++
+734632 10:40:24 +++ exited with 0 +++
+734631 10:40:24 +++ exited with 0 +++
+734628 10:40:24 +++ exited with 0 +++
+734626 10:40:24 +++ exited with 0 +++
+734625 10:40:24 +++ exited with 0 +++
+734618 10:40:24 +++ exited with 0 +++
+734617 10:40:24 +++ exited with 0 +++
+734614 10:40:24 +++ exited with 0 +++
+734612 10:40:24 +++ exited with 0 +++
+734610 10:40:24 +++ exited with 0 +++
+734609 10:40:24 +++ exited with 0 +++
+734608 10:40:24 +++ exited with 0 +++
+734607 10:40:24 +++ exited with 0 +++
+734606 10:40:24 +++ exited with 0 +++
+734605 10:40:24 +++ exited with 0 +++
+734604 10:40:24 +++ exited with 0 +++
+734603 10:40:24 +++ exited with 0 +++
+734602 10:40:24 +++ exited with 0 +++
+734599 10:40:24 +++ exited with 0 +++
+734597 10:40:24 +++ exited with 0 +++
+734596 10:40:24 +++ exited with 0 +++
+734595 10:40:24 +++ exited with 0 +++

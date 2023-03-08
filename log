@@ -1,0 +1,45 @@
+warning: Git tree '/home/jk/Ghaf/ghaf' is dirty
+warning: error: unable to download 'https://api.github.com/repos/numtide/flake-utils/commits/HEAD': HTTP error 403
+
+       response body:
+
+       {"message":"API rate limit exceeded for 217.165.92.226. (But here's the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.)","documentation_url":"https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting"}; using cached version
+warning: error: unable to download 'https://api.github.com/repos/anduril/jetpack-nixos/commits/HEAD': HTTP error 403
+
+       response body:
+
+       {"message":"API rate limit exceeded for 217.165.92.226. (But here's the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.)","documentation_url":"https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting"}; using cached version
+warning: error: unable to download 'https://api.github.com/repos/nix-community/nixos-generators/commits/HEAD': HTTP error 403
+
+       response body:
+
+       {"message":"API rate limit exceeded for 217.165.92.226. (But here's the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.)","documentation_url":"https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting"}; using cached version
+warning: error: unable to download 'https://api.github.com/repos/nixos/nixos-hardware/commits/HEAD': HTTP error 403
+
+       response body:
+
+       {"message":"API rate limit exceeded for 217.165.92.226. (But here's the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.)","documentation_url":"https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting"}; using cached version
+warning: error: unable to download 'https://api.github.com/repos/nixos/nixpkgs/commits/nixos-22.11': HTTP error 403
+
+       response body:
+
+       {"message":"API rate limit exceeded for 217.165.92.226. (But here's the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.)","documentation_url":"https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting"}; using cached version
+warning: creating lock file '/home/jk/Ghaf/ghaf/flake.lock'
+warning: Git tree '/home/jk/Ghaf/ghaf' is dirty
+trace: [ <CODE> <CODE> <CODE> /nix/store/1z6qaz7vb9pmmqq0gl5ir01xmdsw4dn4-source/modules/graphics/weston.nix <CODE> ]
+trace: netvm flake.nix:27/outputs
+trace: netvm/vm.nix:27  overlays set
+trace: -----------> microvmConfigurations/netvm default.nix:41 overlays set!
+trace: MICROVM/nixos-modules/microvm/default.nix:12 nixpkgs.overlays set
+trace: netvm flake.nix:95 overlay RUNNING>>>
+trace: vm.nix 58: Got netvmConfiguration.pkgs.microvm-kernel.version = 6.2
+trace: vm.nix 59: microvm = /nix/store/9xd7nggavj4ya33i3g2030814s4k6pp1-source
+trace: >> Setting boot.kernelPackages to:/nix/store/f4mszwls2xfyd0qg5vahlrx53r11bwm2-linux-6.2
+trace: buildRunner>>>>  kernel= /nix/store/f4mszwls2xfyd0qg5vahlrx53r11bwm2-linux-6.2
+trace: warning: system.stateVersion is not set, defaulting to 22.11. Read why this matters on https://nixos.org/manual/nixos/stable/options.html#opt-system.stateVersion.
+trace: ???????????????????????????
+trace: ???????????????????????????
+trace: vm.nix 56: package = /nix/store/c3xv3rg2nfcak5kbjp2mn62bphsgj1xv-nixos-vm
+warning: Git tree '/home/jk/Ghaf/ghaf' is dirty
+Using saved setting for 'extra-trusted-public-keys = cache.vedenemo.dev:RGHheQnb6rXGK5v9gexJZ8iWTPX6OcSeS56YeXYzOcg= cache.ssrcdevops.tii.ae:oOrzj9iCppf+me5/3sN/BxEkp5SaFkHfKTPPZ97xXQk=' from ~/.local/share/nix/trusted-settings.json.
+Using saved setting for 'extra-trusted-substituters = https://cache.vedenemo.dev https://cache.ssrcdevops.tii.ae' from ~/.local/share/nix/trusted-settings.json.

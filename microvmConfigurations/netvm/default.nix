@@ -6,7 +6,7 @@
   system,
 }:
 let mm =  /*builtins.trace ("netvm/default.nix 8 microvm = " + microvm)*/
-nixpkgs.lib.attrsets.recursiveUpdate microvm {packages.x86_64-linux.microvm-kernel = "asasa";};
+nixpkgs.lib.attrsets.recursiveUpdate microvm    {packages.x86_64-linux.microvm-kernel = "asasa";};
 in
 nixpkgs.lib.nixosSystem {
   inherit system;
@@ -16,11 +16,10 @@ nixpkgs.lib.nixosSystem {
     import nixpkgs { inherit system; overlays = 
   builtins.trace "netvm/default.nix 15: overlays set" [mvm];
        };
-  mvm = final: prev: { /*final.*//*microvm.overlay*/ /*self.*/microvm-kernel = builtins.trace "My overlay called microvm-kernel=!" "overlay15";};
-  # microvm = mm;
-  nix_overlays = "";
-  ttmp = microvm.nixosModules.microvm ({pkgs, ...}: {  });
-  # tmp = {pkgs, ...}: ;
+  mvm = /*final: prev:*/ self: super: { microvm-kernel = builtins.trace "My overlay called microvm-kernel=!" 
+    (builtins.trace super.linuxPackages_latest.callPackage ./pkgs/microvm-kernel.nix {}) 
+    (super.linuxPackages_latest.callPackage ./pkgs/microvm-kernel.nix {}); 
+  };
   in
   [
     # { nixpkgs = builtins.trace (microvm.nixosModules.microvm ({pkgs, ...}: {  })) { inherit pkgs; }; }
@@ -29,8 +28,8 @@ nixpkgs.lib.nixosSystem {
     ../../modules/development/ssh.nix
     ../../modules/development/packages.nix
 
-    # ttmp
-    microvm.nixosModules.microvm ({pkgs, config, ...}: {
+    microvm.nixosModules.microvm
+    ({pkgs, config, ...}: {
 
       # config.nixpkgs.packageOverrides = builtins.trace "----------------" (pkgs: {
       #   microvm-kernel = pkgs.microvm-kernel.override {
@@ -39,19 +38,19 @@ nixpkgs.lib.nixosSystem {
       #   '';
       #   };});
       config = {
-        nixpkgs.overlays = builtins.trace (nix_overlays + "microvmConfigurations/netvm default.nix:41 overlays set!") [
+        nixpkgs.overlays = builtins.trace ("-----------> " + "microvmConfigurations/netvm default.nix:41 overlays set!") [
           mvm
         ];
+      
+        # boot.kernelPackages = /nix/store/f4mszwls2xfyd0qg5vahlrx53r11bwm2-linux-6.2 ; #(pkgs.linuxPackages_latest.callPackage /* ./pkgs/microvm-kernel.nix*/ {});
+
         # nixpkgs.config.packageOverrides = builtins.trace ("packageOverrides set>>>>" ) (pkgs: rec {
         #    microvm-kernel =  builtins.trace "--------->>>>>>>>>>>>" pkgs.microvm-kernel.override {
         #     extraConfig = ''
         #     ''
         #     ;
         #    };
-        #   });
-        
-        
-        
+        #   });        
       };
       
     })
