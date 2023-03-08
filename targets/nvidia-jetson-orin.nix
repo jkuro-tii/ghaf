@@ -35,7 +35,7 @@
     inherit hostConfiguration netvm;
     name = "${name}-${variant}";
     netvmConfiguration = import ../microvmConfigurations/netvm {
-      inherit nixpkgs microvm system;
+      inherit self nixpkgs microvm system;
     };
     package = hostConfiguration.config.system.build.${hostConfiguration.config.formatAttr};
   };

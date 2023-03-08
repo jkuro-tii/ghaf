@@ -45,18 +45,14 @@
         ]
       },
       "locked": {
-        "lastModified": 1676042091,
-        "narHash": "sha256-XZxbh32Tf2iKbGbOzs40VKgFTFRCIyw08PihPcYJPRE=",
-        "owner": "mikatammi",
-        "repo": "microvm.nix",
-        "rev": "c527054302a9a0cae206abfe1c8b282fba1d464b",
-        "type": "github"
+        "lastModified": 1678277272,
+        "narHash": "sha256-POaXU8W+pgrqJs/y/PTrN8Jng5PDTLkH2AkFpTBO8mU=",
+        "path": "/home/jk/tmp/flakes/microvm.nix/",
+        "type": "path"
       },
       "original": {
-        "owner": "mikatammi",
-        "ref": "wip_hacks_2",
-        "repo": "microvm.nix",
-        "type": "github"
+        "path": "/home/jk/tmp/flakes/microvm.nix/",
+        "type": "path"
       }
     },
     "nixlib": {

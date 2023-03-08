@@ -1,6 +1,7 @@
 # Copyright 2022-2023 TII (SSRC) and the Ghaf contributors
 # SPDX-License-Identifier: Apache-2.0
 {
+  self,
   nixpkgs,
   microvm,
   system,
@@ -16,65 +17,77 @@ nixpkgs.lib.nixosSystem {
     microvm.nixosModules.microvm
 
     ({pkgs, ...}: {
-      networking.hostName = "netvm";
-      # TODO: Maybe inherit state version
-      system.stateVersion = "22.11";
+      config = {
+        nixpkgs.overlays = [ 
+          self.netvm_overlay
+        ];
+      
+        boot.kernelPackages = 
+        (builtins.trace (">> JKL: Setting boot.kernelPackages to:" + pkgs.netvm-kernel))
+          pkgs.linuxPackages_latest.extend (_: _: {
+          kernel = pkgs.netvm-kernel;
+        });
 
-      # For WLAN firmwares
-      hardware.enableRedistributableFirmware = true;
+        networking.hostName = "netvm";
+        # TODO: Maybe inherit state version
+        system.stateVersion = "22.11";
 
-      microvm.hypervisor = "crosvm";
+        # For WLAN firmwares
+        hardware.enableRedistributableFirmware = true;
 
-      networking.enableIPv6 = false;
-      networking.interfaces.eth0.useDHCP = true;
-      networking.firewall.allowedTCPPorts = [22];
+        microvm.hypervisor = "crosvm";
 
-      # TODO: Idea. Maybe use udev rules for connecting
-      # USB-devices to crosvm
+        networking.enableIPv6 = false;
+        networking.interfaces.eth0.useDHCP = true;
+        networking.firewall.allowedTCPPorts = [22];
 
-      # TODO: Move these to target-specific modules
-      # microvm.devices = [
-      #   {
-      #     bus = "usb";
-      #     path = "vendorid=0x050d,productid=0x2103";
-      #   }
-      # ];
-      # microvm.devices = [
-      #   {
-      #     bus = "pci";
-      #     path = "0001:00:00.0";
-      #   }
-      #   {
-      #     bus = "pci";
-      #     path = "0001:01:00.0";
-      #   }
-      # ];
+        # TODO: Idea. Maybe use udev rules for connecting
+        # USB-devices to crosvm
 
-      # TODO: Move to user specified module - depending on the use x86_64
-      #       laptop pci path
-      # x86_64 Laptop
-      # microvm.devices = [
-      #   {
-      #     bus = "pci";
-      #     path = "0000:03:00.0";
-      #   }
-      #   {
-      #     bus = "pci";
-      #     path = "0000:05:00.0";
-      #   }
-      # ];
-      microvm.interfaces = [
-        {
-          type = "tap";
-          id = "vm-netvm";
-          mac = "02:00:00:01:01:01";
-        }
-      ];
+        # TODO: Move these to target-specific modules
+        # microvm.devices = [
+        #   {
+        #     bus = "usb";
+        #     path = "vendorid=0x050d,productid=0x2103";
+        #   }
+        # ];
+        # microvm.devices = [
+        #   {
+        #     bus = "pci";
+        #     path = "0001:00:00.0";
+        #   }
+        #   {
+        #     bus = "pci";
+        #     path = "0001:01:00.0";
+        #   }
+        # ];
 
-      networking.wireless = {
-        enable = true;
+        # TODO: Move to user specified module - depending on the use x86_64
+        #       laptop pci path
+        # x86_64 Laptop
+        # microvm.devices = [
+        #   {
+        #     bus = "pci";
+        #     path = "0000:03:00.0";
+        #   }
+        #   {
+        #     bus = "pci";
+        #     path = "0000:05:00.0";
+        #   }
+        # ];
+        microvm.interfaces = [
+          {
+            type = "tap";
+            id = "vm-netvm";
+            mac = "02:00:00:01:01:01";
+          }
+        ];
 
-        # networks."SSID_OF_NETWORK".psk = "WPA_PASSWORD";
+        networking.wireless = {
+          enable = true;
+
+          # networks."SSID_OF_NETWORK".psk = "WPA_PASSWORD";
+        };
       };
     })
   ];
