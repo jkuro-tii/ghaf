@@ -22,11 +22,11 @@ nixpkgs.lib.nixosSystem {
           self.netvm_overlay
         ];
       
-        boot.kernelPackages = 
-        (builtins.trace (">> JKL: Setting boot.kernelPackages to:" + pkgs.netvm-kernel))
-          pkgs.linuxPackages_latest.extend (_: _: {
-          kernel = pkgs.netvm-kernel;
-        });
+        # boot.kernelPackages = 
+        # (builtins.trace (">> JKL: Setting boot.kernelPackages to:" + pkgs.netvm-kernel))
+        #   pkgs.linuxPackages_latest.extend (_: _: {
+        #   kernel = pkgs.netvm-kernel;
+        # });
 
         networking.hostName = "netvm";
         # TODO: Maybe inherit state version
@@ -36,6 +36,7 @@ nixpkgs.lib.nixosSystem {
         hardware.enableRedistributableFirmware = true;
 
         microvm.hypervisor = "crosvm";
+        microvm.mem = 2048;
 
         networking.enableIPv6 = false;
         networking.interfaces.eth0.useDHCP = true;
