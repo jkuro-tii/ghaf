@@ -69,11 +69,7 @@
       # Hydra jobs
       (import ./hydrajobs.nix {inherit self;})
 
+      # Kernel definition for netvm
       (import ./microvmConfigurations/netvm/overlay_config.nix {inherit self;})
-
-      # ({overlay =  self: super: { microvm-kernel = builtins.trace "overlay is setting microvm-kernel " 
-      #     (super.linuxPackages_latest.callPackage ./microvm-kernel.nix {});
-      #     };
-      # })
     ];
 }

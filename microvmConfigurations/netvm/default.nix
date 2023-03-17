@@ -18,15 +18,15 @@ nixpkgs.lib.nixosSystem {
 
     ({pkgs, ...}: {
       config = {
-        nixpkgs.overlays = [ 
+        nixpkgs.overlays = [
           self.netvm_overlay
         ];
-      
-        # boot.kernelPackages = 
-        # (builtins.trace (">> JKL: Setting boot.kernelPackages to:" + pkgs.netvm-kernel))
-        #   pkgs.linuxPackages_latest.extend (_: _: {
-        #   kernel = pkgs.netvm-kernel;
-        # });
+
+        boot.kernelPackages =
+        (builtins.trace (">> JKL: Setting boot.kernelPackages to:" + pkgs.netvm-kernel))
+          pkgs.linuxPackages_latest.extend (_: _: {
+          kernel = pkgs.netvm-kernel;
+        });
 
         networking.hostName = "netvm";
         # TODO: Maybe inherit state version
