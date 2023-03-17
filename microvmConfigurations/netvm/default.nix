@@ -23,7 +23,6 @@ nixpkgs.lib.nixosSystem {
         ];
 
         boot.kernelPackages =
-        (builtins.trace (">> JKL: Setting boot.kernelPackages to:" + pkgs.netvm-kernel))
           pkgs.linuxPackages_latest.extend (_: _: {
           kernel = pkgs.netvm-kernel;
         });
