@@ -3,6 +3,7 @@
 {
   self,
   netvm,
+  memsharevm,
 }: {config, ...}: {
   microvm.host.enable = true;
 

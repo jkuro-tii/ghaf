@@ -69,7 +69,8 @@
       # Hydra jobs
       (import ./hydrajobs.nix {inherit self;})
 
-      # Kernel definition for netvm
+      # Kernel definitions for micromvms
       (import ./microvmConfigurations/netvm/overlay_config.nix {inherit self;})
+      (import ./microvmConfigurations/memshare/overlay_config.nix {inherit self;})
     ];
 }
