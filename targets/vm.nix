@@ -26,7 +26,7 @@
     netvm = "netvm-${name}-${variant}";
     memsharevm = "memsharevm-${name}-${variant}";
   in {
-    inherit hostConfiguration netvm;
+    inherit hostConfiguration netvm memsharevm;
     name = "${name}-${variant}";
     netvmConfiguration = import ../microvmConfigurations/netvm {
       inherit self nixpkgs microvm system;
@@ -44,7 +44,7 @@ in {
   nixosConfigurations =
     builtins.listToAttrs (map (t: nixpkgs.lib.nameValuePair t.name t.hostConfiguration) targets)
     // builtins.listToAttrs (map (t: nixpkgs.lib.nameValuePair t.netvm t.netvmConfiguration) targets)
-    // builtins.listToAttrs (map (t: nixpkgs.lib.nameValuePair t.netvm t.memsharevmConfiguration) targets);
+    // builtins.listToAttrs (map (t: nixpkgs.lib.nameValuePair t.memsharevm t.memsharevmConfiguration) targets);
   packages = {
     x86_64-linux =
       builtins.listToAttrs (map (t: nixpkgs.lib.nameValuePair t.name t.package) targets);

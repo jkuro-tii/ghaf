@@ -11,4 +11,8 @@
     flake = self;
     autostart = true;
   };
+  microvm.vms."${memsharevm}" = {
+    flake = self;
+    autostart = true;
+  };
 }
