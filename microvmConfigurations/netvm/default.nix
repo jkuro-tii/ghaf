@@ -34,7 +34,16 @@ nixpkgs.lib.nixosSystem {
         # For WLAN firmwares
         hardware.enableRedistributableFirmware = true;
 
-        microvm.hypervisor = "crosvm";
+        microvm.hypervisor = 
+          # builtins.trace "---> microvm <---"
+          # builtins.trace (builtins.attrNames microvm)
+          # builtins.trace "---> nixosConfigurations <---"
+          # builtins.trace (builtins.attrNames microvm.nixosConfigurations)
+          # ## builtins.trace "---> modules <---"
+          # ## builtins.trace (builtins.attrNames microvm.nixosModules.host)
+          # builtins.trace "---> packages <---"
+          # builtins.trace (builtins.attrNames microvm.packages)
+          "crosvm";
         microvm.mem = 2048;
 
         networking.enableIPv6 = false;
