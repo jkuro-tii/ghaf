@@ -1,5 +1,9 @@
 { kernel, ... }:
 kernel.override {
+  kernelPatches = [ {
+    name = "Shared memory patch";
+    patch = ./memshare_6.2.patch;
+  } ];
   extraConfig = ''
     PVH y
     PARAVIRT y
