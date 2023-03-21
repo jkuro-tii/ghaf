@@ -22,6 +22,8 @@ nixpkgs.lib.nixosSystem {
           self.memshare_overlay
         ];
 
+        /* Kernel change must be done here - e.g. pkgs.linuxPackages_6_1 and in the
+           above memshare_overlay overlay */
         boot.kernelPackages =
           pkgs.linuxPackages_latest.extend (_: _: {
           kernel = pkgs.memsharevm-kernel;
@@ -31,7 +33,7 @@ nixpkgs.lib.nixosSystem {
         # TODO: Maybe inherit state version
         system.stateVersion = "22.11";
 
-        microvm.hypervisor = "crosvm";
+        microvm.hypervisor = "qemu";
         microvm.mem = 2048;
 
       };
