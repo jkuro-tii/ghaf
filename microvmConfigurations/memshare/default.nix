@@ -33,9 +33,9 @@ nixpkgs.lib.nixosSystem {
         # TODO: Maybe inherit state version
         system.stateVersion = "22.11";
 
-        microvm.hypervisor = "cloud-hypervisor";
+        # TODO: change to cloud-hypervisor (currently not working on Nvidia)
+        microvm.hypervisor = "qemu";
         microvm.mem = 2048;
-
       };
     })
   ]; in builtins.trace aa aa;
