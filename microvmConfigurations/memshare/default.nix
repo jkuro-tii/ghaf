@@ -35,6 +35,12 @@ nixpkgs.lib.nixosSystem {
 
         microvm.hypervisor = "qemu";
         microvm.mem = 2048;
+        # TODO: supply pmem parameters
+        microvm.qemu.extraArgs = [ 
+          "-object memory-backend-file,id=mem1,share,mem-path=/dev/shm/virtio_pmem.img,size=2M"
+          "-device virtio-pmem-pci,memdev=mem1,id=nv1"
+        ];
+        microvm.kernelParams = [ "param for memshare testing app" ];
 
       };
     })
