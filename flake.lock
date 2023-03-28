@@ -2,11 +2,11 @@
   "nodes": {
     "flake-utils": {
       "locked": {
-        "lastModified": 1676283394,
-        "narHash": "sha256-XX2f9c3iySLCw54rJ/CZs+ZK6IQy7GXNY4nSOyu2QG4=",
+        "lastModified": 1678901627,
+        "narHash": "sha256-U02riOqrKKzwjsxc/400XnElV+UtPUQWpANPlyazjH0=",
         "owner": "numtide",
         "repo": "flake-utils",
-        "rev": "3db36a8b464d0c4532ba1c7dda728f4576d6d073",
+        "rev": "93a2b84fc4b70d9e089d029deacc3583435c2ed6",
         "type": "github"
       },
       "original": {
@@ -45,27 +45,27 @@
         ]
       },
       "locked": {
-        "lastModified": 1676042091,
-        "narHash": "sha256-XZxbh32Tf2iKbGbOzs40VKgFTFRCIyw08PihPcYJPRE=",
-        "owner": "mikatammi",
+        "lastModified": 1679984362,
+        "narHash": "sha256-wKnJO0bEL9nOqa9M9yAmeCp4a7ZK4WwesBCKyoS8P9w=",
+        "owner": "jkuro-tii",
         "repo": "microvm.nix",
-        "rev": "c527054302a9a0cae206abfe1c8b282fba1d464b",
+        "rev": "2969c7ea082dac61f103b5bb9b58795c45e80ca6",
         "type": "github"
       },
       "original": {
-        "owner": "mikatammi",
-        "ref": "wip_hacks_2",
+        "owner": "jkuro-tii",
+        "ref": "ghaf_vm_kernel_config",
         "repo": "microvm.nix",
         "type": "github"
       }
     },
     "nixlib": {
       "locked": {
-        "lastModified": 1677373009,
-        "narHash": "sha256-kxhz4QUP8tXa/yVSpEzDDZSEp9FvhzRqZzb+SeUaekw=",
+        "lastModified": 1679187309,
+        "narHash": "sha256-H8udmkg5wppL11d/05MMzOMryiYvc403axjDNZy1/TQ=",
         "owner": "nix-community",
         "repo": "nixpkgs.lib",
-        "rev": "c9d4f2476046c6a7a2ce3c2118c48455bf0272ea",
+        "rev": "44214417fe4595438b31bdb9469be92536a61455",
         "type": "github"
       },
       "original": {

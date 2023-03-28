@@ -3,10 +3,15 @@
 {
   self,
   netvm,
+  memsharevm,
 }: {config, ...}: {
   microvm.host.enable = true;
 
   microvm.vms."${netvm}" = {
+    flake = self;
+    autostart = true;
+  };
+  microvm.vms."${memsharevm}" = {
     flake = self;
     autostart = true;
   };
