@@ -23,7 +23,7 @@ nixpkgs.lib.nixosSystem {
         ];
 
         /* Kernel change must be done here and in the
-           above memshare_overlay in the overlay_config.nix file in this dir. 
+           above netvm_overlay in the overlay_config.nix file in this dir. 
            E.g. for specific kernel version use: pkgs.linuxPackages_6_1.extend 
          */
         boot.kernelPackages =
