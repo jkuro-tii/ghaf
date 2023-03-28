@@ -20,8 +20,9 @@ diff -ruN linux-6.2.3.orig/drivers/char/Makefile linux-6.2.3/drivers/char/Makefi
 diff -ruN linux-6.2.3.orig/drivers/char/virtio_pmem_char.c linux-6.2.3/drivers/char/virtio_pmem_char.c
 --- linux-6.2.3.orig/drivers/char/virtio_pmem_char.c	1970-01-01 04:00:00.000000000 +0400
 +++ linux-6.2.3/drivers/char/virtio_pmem_char.c	2023-03-10 15:56:55.196646570 +0400
-@@ -0,0 +1,235 @@
-+// SPDX-License-Identifier: GPL-2.0
+@@ -0,0 +1,236 @@
++// Copyright 2022-2023 TII (SSRC) and the Ghaf contributors
++// SPDX-License-Identifier: Apache-2.0
 +/*
 + * virtio_pmem.c: Virtio pmem char Driver
 + *
