@@ -22,8 +22,10 @@ nixpkgs.lib.nixosSystem {
           self.memshare_overlay
         ];
 
-        /* Kernel change must be done here - e.g. pkgs.linuxPackages_6_1 and in the
-           above memshare_overlay overlay */
+        /* Kernel change must be done here and in the
+           above memshare_overlay in the overlay_config.nix file in this dir. 
+           E.g. for specific kernel version use: pkgs.linuxPackages_6_1.extend 
+         */
         boot.kernelPackages =
           pkgs.linuxPackages_latest.extend (_: _: {
           kernel = pkgs.memsharevm-kernel;
@@ -33,15 +35,8 @@ nixpkgs.lib.nixosSystem {
         # TODO: Maybe inherit state version
         system.stateVersion = "22.11";
 
-        microvm.hypervisor = "qemu";
+        microvm.hypervisor = "cloud-hypervisor";
         microvm.mem = 2048;
-        # TODO: supply pmem parameters
-        microvm.qemu.extraArgs = [ 
-          "-object memory-backend-file,id=mem1,share,mem-path=/dev/shm/virtio_pmem.img,size=2M"
-          "-device virtio-pmem-pci,memdev=mem1,id=nv1"
-        ];
-        microvm.kernelParams = [ "param for memshare testing app" ];
-
       };
     })
   ];

@@ -22,6 +22,10 @@ nixpkgs.lib.nixosSystem {
           self.netvm_overlay
         ];
 
+        /* Kernel change must be done here and in the
+           above memshare_overlay in the overlay_config.nix file in this dir. 
+           E.g. for specific kernel version use: pkgs.linuxPackages_6_1.extend 
+         */
         boot.kernelPackages =
           pkgs.linuxPackages_latest.extend (_: _: {
           kernel = pkgs.netvm-kernel;
@@ -35,7 +39,6 @@ nixpkgs.lib.nixosSystem {
         hardware.enableRedistributableFirmware = true;
 
         microvm.hypervisor = "crosvm";
-        microvm.mem = 2048;
 
         networking.enableIPv6 = false;
         networking.interfaces.eth0.useDHCP = true;
