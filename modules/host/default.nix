@@ -5,9 +5,9 @@
   microvm,
   netvm,
   memsharevm,
-}: {modulesPath, ...}: {
+}: {...}: {
   imports = [
-    (modulesPath + "/profiles/minimal.nix")
+    (import ./minimal.nix)
 
     microvm.nixosModules.host
 
