@@ -24,7 +24,11 @@
     nixos-hardware.url = "github:nixos/nixos-hardware";
     microvm = {
       # TODO: change back to url = "github:astro/microvm.nix";
-      url = "github:mikatammi/microvm.nix/wip_hacks_2";
+      # url = "github:mikatammi/microvm.nix/wip_hacks_2";
+
+      # TODO: optionally rebase on other branch
+      url = "github:jkuro-tii/microvm.nix/ghaf_vm_kernel_config";
+      
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-utils.follows = "flake-utils";
     };
@@ -66,5 +70,9 @@
 
       # Hydra jobs
       (import ./hydrajobs.nix {inherit self;})
+
+      # Kernel definitions for micromvms
+      (import ./microvmConfigurations/netvm/overlay_config.nix {inherit self;})
+      (import ./microvmConfigurations/memshare/overlay_config.nix {inherit self;})
     ];
 }

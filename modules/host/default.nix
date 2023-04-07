@@ -4,13 +4,15 @@
   self,
   microvm,
   netvm,
+  memsharevm,
 }: {...}: {
   imports = [
     (import ./minimal.nix)
 
     microvm.nixosModules.host
 
-    (import ./microvm.nix {inherit self netvm;})
+    (import ./microvm.nix {inherit self netvm memsharevm;})
+
     ./networking.nix
   ];
 
