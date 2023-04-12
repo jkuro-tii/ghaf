@@ -109,7 +109,7 @@
   in {
     hardware.nvidia-jetpack.flashScriptOverrides = {
       partitionTemplate = partitionTemplate;
-      flashArgs = "-r ${config.hardware.nvidia-jetpack.flashScriptOverrides.targetBoard} mmcblk0p1";
+      flashArgs = [ "-r ${config.hardware.nvidia-jetpack.flashScriptOverrides.targetBoard} mmcblk0p1" ];
     };
   };
   image = hostConfiguration.extendModules {
