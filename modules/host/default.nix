@@ -8,6 +8,8 @@
   imports = [
     (import ./minimal.nix)
 
+    (import ./docker.nix)
+
     microvm.nixosModules.host
 
     ../overlays/custom-packages.nix

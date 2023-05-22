@@ -28,8 +28,6 @@
 
           ../modules/windows/launcher.nix
 
-          ../modules/containers/docker.nix
-
           formatModule
         ]
         ++ extraModules;

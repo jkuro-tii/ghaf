@@ -5,6 +5,7 @@
   environment.systemPackages = with pkgs; [
     # For docker:
     docker
+    # dockerTools
 
 
 
