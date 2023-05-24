@@ -2,9 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0
 {pkgs, ...}: {
   # inherit nixpkgs;
-  environment.systemPackages = with pkgs; [
+  environment.systemPackages = 
+  with pkgs; builtins.trace ">>> System packages " [
     # For docker:
-    docker
+    docker___error
     # dockerTools
 
 

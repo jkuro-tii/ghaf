@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 {pkgs, ...}: {
   environment.systemPackages = with pkgs; 
+/*
   let dockerScript = 
     pkgs.writeScriptBin "run-docker-build" ''
       #! {native.stdenv.shell}
@@ -17,10 +18,21 @@
       docker rmi nix-base:{unstable.version}
       ''
     ; 
+  in*/
+  let 
+    pciutils_ = builtins.trace (">>> pciutils = " + pciutils) pciutils;
+    docker_ = builtins.trace (">>> docker = " +
+        (pkgs.callPackage ./test.nix { inherit pkgs; }))
+        
+        (pkgs.callPackage ./test.nix { inherit pkgs; });
+    docker_jk = builtins.trace (">>> docker_system = " + docker) docker;
+
   in
   [
     # For lspci:
-    pciutils
+  #  pciutils_
+
+   qemu
 
     # For lsusb:
     usbutils
@@ -36,18 +48,23 @@
     traceroute
     dig
 
-    (pkgs.stdenv.mkDerivation {
-      name = "docker_test";
-      phases = [ "installPhase" ];
-    #   src = pkgs.lib.cleanSource ./.;
-      installPhase = /*builtins.trace ("out=" + out)*/ ''
-        echo "out= " $out
-        mkdir -p $out/dockerdata
-        touch $out/jk.test
-        echo cp ${dockerScript}/run-docker-build $out
-        ''
-        ;
-    })
+    docker_
+
+    # docker_jk
+
+    # (pkgs.stdenv.mkDerivation {
+    #   name = builtins.trace ">>>>docker_test";
+    #   ph
+    # ases = [ "installPhase" ];
+    # #   src = pkgs.lib.cleanSource ./.;
+    #   installPhase = /*builtins.trace ("out=" + out)*/ ''
+    #     echo "out= " $out
+    #     mkdir -p $out/dockerdata
+    #     touch $out/jk.test
+    #     echo cp ${dockerScript}/run-docker-build $out
+    #     ''
+    #     ;
+    # })
   # (pkgs.dockerTools.buildImage {
   #   name = "hello";
   #   tag = "latest";
