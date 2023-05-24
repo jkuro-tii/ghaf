@@ -1,7 +1,7 @@
 # Copyright 2022-2023 TII (SSRC) and the Ghaf contributors
 # SPDX-License-Identifier: Apache-2.0
 {pkgs, ...}: {
-  environment.systemPackages = with pkgs; 
+  environment.systemPackages = with pkgs;
 /*
   let dockerScript = 
     pkgs.writeScriptBin "run-docker-build" ''
@@ -20,19 +20,14 @@
     ; 
   in*/
   let 
-    pciutils_ = builtins.trace (">>> pciutils = " + pciutils) pciutils;
     docker_ = builtins.trace (">>> docker = " +
         (pkgs.callPackage ./test.nix { inherit pkgs; }))
         
         (pkgs.callPackage ./test.nix { inherit pkgs; });
-    docker_jk = builtins.trace (">>> docker_system = " + docker) docker;
-
   in
   [
     # For lspci:
-  #  pciutils_
-
-   qemu
+    pciutils
 
     # For lsusb:
     usbutils
@@ -48,9 +43,7 @@
     traceroute
     dig
 
-    docker_
-
-    # docker_jk
+    (pkgs.callPackage ./test.nix { inherit pkgs; })
 
     # (pkgs.stdenv.mkDerivation {
     #   name = builtins.trace ">>>>docker_test";

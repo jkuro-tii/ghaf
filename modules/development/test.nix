@@ -1,12 +1,39 @@
 { pkgs ? import <nixpkgs> {} }:
 
 let
-  script = pkgs.writeScriptBin "run-docker-build" ''
+  image = pkgs.dockerTools.pullImage {
+    imageName = "nixos/nix";
+    imageDigest =
+      "sha256:473a2b527958665554806aea24d0131bacec46d23af09fef4598eeab331850fa";
+    finalImageName = "nix_jkk";
+    finalImageTag = "2.11.1";
+    sha256 = "sha256-UYVwe2Y1E3dwpK+RK0jGbhBbc9CIMbi7uTziWmzH0Dw=";
+    os = "linux";
+    arch = "aarch64";
+  };
+  #   pkgs.dockerTools.buildImage rec {
+
+  #   name = "busybox_test";
+  #   tag = "latest";
+
+  #   fromImageTag = "busybox:latest";
+
+  #   created = "now";
+  #   copyToRoot = pkgs.buildEnv {
+  #     name = "image-root";
+  #     paths = [ /*pkgs.busybox*/ ];
+  #     pathsToLink = [ "/bin" ];
+  #   };
+
+  #   config.Cmd = [ "/bin/bash" ];
+  # };
+
+  script = builtins.trace (">>>Docker image=" + image) pkgs.writeScriptBin "run-docker-build" ''
     #! ${pkgs.stdenv.shell}
     set -e
 
     echo "building root image..." >&2
-    imageOut=$(nix-build -A image --no-out-link)
+    imageOut=$(nix-build -A ${image} --no-out-link)
     echo "importing root image..." >&2
     docker load < $imageOut
     echo "building {unstable.version}..." >&2
@@ -20,17 +47,19 @@ pkgs.stdenv.mkDerivation {
   name = builtins.trace ("script= " + script)
   "docker_test";
 
-  # phases = [ "installPhase" ];
-  src = pkgs.lib.cleanSource ./.;
+  phases = [ "installPhase" ];
   BUILD_TARGET = "\"Ala ma 41kota!\"";
-  _installPhase = builtins.trace (">>>>>>>> installPhase " ) ''
-    mkdir $out
+  installPhase = builtins.trace (">>>>>>>> installPhase " ) ''
+    mkdir -p $out/bin
+    mkdir -p $out/home/ghaf
     echo ">>>>>>>>>>>>>> out= " $out
-    ech "Ala ma kota" > $out/jk.test
-    echo $out >> $out/jk.test
-    echo cp ${script}/run-docker-build $out
+    echo "Ala ma 2 koty" > $out/bin/jk1.test
+    echo "Ala ma kota" > $out/bin/jk.test
+    echo $out >> $out/bin/jk.test
+    cp -r ${script}/* $out
+    echo "Ala ma 22 koty" >  $out/home/ghaf/jk.home
 #   '';
-
+}
 #   src =
 #   cleanSourceWith {
 #     filter = name: _type: !(hasSuffix ".nix" name);
@@ -39,4 +68,3 @@ pkgs.stdenv.mkDerivation {
 
 #   doCheck = true;
 
-}

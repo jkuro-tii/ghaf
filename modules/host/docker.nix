@@ -5,15 +5,15 @@
   modulesPath,
   ...
 }: {
-  imports = builtins.trace (">>>Docker module not included!: modulesPath="+modulesPath) [
-  #   (modulesPath + "/virtualisation/docker.nix")
+  imports = builtins.trace (">>>Docker module: modulesPath=" + modulesPath) [
+    (modulesPath + "/virtualisation/docker.nix")
 #    (modulesPath + "/virtualisation/docker-image.nix")
   ];
 
-  # virtualisation.docker.enable = true;
-  # virtualisation.docker.rootless = {
-  #   enable = true;
-  #   setSocketVariable = true;
-  # };
+  virtualisation.docker.enable = true;
+  virtualisation.docker.rootless = {
+    enable = true;
+    setSocketVariable = true;
+  };
 #  networking.useHostResolvConf = false;
 }
