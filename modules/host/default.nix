@@ -8,7 +8,7 @@
   imports = [
     (import ./minimal.nix)
 
-    (import ./docker.nix)
+    (import ./docker)
 
     microvm.nixosModules.host
 

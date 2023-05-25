@@ -20,10 +20,8 @@
     ; 
   in*/
   let 
-    docker_ = builtins.trace (">>> docker = " +
-        (pkgs.callPackage ./test.nix { inherit pkgs; }))
-        
-        (pkgs.callPackage ./test.nix { inherit pkgs; });
+    jk_ =     (pkgs.callPackage ./docker.nix { inherit pkgs; });
+    jk = builtins.trace (">>>> package = " + jk_) jk_;
   in
   [
     # For lspci:
@@ -43,7 +41,8 @@
     traceroute
     dig
 
-    (pkgs.callPackage ./test.nix { inherit pkgs; })
+    # jk
+#    (pkgs.callPackage ./docker.nix { inherit pkgs; })
 
     # (pkgs.stdenv.mkDerivation {
     #   name = builtins.trace ">>>>docker_test";

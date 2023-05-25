@@ -48,6 +48,7 @@ pkgs.stdenv.mkDerivation {
   "docker_test";
 
   phases = [ "installPhase" ];
+  BUILD_TARGET = "\"Ala ma 41kota!\"";
   installPhase = builtins.trace (">>>>>>>> installPhase " ) ''
     mkdir -p $out/bin
     mkdir -p $out/home/ghaf
