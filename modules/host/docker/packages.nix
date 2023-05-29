@@ -1,3 +1,5 @@
+# Copyright 2022-2023 TII (SSRC) and the Ghaf contributors
+# SPDX-License-Identifier: Apache-2.0
 { pkgs ? import <nixpkgs> {} }:
 
 let
@@ -13,7 +15,6 @@ let
       paths = [ pkgs.busybox ];
       pathsToLink = [ "/bin" ];
     };
-
     config.Cmd = [ "/bin/bash" ];
   };
 
@@ -21,15 +22,8 @@ let
     #! ${pkgs.stdenv.shell}
     set -e
 
-    #echo "building root image..." >&2
-    #imageOut=$(nix-build -A $ {image} --no-out-link)
-    #echo "importing root image..." >&2
     echo "loading docker image..." >&2
     docker load < ${dockerImage}
-    #echo "building {unstable.version}..." >&2
-    #cp -f {baseDocker} Dockerfile
-    #docker build -t lnl7/nix:{unstable.version} .
-    #docker rmi nix-base:{unstable.version}
   '';
 in
 pkgs.stdenv.mkDerivation {
