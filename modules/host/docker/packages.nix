@@ -6,19 +6,19 @@ let
   dockerImage = 
     pkgs.dockerTools.buildImage rec {
 
-    name = builtins.trace (">>>> buildImage") "busybox_test";
+    name = "busybox_test";
     tag = "latest";
 
     created = "now";
     copyToRoot = pkgs.buildEnv {
       name = "image-root";
-      paths = [ pkgs.busybox ];
+      paths = [ /*pkgs.busybox*/ ];
       pathsToLink = [ "/bin" ];
     };
     config.Cmd = [ "/bin/bash" ];
   };
 
-  script = builtins.trace (">>>Docker load script= " + dockerImage) pkgs.writeScriptBin "run-docker-load" ''
+  script = pkgs.writeScriptBin "run-docker-load" ''
     #! ${pkgs.stdenv.shell}
     set -e
 
@@ -27,11 +27,10 @@ let
   '';
 in
 pkgs.stdenv.mkDerivation {
-  name = builtins.trace ("script= " + script)
-  "docker_test";
+  name = "docker_test";
 
   phases = [ "installPhase" ];
-  installPhase = builtins.trace (">>>>>>>> installPhase " ) ''
+  installPhase = ''
     mkdir -p $out/bin
     cp -r ${script}/* $out
     '';
