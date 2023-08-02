@@ -3,6 +3,7 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }: let
   configHost = config;
@@ -26,6 +27,8 @@
         nixpkgs.hostPlatform.system = configHost.nixpkgs.hostPlatform.system;
 
         microvm.hypervisor = "qemu";
+        ghaf.virtualization.memshare.enable = true;
+        microvm.kernel = config.ghaf.virtualization.memshare.kernel;
 
         networking = {
           enableIPv6 = false;

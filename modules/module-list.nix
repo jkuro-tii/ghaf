@@ -15,5 +15,6 @@
   ./users/accounts.nix
   ./version
   ./virtualization/docker.nix
+  ./virtualization/memshare/memshare.nix
   ./windows-launcher
 ]
