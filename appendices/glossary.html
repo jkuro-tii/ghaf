@@ -4,8 +4,10 @@
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Glossary - Ghaf Framework</title>
+
+
         <!-- Custom HTML head -->
-        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        
         <meta name="description" content="Documentation for TII SSRC Secure Technologies.">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff" />
@@ -16,25 +18,29 @@
         <link rel="stylesheet" href="../css/general.css">
         <link rel="stylesheet" href="../css/chrome.css">
         <link rel="stylesheet" href="../css/print.css" media="print">
+
         <!-- Fonts -->
         <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
         <link rel="stylesheet" href="../fonts/fonts.css">
+
         <!-- Highlight.js Stylesheets -->
         <link rel="stylesheet" href="../highlight.css">
         <link rel="stylesheet" href="../tomorrow-night.css">
         <link rel="stylesheet" href="../ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
+
     </head>
     <body>
+    <div id="body-container">
         <!-- Provide site root to javascript -->
-        <script type="text/javascript">
+        <script>
             var path_to_root = "../";
             var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
         </script>
 
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
-        <script type="text/javascript">
+        <script>
             try {
                 var theme = localStorage.getItem('mdbook-theme');
                 var sidebar = localStorage.getItem('mdbook-sidebar');
@@ -50,7 +56,7 @@
         </script>
 
         <!-- Set the theme before any content is loaded, prevents flash -->
-        <script type="text/javascript">
+        <script>
             var theme;
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
@@ -62,12 +68,14 @@
         </script>
 
         <!-- Hide / unhide sidebar before it is displayed -->
-        <script type="text/javascript">
+        <script>
             var html = document.querySelector('html');
-            var sidebar = 'hidden';
+            var sidebar = null;
             if (document.body.clientWidth >= 1080) {
                 try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
                 sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
             }
             html.classList.remove('sidebar-visible');
             html.classList.add("sidebar-" + sidebar);
@@ -75,7 +83,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="../index.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../architecture/architecture.html"><strong aria-hidden="true">2.</strong> Architecture</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../architecture/variants.html"><strong aria-hidden="true">2.1.</strong> Variants</a></li><li class="chapter-item expanded "><a href="../architecture/stack.html"><strong aria-hidden="true">2.2.</strong> Stack</a></li><li class="chapter-item expanded "><a href="../architecture/adr.html"><strong aria-hidden="true">2.3.</strong> Decision Record</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../architecture/adr/minimal-host.html"><strong aria-hidden="true">2.3.1.</strong> Minimal host</a></li><li class="chapter-item expanded "><a href="../architecture/adr/netvm.html"><strong aria-hidden="true">2.3.2.</strong> Networking VM</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="../technologies/technologies.html"><strong aria-hidden="true">3.</strong> Technologies</a></li><li class="chapter-item expanded "><a href="../build_config/build_configurations.html"><strong aria-hidden="true">4.</strong> Build Configurations</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../build_config/reference_implementations.html"><strong aria-hidden="true">4.1.</strong> Reference Implementations</a></li><li class="chapter-item expanded "><a href="../build_config/cross_compilation.html"><strong aria-hidden="true">4.2.</strong> Cross Compilation</a></li><li class="chapter-item expanded "><a href="../build_config/passthrough/passthrough.html"><strong aria-hidden="true">4.3.</strong> Passthrough</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../build_config/passthrough/nvidia_agx_pt_uart.html"><strong aria-hidden="true">4.3.1.</strong> Nvidia AGX Orin - UART Passthrough</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="../scs/scs.html"><strong aria-hidden="true">5.</strong> Supply Chain Security</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../scs/slsa-framework.html"><strong aria-hidden="true">5.1.</strong> SLSA Framework</a></li><li class="chapter-item expanded "><a href="../scs/basics.html"><strong aria-hidden="true">5.2.</strong> Basic Security Measures</a></li><li class="chapter-item expanded "><a href="../scs/sbom.html"><strong aria-hidden="true">5.3.</strong> SBOM</a></li><li class="chapter-item expanded "><a href="../scs/pki.html"><strong aria-hidden="true">5.4.</strong> Public Key Infrastructure</a></li><li class="chapter-item expanded "><a href="../scs/patching-automation.html"><strong aria-hidden="true">5.5.</strong> Patch Management Automation</a></li></ol></li><li class="chapter-item expanded "><a href="../research/research.html"><strong aria-hidden="true">6.</strong> Research Notes</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../research/passthrough/ethernet.html"><strong aria-hidden="true">6.1.</strong> i.MX 8QM Ethernet Passthrough</a></li><li class="spacer"></li></ol></li><li class="chapter-item expanded "><a href="../appendices/glossary.html" class="active">Glossary</a></li><li class="chapter-item expanded affix "><a href="../appendices/contributing_general.html">Contributing</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><li class="part-title">Overview</li><li class="chapter-item expanded "><a href="../index.html"><strong aria-hidden="true">1.</strong> About Ghaf</a></li><li class="chapter-item expanded "><a href="../features/features.html"><strong aria-hidden="true">2.</strong> Features</a></li><li class="chapter-item expanded "><a href="../architecture/architecture.html"><strong aria-hidden="true">3.</strong> Architecture</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../architecture/variants.html"><strong aria-hidden="true">3.1.</strong> Architectural Variants</a></li><li class="chapter-item expanded "><a href="../architecture/adr.html"><strong aria-hidden="true">3.2.</strong> Architecture Decision Records</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../architecture/adr/minimal-host.html"><strong aria-hidden="true">3.2.1.</strong> Minimal Host</a></li><li class="chapter-item expanded "><a href="../architecture/adr/netvm.html"><strong aria-hidden="true">3.2.2.</strong> Networking VM</a></li><li class="chapter-item expanded "><a href="../architecture/adr/platform-bus-passthrough-support.html"><strong aria-hidden="true">3.2.3.</strong> Platform Bus for Rust VMM</a></li></ol></li><li class="chapter-item expanded "><a href="../architecture/hardening.html"><strong aria-hidden="true">3.3.</strong> Hardening</a></li><li class="chapter-item expanded "><a href="../architecture/secureboot.html"><strong aria-hidden="true">3.4.</strong> Secure Boot</a></li><li class="chapter-item expanded "><a href="../architecture/stack.html"><strong aria-hidden="true">3.5.</strong> Stack</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">For Developers</li><li class="chapter-item expanded "><a href="../appendices/contributing_general.html"><strong aria-hidden="true">4.</strong> Contributing</a></li><li class="chapter-item expanded "><a href="../ref_impl/reference_implementations.html"><strong aria-hidden="true">5.</strong> Reference Implementations</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ref_impl/development.html"><strong aria-hidden="true">5.1.</strong> Development</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ref_impl/build_and_run.html"><strong aria-hidden="true">5.1.1.</strong> Build and Run</a></li><li class="chapter-item expanded "><a href="../ref_impl/installer.html"><strong aria-hidden="true">5.1.2.</strong> Installer</a></li><li class="chapter-item expanded "><a href="../ref_impl/cross_compilation.html"><strong aria-hidden="true">5.1.3.</strong> Cross-Compilation</a></li><li class="chapter-item expanded "><a href="../ref_impl/creating_appvm.html"><strong aria-hidden="true">5.1.4.</strong> Creating Application VM</a></li></ol></li><li class="chapter-item expanded "><a href="../ref_impl/ghaf-based-project.html"><strong aria-hidden="true">5.2.</strong> Ghaf as Library: Templates</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ref_impl/example_project.html"><strong aria-hidden="true">5.2.1.</strong> Example Project</a></li><li class="chapter-item expanded "><a href="../ref_impl/modules_options.html"><strong aria-hidden="true">5.2.2.</strong> Modules Options</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="../technologies/technologies.html"><strong aria-hidden="true">6.</strong> Technologies</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../technologies/compartment.html"><strong aria-hidden="true">6.1.</strong> Compartmentalization</a></li><li class="chapter-item expanded "><a href="../technologies/passthrough.html"><strong aria-hidden="true">6.2.</strong> Passthrough</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../technologies/vfio.html"><strong aria-hidden="true">6.2.1.</strong> Binding Device to VFIO Driver</a></li><li class="chapter-item expanded "><a href="../technologies/nvidia_agx_pt_uart.html"><strong aria-hidden="true">6.2.2.</strong> NVIDIA Jetson AGX Orin: UART Passthrough</a></li><li class="chapter-item expanded "><a href="../technologies/nvidia_agx_pt_pcie.html"><strong aria-hidden="true">6.2.3.</strong> NVIDIA Jetson AGX Orin: PCIe Passthrough</a></li><li class="chapter-item expanded "><a href="../technologies/x86_pcie_crosvm.html"><strong aria-hidden="true">6.2.4.</strong> Generic x86: PCIe Passthrough on crosvm</a></li></ol></li><li class="chapter-item expanded "><a href="../technologies/hypervisor_options.html"><strong aria-hidden="true">6.3.</strong> Hypervisor Options</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Build System and Supply Chain</li><li class="chapter-item expanded "><div><strong aria-hidden="true">7.</strong> CI/CD System</div></li><li class="chapter-item expanded "><a href="../scs/scs.html"><strong aria-hidden="true">8.</strong> Supply Chain Security</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../scs/slsa-framework.html"><strong aria-hidden="true">8.1.</strong> SLSA Framework</a></li><li class="chapter-item expanded "><a href="../scs/basics.html"><strong aria-hidden="true">8.2.</strong> Basic Security Measures</a></li><li class="chapter-item expanded "><a href="../scs/sbom.html"><strong aria-hidden="true">8.3.</strong> Software Bill of Materials</a></li><li class="chapter-item expanded "><a href="../scs/pki.html"><strong aria-hidden="true">8.4.</strong> Public Key Infrastructure</a></li><li class="chapter-item expanded "><a href="../scs/ghaf-security-fix-automation.html"><strong aria-hidden="true">8.5.</strong> Security Fix Automation</a></li></ol></li><li class="chapter-item expanded "><a href="../release_notes/release_notes.html"><strong aria-hidden="true">9.</strong> Release Notes</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../release_notes/ghaf-23.09.html"><strong aria-hidden="true">9.1.</strong> Release ghaf-23.09</a></li><li class="chapter-item expanded "><a href="../release_notes/ghaf-23.06.html"><strong aria-hidden="true">9.2.</strong> Release ghaf-23.06</a></li><li class="chapter-item expanded "><a href="../release_notes/ghaf-23.05.html"><strong aria-hidden="true">9.3.</strong> Release ghaf-23.05</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Ghaf Usage Scenarios</li><li class="chapter-item expanded "><a href="../scenarios/showcases.html"><strong aria-hidden="true">10.</strong> Showcases</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../scenarios/run_win_vm.html"><strong aria-hidden="true">10.1.</strong> Running Windows VM on Ghaf</a></li><li class="chapter-item expanded "><a href="../scenarios/run_cuttlefish.html"><strong aria-hidden="true">10.2.</strong> Running Cuttlefish on Ghaf</a></li></ol></li><li class="chapter-item expanded "><div><strong aria-hidden="true">11.</strong> Build Your Environment</div></li><li class="spacer"></li><li class="chapter-item expanded affix "><li class="part-title">Appendices</li><li class="chapter-item expanded "><a href="../appendices/glossary.html" class="active"><strong aria-hidden="true">12.</strong> Glossary</a></li><li class="chapter-item expanded "><a href="../research/research.html"><strong aria-hidden="true">13.</strong> Research Notes</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../research/passthrough/ethernet.html"><strong aria-hidden="true">13.1.</strong> i.MX 8QM Ethernet Passthrough</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -83,7 +91,7 @@
         <div id="page-wrapper" class="page-wrapper">
 
             <div class="page">
-                <div id="menu-bar-hover-placeholder"></div>
+                                <div id="menu-bar-hover-placeholder"></div>
                 <div id="menu-bar" class="menu-bar sticky bordered">
                     <div class="left-buttons">
                         <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
@@ -93,7 +101,7 @@
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
-                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
@@ -113,6 +121,7 @@
                         <a href="https://github.com/tiiuae/ghaf" title="Git repository" aria-label="Git repository">
                             <i id="git-repository-button" class="fa fa-github"></i>
                         </a>
+
                     </div>
                 </div>
 
@@ -126,8 +135,9 @@
                         </ul>
                     </div>
                 </div>
+
                 <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
-                <script type="text/javascript">
+                <script>
                     document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
                     document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
                     Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
@@ -148,7 +158,7 @@
 <p>When abbreviations are formed from the initial letters of a phrase, they are categorized as either <strong>initialisms</strong> or <strong>acronyms</strong>:</p>
 <ul>
 <li>
-<p>With <strong>initialisms</strong>, each letter is pronounced separately. For example: FBI for Federal Bureau of Investigation, CIA for Central Intelligence Agency), CD for Compact Disk, and also OK for Okay, &quot;orl korrekt&quot; that is a misspelling of &quot;all correct&quot;. Initialisms cannot be pronounced as words.</p>
+<p>With <strong>initialisms</strong>, each letter is pronounced separately. For example: FBI for Federal Bureau of Investigation, CIA for Central Intelligence Agency, CD for Compact Disk, and also OK for Okay, ‘orl korrekt‘ that is a misspelling of &quot;all correct&quot;. Initialisms cannot be pronounced as words.</p>
 </li>
 <li>
 <p><strong>Acronyms</strong> are another type of abbreviation formed from the initial letters but that are pronounced as if they were words themselves. For example: ROFL for ‘rolling on the floor laughing’, FEMA for Federal Emergency Management Agency, NATO for North Atlantic Treaty Organization.</p>
@@ -170,6 +180,13 @@
 <p>If you do not find the term or abbreviation you are looking for, share your questions using <a href="https://github.com/tiiuae/ghaf/issues">GitHub Issues</a>.</p>
 <p>Wikipedia is not a dictionary.</p>
 <hr />
+<p>Groups of terms and abbreviations:</p>
+<ul>
+<li><a href="#project-related">Project Related</a></li>
+<li><a href="#core-concepts">Core Concepts</a></li>
+<li><a href="#scs-related">SCS Related</a></li>
+</ul>
+<hr />
 <h2 id="project-related"><a class="header" href="#project-related">Project Related</a></h2>
 <h3 id="ghaf"><a class="header" href="#ghaf">Ghaf</a></h3>
 <p><em>The project code name that represents the Ghaf tree.</em><br />
@@ -187,11 +204,27 @@ Source: <a href="https://www.tii.ae/">https://www.tii.ae/</a></p>
 Source: <a href="https://adr.github.io/">https://adr.github.io/</a></p>
 <h3 id="bsp"><a class="header" href="#bsp">BSP</a></h3>
 <p><em>A board support package is a collection of software used to boot and run the embedded system.</em></p>
+<h3 id="dhcp"><a class="header" href="#dhcp">DHCP</a></h3>
+<p><em>The Dynamic Host Configuration Protocol is a network protocol that automatically sets IP addresses and other attributes to enable information transfer between network nodes.</em><br />
+Source: Computer Networks: A Systems Approach, <a href="https://book.systemsapproach.org/internetworking/basic-ip.html#host-configuration-dhcp">https://book.systemsapproach.org/internetworking/basic-ip.html#host-configuration-dhcp</a></p>
 <h3 id="dma"><a class="header" href="#dma">DMA</a></h3>
 <p><em>A direct memory access is a process in which data may be moved directly to or from the main memory of a computer system by operations not under the control of the central processing unit.</em><br />
 Source: <a href="https://www.collinsdictionary.com/dictionary/english/direct-memory-access">https://www.collinsdictionary.com/dictionary/english/direct-memory-access</a></p>
+<h3 id="emmc-e-mmc"><a class="header" href="#emmc-e-mmc">eMMC, e-MMC</a></h3>
+<p><em>embedded MultiMediaCard</em></p>
 <h3 id="eula"><a class="header" href="#eula">EULA</a></h3>
 <p><em>end-user license agreement</em></p>
+<h3 id="gui"><a class="header" href="#gui">GUI</a></h3>
+<p><em>graphical user interface</em></p>
+<h3 id="ids"><a class="header" href="#ids">IDS</a></h3>
+<p><em>An intrusion detection system (also intrusion prevention system or IPS) monitors network traffic for suspicious activity and report when such activity is discovered.</em></p>
+<h3 id="iommu"><a class="header" href="#iommu">IOMMU</a></h3>
+<p><em>input–output memory management unit</em></p>
+<h3 id="ip"><a class="header" href="#ip">IP</a></h3>
+<p><em>The Internet Protocol is a set of rules for communication over the Internet, such as sending email, streaming video, or connecting to a website.</em></p>
+<h3 id="isa"><a class="header" href="#isa">ISA</a></h3>
+<p><em>An Instruction Set Architecture is part of the abstract model of a computer that defines how the CPU is controlled by the software.</em><br />
+Source: <a href="https://www.arm.com/glossary/isa">https://www.arm.com/glossary/isa</a></p>
 <h3 id="kvm"><a class="header" href="#kvm">KVM</a></h3>
 <p><em>Kernel-based Virtual Machine, an open-source virtualization technology built into Linux.</em></p>
 <h3 id="kvms"><a class="header" href="#kvms">KVMS</a></h3>
@@ -199,37 +232,47 @@ Source: <a href="https://www.collinsdictionary.com/dictionary/english/direct-mem
 Source: <a href="https://github.com/jkrh/kvms">https://github.com/jkrh/kvms</a></p>
 <h3 id="mmu"><a class="header" href="#mmu">MMU</a></h3>
 <p><em>memory management unit</em></p>
+<h3 id="msi"><a class="header" href="#msi">MSI</a></h3>
+<p><em>Message Signaled Interrupts</em></p>
 <h3 id="nixos"><a class="header" href="#nixos">NixOS</a></h3>
 <p><em>A Linux distribution based on the Nix package manager and build system.</em><br />
 Source: <a href="https://nixos.wiki/wiki/Overview_of_the_NixOS_Linux_distribution">https://nixos.wiki/wiki/Overview_of_the_NixOS_Linux_distribution</a></p>
 <h3 id="os"><a class="header" href="#os">OS</a></h3>
 <p><em>operating system</em></p>
+<h3 id="pci"><a class="header" href="#pci">PCI</a></h3>
+<p><em>Peripheral Component Interconnect</em></p>
+<h3 id="pcie"><a class="header" href="#pcie">PCIe</a></h3>
+<p><em>Peripheral Component Interconnect Express</em></p>
 <h3 id="qemu"><a class="header" href="#qemu">QEMU</a></h3>
 <p><em>A generic and open source machine emulator and virtualizer.</em><br />
 Source: <a href="https://www.qemu.org/docs/master/about/index.html">https://www.qemu.org/docs/master/about/index.html</a></p>
+<h3 id="sbsa"><a class="header" href="#sbsa">SBSA</a></h3>
+<p><em>The Server Base System Architecture specifies a hardware system architecture, based on Arm 64-bit architecture, that server system software, for example operating systems, hypervisors, and firmware can rely on.</em><br />
+Source: <a href="https://developer.arm.com/documentation/den0029/latest">Arm® Server Base System Architecture 7.1 Platform Design Document</a></p>
+<h3 id="sku"><a class="header" href="#sku">SKU</a></h3>
+<p><em>A stock keeping unit, is a unique code used by sellers to identify and track products.</em></p>
+<h3 id="soc"><a class="header" href="#soc">SoC</a></h3>
+<p><em>A system on chip, a microchip that contains the necessary electronic circuits for a fully functional system on a single integrated circuit (IC).</em></p>
+<h3 id="ssd"><a class="header" href="#ssd">SSD</a></h3>
+<p><em>solid-state drive</em></p>
 <h3 id="tcb"><a class="header" href="#tcb">TCB</a></h3>
 <p><em>Trusted computing base defines the security requirements by providing separation of users and data or resources.</em><br />
 Source: <a href="https://csrc.nist.gov/csrc/media/publications/conference-paper/1998/10/08/proceedings-of-the-21st-nissc-1998/documents/early-cs-papers/dod85.pdf">Department of Defense trusted computer system evaluation criteria, DoD 5200.28-STD, 1985.</a></p>
 <h3 id="tls"><a class="header" href="#tls">TLS</a></h3>
 <p><em>Transport Layer Security, a security protocol.</em></p>
+<h3 id="uart"><a class="header" href="#uart">UART</a></h3>
+<p><em>An universal asynchronous receiver-transmitter, a hardware communication protocol.</em></p>
 <h3 id="ui"><a class="header" href="#ui">UI</a></h3>
 <p><em>user interface</em></p>
+<h3 id="vfio"><a class="header" href="#vfio">VFIO</a></h3>
+<p><em>Virtual Function I/O</em><br />
+Source: <a href="https://docs.kernel.org/driver-api/vfio.html">https://docs.kernel.org/driver-api/vfio.html</a></p>
 <h3 id="vm"><a class="header" href="#vm">VM</a></h3>
 <p><em>virtual machine</em></p>
 <h3 id="vmm"><a class="header" href="#vmm">VMM</a></h3>
 <p><em>Virtual Machine Manager</em></p>
-<hr />
-<h2 id="build-configurations-related"><a class="header" href="#build-configurations-related">Build Configurations Related</a></h2>
-<h3 id="uart"><a class="header" href="#uart">UART</a></h3>
-<p><em>An universal asynchronous receiver-transmitter, a hardware communication protocol.</em></p>
-<h3 id="soc"><a class="header" href="#soc">SoC</a></h3>
-<p><em>A system on chip, a microchip that contains the necessary electronic circuits for a fully functional system on a single integrated circuit (IC).</em></p>
-<h3 id="sbsa"><a class="header" href="#sbsa">SBSA</a></h3>
-<p><em>The Server Base System Architecture specifies a hardware system architecture, based on Arm 64-bit architecture, that server system software, for example operating systems, hypervisors, and firmware can rely on.</em><br />
-Source: <a href="https://developer.arm.com/documentation/den0029/latest">Arm® Server Base System Architecture 7.1 Platform Design Document</a></p>
-<h3 id="isa"><a class="header" href="#isa">ISA</a></h3>
-<p><em>An Instruction Set Architecture is part of the abstract model of a computer that defines how the CPU is controlled by the software.</em><br />
-Source: <a href="https://www.arm.com/glossary/isa">https://www.arm.com/glossary/isa</a></p>
+<h3 id="zta"><a class="header" href="#zta">ZTA</a></h3>
+<p><em>zero trust architecture, zero trust security model</em></p>
 <hr />
 <h2 id="scs-related"><a class="header" href="#scs-related">SCS Related</a></h2>
 <h3 id="ca"><a class="header" href="#ca">CA</a></h3>
@@ -270,38 +313,50 @@ Source: <a href="https://slsa.dev/">https://slsa.dev/</a></p>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../research/passthrough/ethernet.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../scenarios/run_cuttlefish.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
-                            <a rel="next" href="../appendices/contributing_general.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+
+                            <a rel="next" href="../research/research.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
+
                         <div style="clear: both"></div>
                     </nav>
                 </div>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../research/passthrough/ethernet.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../scenarios/run_cuttlefish.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
-                    <a rel="next" href="../appendices/contributing_general.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+
+                    <a rel="next" href="../research/research.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
 
         </div>
 
-        <script type="text/javascript">
+
+
+
+        <script>
             window.playground_copyable = true;
         </script>
-        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
-        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
-        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
 
         <!-- Custom JS scripts -->
+
+
+    </div>
     </body>
 </html>
