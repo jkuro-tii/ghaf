@@ -18,6 +18,8 @@
           microvm.nixosModules.host
           ../modules/host
           ../modules/virtualization/microvm/microvm-host.nix
+          ../modules/virtualization/microvm/guivm.nix
+          ../modules/virtualization/microvm/appvm.nix
           ../modules/virtualization/microvm/netvm.nix
 
           {
@@ -29,6 +31,14 @@
               # TODO: NetVM enabled, but it does not include anything specific
               #       for this Virtual Machine target
               virtualization.microvm.netvm.enable = true;
+
+              virtualization.microvm.guivm = {
+                enable = true;
+                # extraModules = guivmExtraModules;
+              };
+              virtualization.microvm.appvm = {
+                enable = true;
+              };
 
               # Enable all the default UI applications
               profiles = {

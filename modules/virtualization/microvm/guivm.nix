@@ -155,6 +155,17 @@ in {
       '';
     };
 
+    # How to send waypipe data:
+    # 0 - use VSOCK
+    # 1 - use memory sharing mechanism 
+    waypipeTransport = lib.mkOption {
+      type = lib.types.int;
+      default = 0;
+      description = ''
+        Waypipe's transport layer for sending the data between guivm and appvms (VSOCK, shared)
+      '';
+    };
+
     waypipePort = lib.mkOption {
       type = lib.types.int;
       default = 1100;
