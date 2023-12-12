@@ -18,8 +18,8 @@
           microvm.nixosModules.host
           ../modules/host
           ../modules/virtualization/microvm/microvm-host.nix
-          ../modules/virtualization/microvm/guivm.nix
-          ../modules/virtualization/microvm/appvm.nix
+          ../modules/virtualization/microvm/guivm-shm.nix
+          ../modules/virtualization/microvm/appvm-shm.nix
           ../modules/virtualization/microvm/netvm.nix
 
           {

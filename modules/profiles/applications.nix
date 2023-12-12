@@ -11,14 +11,21 @@ in
   with lib; {
     options.ghaf.profiles.applications = {
       enable = mkEnableOption "Some sample applications";
+      sharedMemoryServer = mkEnableOption "Shared memory server";
       #TODO Create options to allow enabling individual apps
       #weston.ini.nix mods needed
     };
 
-    config = mkIf cfg.enable {
+    config = builtins.trace ">>>>>>>>>config" mkIf /*cfg.sharedMemoryServer*/ cfg.enable {
+      ghaf = builtins.trace ">>>>>>>>>sharedMemoryServer" {
+        profiles.graphics.enable = true;
+        graphics.weston.enableDemoApplications = true;
+        xxx = 12;
+      };
+    } // mkIf cfg.sharedMemoryServer /*cfg.enable*/ {
       # TODO: Needs more generic support for defining application launchers
       #       across different window managers.
-      ghaf = {
+      ghaf = builtins.trace ">>>>>>>>>cfg" {
         profiles.graphics.enable = true;
         graphics.weston.enableDemoApplications = true;
       };
