@@ -155,17 +155,6 @@ in {
       '';
     };
 
-    # How to send waypipe data:
-    # 0 - use VSOCK
-    # 1 - use memory sharing mechanism 
-    waypipeTransport = lib.mkOption {
-      type = lib.types.int;
-      default = 0;
-      description = ''
-        Waypipe's transport layer for sending the data between guivm and appvms (VSOCK, shared)
-      '';
-    };
-
     waypipePort = lib.mkOption {
       type = lib.types.int;
       default = 1100;
@@ -178,21 +167,12 @@ in {
   config = lib.mkIf cfg.enable {
     microvm.vms."${vmName}" = {
       autostart = true;
-      config = 
-      # builtins.trace ("guivmBaseConfiguration--->" + builtins.attrNames( 
-      # builtins.toString (/*builtins.attrNames*/ (guivmBaseConfiguration.imports/*.microvm*/)))) 
+      config =
         guivmBaseConfiguration
         // {
           imports =
             guivmBaseConfiguration.imports
             ++ cfg.extraModules;
-        } // {
-          config.boot.kernelPatches = [{
-            name = "Shared memory PCI driver";
-            patch = pkgs.fetchpatch {
-              url = "https://raw.githubusercontent.com/jkuro-tii/ivshmem/dev/0001-Shared-memory-driver.patch";
-              sha256 = "sha256-Nu/r72MIgXcLO7SmvT11kKyfjxu3EpFnATIVmmbEH4o=";
-            };}];
         };
       specialArgs = {inherit lib;};
     };

@@ -21,6 +21,15 @@
           ../modules/virtualization/microvm/guivm-shm.nix
           ../modules/virtualization/microvm/appvm-shm.nix
           ../modules/virtualization/microvm/netvm.nix
+          ({
+            pkgs,
+            lib,
+            ...
+          }:
+          { services.udev.extraRules = ''
+              SUBSYSTEM=="misc",KERNEL=="ivshmem",GROUP="kvm"
+          '';
+          })
 
           {
             ghaf = {
@@ -43,6 +52,7 @@
               # Enable all the default UI applications
               profiles = {
                 applications.enable = true;
+                applications.ivShMemServer.enable = true;
                 #TODO clean this up when the microvm is updated to latest
                 release.enable = variant == "release";
                 debug.enable = variant == "debug";

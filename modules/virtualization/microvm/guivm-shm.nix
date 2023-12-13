@@ -23,7 +23,6 @@
           # Uncomment this line to take LabWC in use
           # profiles.graphics.compositor = "labwc";
           profiles.applications.enable = false;
-          profiles.applications.sharedMemoryServer = false;
           windows-launcher.enable = false;
           development = {
             ssh.daemon.enable = lib.mkDefault configHost.ghaf.development.ssh.daemon.enable;
@@ -61,6 +60,12 @@
           writableStoreOverlay = lib.mkIf config.ghaf.development.debug.tools.enable "/nix/.rw-store";
 
           qemu.extraArgs = [
+            "-object"
+            "memory-backend-file,size=${builtins.toString config.ghaf.profiles.applications.ivShMemServer.memSize}M,share=on,mem-path=/dev/shm/ivshmem,id=hostmem" 
+            "-device"
+            "ivshmem-doorbell,vectors=2,chardev=ivs_socket"
+            "-chardev"
+            "socket,path=/tmp/ivshmem_socket,id=ivs_socket"
           ];
         };
 
@@ -117,7 +122,7 @@ in {
   config = lib.mkIf cfg.enable {
     microvm.vms."${vmName}" = {
       autostart = true;
-      config = 
+      config =
         guivmBaseConfiguration
         // {
           imports =
