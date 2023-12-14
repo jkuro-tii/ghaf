@@ -12,7 +12,7 @@ in
   with lib; {
     options.ghaf.profiles.applications = {
       enable = mkEnableOption "Some sample applications";
-      ivShMemServer = { 
+      ivShMemServer = {
         enable = mkEnableOption "Shared memory server";
         memSize = mkOption {
           type = lib.types.int;
@@ -37,9 +37,9 @@ in
       })
       (mkIf cfg.ivShMemServer.enable {
         systemd.services."ivshmemsrv" = let
-          ivShMemSrv = let 
+          ivShMemSrv = let
             socketPath = "/tmp/ivshmem_socket";
-            pidFilePath = "/tmp/ivshmem-server.pid"; in 
+            pidFilePath = "/tmp/ivshmem-server.pid"; in
             pkgs.writeShellScriptBin "ivshmemsrv" ''
               if [ -S ${socketPath} ]; then
                 echo Erasing ${socketPath} ${pidFilePath}

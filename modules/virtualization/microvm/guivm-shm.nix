@@ -61,7 +61,7 @@
 
           qemu.extraArgs = [
             "-object"
-            "memory-backend-file,size=${builtins.toString config.ghaf.profiles.applications.ivShMemServer.memSize}M,share=on,mem-path=/dev/shm/ivshmem,id=hostmem" 
+            "memory-backend-file,size=${builtins.toString config.ghaf.profiles.applications.ivShMemServer.memSize}M,share=on,mem-path=/dev/shm/ivshmem,id=hostmem"
             "-device"
             "ivshmem-doorbell,vectors=2,chardev=ivs_socket"
             "-chardev"
@@ -70,6 +70,10 @@
         };
 
         imports = import ../../module-list.nix;
+
+        services.udev.extraRules = ''
+          SUBSYSTEM=="misc",KERNEL=="ivshmem",GROUP="kvm",MODE="0666"
+          '';
 
         # Waypipe service runs in the GUIVM and listens for incoming connections from AppVMs
         systemd.user.services.waypipe = {

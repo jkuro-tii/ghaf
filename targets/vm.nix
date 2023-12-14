@@ -21,15 +21,6 @@
           ../modules/virtualization/microvm/guivm-shm.nix
           ../modules/virtualization/microvm/appvm-shm.nix
           ../modules/virtualization/microvm/netvm.nix
-          ({
-            pkgs,
-            lib,
-            ...
-          }:
-          { services.udev.extraRules = ''
-              SUBSYSTEM=="misc",KERNEL=="ivshmem",GROUP="kvm"
-          '';
-          })
 
           {
             ghaf = {
