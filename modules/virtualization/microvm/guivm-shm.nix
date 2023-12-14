@@ -143,20 +143,21 @@ in {
       specialArgs = {inherit lib;};
     };
 
-    # Waypipe in GUIVM needs to communicate with AppVMs over VSOCK
-    # However, VSOCK does not support direct guest to guest communication
-    # The vsockproxy app is used on host as a bridge between AppVMs and GUIVM
-    # It listens for incoming connections from AppVMs and forwards data to GUIVM
-    # systemd.services.vsockproxy = {
-    #   enable = true;
-    #   description = "vsockproxy";
-    #   unitConfig = {
-    #     Type = "simple";
-    #   };
-    #   serviceConfig = {
-    #     ExecStart = "${vsockproxy}/bin/vsockproxy ${toString cfg.waypipePort} ${toString cfg.vsockCID} ${toString cfg.waypipePort}";
-    #   };
-    #   wantedBy = ["multi-user.target"];
-    # };
+    # Waypipe in GUIVM needs to communicate with AppVMs using socket forwading 
+    # application. It uses shared memory between virtual machines to forward 
+    # data between sockets.
+    # 
+    systemd.services.memsocket = let
+        memSocketPath = "/tmp/memsocket.client"; in {
+      enable = true;
+      description = "memsocket";
+      unitConfig = {
+        Type = "simple";
+      };
+      serviceConfig = {
+        ExecStart = "${memsocket}/memsocket -s ${memSocketPath}"
+      };
+      wantedBy = ["multi-user.target"];
+    };
   };
 }
