@@ -183,6 +183,12 @@
               # Laptop touchpad - UAE revision
               SUBSYSTEM=="input",ATTRS{name}=="ELAN067C:00 04F3:31F9 Mouse",KERNEL=="event*",GROUP="kvm",SYMLINK+="mouse"
               SUBSYSTEM=="input",ATTRS{name}=="ELAN067C:00 04F3:31F9 Touchpad",KERNEL=="event*",GROUP="kvm",SYMLINK+="touchpad"
+              # Laptop touchpad - Gen 10
+              SUBSYSTEM=="input",ATTRS{name}=="SYNA8017:00 06CB:CEB2 Mouse",KERNEL=="event*",GROUP="kvm",SYMLINK+="mouse"
+              SUBSYSTEM=="input",ATTRS{name}=="SYNA8017:00 06CB:CEB2 Touchpad",KERNEL=="event*",GROUP="kvm",SYMLINK+="touchpad"
+              SUBSYSTEM=="input",ATTRS{name}=="ELAN901C:00 04F3:2C4E",KERNEL=="event*",GROUP="kvm",SYMLINK+="mouse"
+              SUBSYSTEM=="input",ATTRS{name}=="ELAN901C:00 04F3:2C4E UNKNOWN",KERNEL=="event*",GROUP="kvm",SYMLINK+="touchpad"
+              SUBSYSTEM=="usb", ATTR{idVendor}=="04f2", ATTR{idProduct}=="b750", GROUP="kvm"
               # Laptop TrackPoint
               SUBSYSTEM=="input",ATTRS{name}=="TPPS/2 Elan TrackPoint",GROUP="kvm"
               # Lenovo X1 integrated webcam
