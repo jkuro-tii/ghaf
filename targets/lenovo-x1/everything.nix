@@ -108,6 +108,8 @@
               # Enable all the default UI applications
               profiles = {
                 applications.enable = false;
+                applications.ivShMemServer.memSize = 16;
+                applications.ivShMemServer.vmCount = 6;
               };
               windows-launcher = {
                 enable = true;
@@ -129,6 +131,8 @@
                 config.ghaf.hardware.definition.network.pciDevices
                 ++ config.ghaf.hardware.definition.gpu.pciDevices
               ));
+              hugepagesz = 2;
+              hugepages = config.ghaf.profiles.applications.ivShMemServer.memSize / hugepagesz;
             in [
               "intel_iommu=on,igx_off,sm_on"
               "iommu=pt"
@@ -136,6 +140,8 @@
               "module_blacklist=i915"
 
               "vfio-pci.ids=${builtins.concatStringsSep "," vfioPciIds}"
+              "hugepagesz=${toString hugepagesz}M"
+              "hugepages=${toString hugepages}"
             ];
 
             boot.initrd.availableKernelModules = ["nvme"];
