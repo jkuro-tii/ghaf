@@ -3,6 +3,7 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }: let
   configHost = config;
@@ -16,6 +17,9 @@
       if vm.cid > 0
       then vm.cid
       else cfg.vsockBaseCID + index;
+    memsocket = pkgs.callPackage ../../../user-apps/memsocket {
+      debug = true; vms = config.ghaf.profiles.applications.ivShMemServer.vmCount;
+    };
     appvmConfiguration = {
       imports = [
         (import ./common/vm-networking.nix {
@@ -65,6 +69,7 @@
 
           environment.systemPackages = [
             pkgs.waypipe
+            memsocket
           ];
 
           microvm = {
@@ -89,10 +94,25 @@
             qemu.extraArgs = [
               "-M"
               "q35,accel=kvm:tcg,mem-merge=on,sata=off"
-              "-device"
-              "vhost-vsock-pci,guest-cid=${toString cid}"
             ];
           };
+
+          services.udev.extraRules = ''
+            SUBSYSTEM=="misc",KERNEL=="ivshmem",GROUP="kvm",MODE="0666"
+          '';
+
+          systemd.user.services.memsocket = {
+            enable = true;
+            description = "memsocket";
+            serviceConfig = {
+              Type = "simple";
+              ExecStart = "${memsocket}/bin/memsocket -s ${config.ghaf.profiles.applications.ivShMemServer.serverSocketPath} ${builtins.toString cid}";
+              Restart = "always";
+              RestartSec = "1";
+            };
+            wantedBy = ["default.target"];
+          };
+
           fileSystems."/run/waypipe-ssh-public-key".options = ["ro"];
 
           imports = import ../../module-list.nix;
@@ -101,7 +121,19 @@
     };
   in {
     autostart = true;
-    config = appvmConfiguration // {imports = appvmConfiguration.imports ++ cfg.extraModules ++ vm.extraModules ++ [{environment.systemPackages = vm.packages;}];};
+    config = appvmConfiguration // {imports = appvmConfiguration.imports ++ cfg.extraModules ++ vm.extraModules ++ [{environment.systemPackages = vm.packages;}];
+    } // {
+      boot.kernelPatches = [{
+        name = "Shared memory PCI driver";
+        patch = pkgs.fetchpatch {
+          url = "https://raw.githubusercontent.com/tiiuae/shmsockproxy/dev_x1/0001-ivshmem-driver.patch";
+          sha256 = "sha256-ShFpmRuJ6eVuu7xqzcbfMbd0NKbwFOBIV4tL8PgjWlg=";
+        };
+        extraConfig = ''
+          KVM_IVSHMEM_VM_COUNT ${toString config.ghaf.profiles.applications.ivShMemServer.vmCount}
+          '';
+      }];
+    };
     specialArgs = {inherit lib;};
   };
 in {
@@ -174,11 +206,11 @@ in {
     };
 
     # Base VSOCK CID which is used for auto assigning CIDs for all AppVMs
-    # For example, when it's set to 100, AppVMs will get 100, 101, 102, etc.
+    # For example, when it's set to 0, AppVMs will get 0, 1, 2, etc.
     # It is also possible to override the auto assinged CID using the vms.cid option
     vsockBaseCID = lib.mkOption {
       type = lib.types.int;
-      default = 100;
+      default = 0;
       description = ''
         Context Identifier (CID) of the AppVM VSOCK
       '';
