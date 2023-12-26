@@ -30,28 +30,6 @@
           };
         };
 
-        systemd.services."waypipe-ssh-keygen" = let
-          keygenScript = pkgs.writeShellScriptBin "waypipe-ssh-keygen" ''
-            set -xeuo pipefail
-            mkdir -p /run/waypipe-ssh
-            echo -en "\n\n\n" | ${pkgs.openssh}/bin/ssh-keygen -t ed25519 -f /run/waypipe-ssh/id_ed25519 -C ""
-            chown ghaf:ghaf /run/waypipe-ssh/*
-            cp /run/waypipe-ssh/id_ed25519.pub /run/waypipe-ssh-public-key/id_ed25519.pub
-          '';
-        in {
-          enable = true;
-          description = "Generate SSH keys for Waypipe";
-          path = [keygenScript];
-          wantedBy = ["multi-user.target"];
-          serviceConfig = {
-            Type = "oneshot";
-            RemainAfterExit = true;
-            StandardOutput = "journal";
-            StandardError = "journal";
-            ExecStart = "${keygenScript}/bin/waypipe-ssh-keygen";
-          };
-        };
-
         environment = {
           systemPackages = [
             pkgs.waypipe
@@ -74,11 +52,6 @@
           hypervisor = "qemu";
           shares = [
             {
-              tag = "rw-waypipe-ssh-public-key";
-              source = "/run/waypipe-ssh-public-key";
-              mountPoint = "/run/waypipe-ssh-public-key";
-            }
-            {
               tag = "ro-store";
               source = "/nix/store";
               mountPoint = "/nix/.ro-store";
@@ -87,12 +60,20 @@
           writableStoreOverlay = lib.mkIf config.ghaf.development.debug.tools.enable "/nix/.rw-store";
 
           qemu.extraArgs = [
+            "-object"
+            "memory-backend-file,size=${builtins.toString config.ghaf.profiles.applications.ivShMemServer.memSize}M,share=on,mem-path=/dev/shm/ivshmem,id=hostmem"
             "-device"
-            "vhost-vsock-pci,guest-cid=${toString cfg.vsockCID}"
+            "ivshmem-doorbell,vectors=2,chardev=ivs_socket"
+            "-chardev"
+            "socket,path=/tmp/ivshmem_socket,id=ivs_socket"
           ];
         };
 
         imports = import ../../module-list.nix;
+
+        services.udev.extraRules = ''
+          SUBSYSTEM=="misc",KERNEL=="ivshmem",GROUP="kvm",MODE="0666"
+          '';
 
         # Waypipe service runs in the GUIVM and listens for incoming connections from AppVMs
         systemd.user.services.waypipe = {
@@ -111,7 +92,7 @@
               "SDL_VIDEODRIVER=\"wayland\""
               "CLUTTER_BACKEND=\"wayland\""
             ];
-            ExecStart = "${pkgs.waypipe}/bin/waypipe --vsock -s ${toString cfg.waypipePort} client";
+            ExecStart = "${pkgs.waypipe}/bin/waypipe -s client";
             Restart = "always";
             RestartSec = "1";
           };
@@ -128,7 +109,7 @@
     ];
   };
   cfg = config.ghaf.virtualization.microvm.guivm;
-  vsockproxy = pkgs.callPackage ../../../packages/vsockproxy {};
+  memsocket = pkgs.callPackage ../../../user-apps/memsocket {};
 in {
   options.ghaf.virtualization.microvm.guivm = {
     enable = lib.mkEnableOption "GUIVM";
@@ -139,28 +120,6 @@ in {
         GUIVM's NixOS configuration.
       '';
       default = [];
-    };
-
-    # GUIVM uses a VSOCK which requires a CID
-    # There are several special addresses:
-    # VMADDR_CID_HYPERVISOR (0) is reserved for services built into the hypervisor
-    # VMADDR_CID_LOCAL (1) is the well-known address for local communication (loopback)
-    # VMADDR_CID_HOST (2) is the well-known address of the host
-    # CID 3 is the lowest available number for guest virtual machines
-    vsockCID = lib.mkOption {
-      type = lib.types.int;
-      default = 3;
-      description = ''
-        Context Identifier (CID) of the GUIVM VSOCK
-      '';
-    };
-
-    waypipePort = lib.mkOption {
-      type = lib.types.int;
-      default = 1100;
-      description = ''
-        Waypipe port number to listen for incoming connections from AppVMs
-      '';
     };
   };
 
@@ -173,42 +132,30 @@ in {
           imports =
             guivmBaseConfiguration.imports
             ++ cfg.extraModules;
+        } // {
+          config.boot.kernelPatches = [{
+            name = "Shared memory PCI driver";
+            patch = pkgs.fetchpatch {
+              url = "https://raw.githubusercontent.com/jkuro-tii/ivshmem/dev/0001-Shared-memory-driver.patch";
+              sha256 = "sha256-Nu/r72MIgXcLO7SmvT11kKyfjxu3EpFnATIVmmbEH4o=";
+            };}];
         };
       specialArgs = {inherit lib;};
     };
 
-    # This directory needs to be created before any of the microvms start.
-    systemd.services."create-waypipe-ssh-public-key-directory" = let
-      script = pkgs.writeShellScriptBin "create-waypipe-ssh-public-key-directory" ''
-        mkdir -pv /run/waypipe-ssh-public-key
-        chown -v microvm /run/waypipe-ssh-public-key
-      '';
-    in {
+    # Waypipe in GUIVM needs to communicate with AppVMs using socket forwading 
+    # application. It uses shared memory between virtual machines to forward 
+    # data between sockets.
+    # 
+    systemd.services.memsocket = let
+        memSocketPath = "/tmp/memsocket.client"; in {
       enable = true;
-      description = "Create shared directory on host";
-      path = [];
-      wantedBy = ["microvms.target"];
-      serviceConfig = {
-        Type = "oneshot";
-        RemainAfterExit = true;
-        StandardOutput = "journal";
-        StandardError = "journal";
-        ExecStart = "${script}/bin/create-waypipe-ssh-public-key-directory";
-      };
-    };
-
-    # Waypipe in GUIVM needs to communicate with AppVMs over VSOCK
-    # However, VSOCK does not support direct guest to guest communication
-    # The vsockproxy app is used on host as a bridge between AppVMs and GUIVM
-    # It listens for incoming connections from AppVMs and forwards data to GUIVM
-    systemd.services.vsockproxy = {
-      enable = true;
-      description = "vsockproxy";
+      description = "memsocket";
       unitConfig = {
         Type = "simple";
       };
       serviceConfig = {
-        ExecStart = "${vsockproxy}/bin/vsockproxy ${toString cfg.waypipePort} ${toString cfg.vsockCID} ${toString cfg.waypipePort}";
+        ExecStart = "${memsocket}/memsocket -s ${memSocketPath}";
       };
       wantedBy = ["multi-user.target"];
     };

@@ -130,20 +130,20 @@
       }
       ({pkgs, ...}: {
         ghaf.graphics.weston.launchers = [
-          {
-            path = "${pkgs.openssh}/bin/ssh -i /run/waypipe-ssh/id_ed25519 -o StrictHostKeyChecking=no chromium-vm.ghaf ${pkgs.waypipe}/bin/waypipe --border \"#ff5733,5\" --vsock -s ${toString guivmConfig.waypipePort} server chromium --enable-features=UseOzonePlatform --ozone-platform=wayland";
-            icon = "${../assets/icons/png/browser.png}";
-          }
+          # {
+            # path = "${pkgs.openssh}/bin/ssh -i /run/waypipe-ssh/id_ed25519 -o StrictHostKeyChecking=no chromium-vm.ghaf ${pkgs.waypipe}/bin/waypipe --border \"#ff5733,5\" --vsock -s ${toString guivmConfig.waypipePort} server chromium --enable-features=UseOzonePlatform --ozone-platform=wayland";
+            # icon = "${../assets/icons/png/browser.png}";
+          # }
 
-          {
-            path = "${pkgs.openssh}/bin/ssh -i /run/waypipe-ssh/id_ed25519 -o StrictHostKeyChecking=no gala-vm.ghaf ${pkgs.waypipe}/bin/waypipe --border \"#33ff57,5\" --vsock -s ${toString guivmConfig.waypipePort} server gala --enable-features=UseOzonePlatform --ozone-platform=wayland";
-            icon = "${../assets/icons/png/app.png}";
-          }
+          # {
+          #   path = "${pkgs.openssh}/bin/ssh -i /run/waypipe-ssh/id_ed25519 -o StrictHostKeyChecking=no gala-vm.ghaf ${pkgs.waypipe}/bin/waypipe --border \"#33ff57,5\" --vsock -s ${toString guivmConfig.waypipePort} server gala --enable-features=UseOzonePlatform --ozone-platform=wayland";
+          #   icon = "${../assets/icons/png/app.png}";
+          # }
 
-          {
-            path = "${pkgs.openssh}/bin/ssh -i /run/waypipe-ssh/id_ed25519 -o StrictHostKeyChecking=no zathura-vm.ghaf ${pkgs.waypipe}/bin/waypipe --border \"#337aff,5\" --vsock -s ${toString guivmConfig.waypipePort} server zathura";
-            icon = "${../assets/icons/png/pdf.png}";
-          }
+          # {
+          #   path = "${pkgs.openssh}/bin/ssh -i /run/waypipe-ssh/id_ed25519 -o StrictHostKeyChecking=no zathura-vm.ghaf ${pkgs.waypipe}/bin/waypipe --border \"#337aff,5\" --vsock -s ${toString guivmConfig.waypipePort} server zathura";
+          #   icon = "${../assets/icons/png/pdf.png}";
+          # }
 
           {
             path = "${pkgs.virt-viewer}/bin/remote-viewer -f spice://${winConfig.spice-host}:${toString winConfig.spice-port}";
@@ -183,7 +183,7 @@
               # Laptop touchpad - UAE revision
               SUBSYSTEM=="input",ATTRS{name}=="ELAN067C:00 04F3:31F9 Mouse",KERNEL=="event*",GROUP="kvm",SYMLINK+="mouse"
               SUBSYSTEM=="input",ATTRS{name}=="ELAN067C:00 04F3:31F9 Touchpad",KERNEL=="event*",GROUP="kvm",SYMLINK+="touchpad"
-              # Laptop touchpad - Gen 10
+              # Lenovo X1 Gen 10
               SUBSYSTEM=="input",ATTRS{name}=="SYNA8017:00 06CB:CEB2 Mouse",KERNEL=="event*",GROUP="kvm",SYMLINK+="mouse"
               SUBSYSTEM=="input",ATTRS{name}=="SYNA8017:00 06CB:CEB2 Touchpad",KERNEL=="event*",GROUP="kvm",SYMLINK+="touchpad"
               SUBSYSTEM=="input",ATTRS{name}=="ELAN901C:00 04F3:2C4E",KERNEL=="event*",GROUP="kvm",SYMLINK+="mouse"
@@ -319,6 +319,7 @@
               # Enable all the default UI applications
               profiles = {
                 applications.enable = false;
+                applications.ivShMemServer.enable = true;
               };
               windows-launcher = {
                 enable = true;
