@@ -9,6 +9,7 @@
   configHost = config;
   vmName = "gui-vm";
   macAddress = "02:00:00:02:02:02";
+  memsocket = pkgs.callPackage ../../../user-apps/memsocket {};
   guivmBaseConfiguration = {
     imports = [
       (import ./common/vm-networking.nix {inherit vmName macAddress;})
@@ -35,6 +36,7 @@
             pkgs.waypipe
             pkgs.networkmanagerapplet
             pkgs.nm-launcher
+            memsocket
           ];
         };
 
@@ -61,7 +63,7 @@
 
           qemu.extraArgs = [
             "-object"
-            "memory-backend-file,size=${builtins.toString config.ghaf.profiles.applications.ivShMemServer.memSize}M,share=on,mem-path=/dev/shm/ivshmem,id=hostmem"
+            "memory-backend-file,size=${config.ghaf.profiles.applications.ivShMemServer.memSize},share=on,mem-path=/dev/shm/ivshmem,id=hostmem"
             "-device"
             "ivshmem-doorbell,vectors=2,chardev=ivs_socket"
             "-chardev"
@@ -76,29 +78,51 @@
           '';
 
         # Waypipe service runs in the GUIVM and listens for incoming connections from AppVMs
-        systemd.user.services.waypipe = {
-          enable = true;
-          description = "waypipe";
-          after = ["weston.service"];
-          serviceConfig = {
-            Type = "simple";
-            Environment = [
-              "WAYLAND_DISPLAY=\"wayland-1\""
-              "DISPLAY=\":0\""
-              "XDG_SESSION_TYPE=wayland"
-              "QT_QPA_PLATFORM=\"wayland\"" # Qt Applications
-              "GDK_BACKEND=\"wayland\"" # GTK Applications
-              "XDG_SESSION_TYPE=\"wayland\"" # Electron Applications
-              "SDL_VIDEODRIVER=\"wayland\""
-              "CLUTTER_BACKEND=\"wayland\""
-            ];
-            ExecStart = "${pkgs.waypipe}/bin/waypipe -s client";
-            Restart = "always";
-            RestartSec = "1";
+        # via shared memory socket
+        systemd.user.services = let
+            memSocketPath = "/tmp/ivshmem_socket";
+            pidFilePath = "/tmp/ivshmem-server.pid"; in
+        {
+          waypipe = {
+            enable = true;
+            description = "waypipe";
+            after = ["memsocket.service"];
+            serviceConfig = {
+              Type = "simple";
+              Environment = [
+                "WAYLAND_DISPLAY=\"wayland-1\""
+                "DISPLAY=\":0\""
+                "XDG_SESSION_TYPE=wayland"
+                "QT_QPA_PLATFORM=\"wayland\"" # Qt Applications
+                "GDK_BACKEND=\"wayland\"" # GTK Applications
+                "XDG_SESSION_TYPE=\"wayland\"" # Electron Applications
+                "SDL_VIDEODRIVER=\"wayland\""
+                "CLUTTER_BACKEND=\"wayland\""
+              ];
+              ExecStart = "${pkgs.waypipe}/bin/waypipe -s ${memSocketPath} client";
+              Restart = "always";
+              RestartSec = "1";
+            };
+            wantedBy = ["ghaf-session.target"];
           };
-          wantedBy = ["ghaf-session.target"];
-        };
 
+          # Waypipe in GUIVM needs to communicate with AppVMs using socket forwading
+          # application. It uses shared memory between virtual machines to forward
+          # data between sockets.
+          #
+          memsocket = {
+            enable = true;
+            description = "memsocket";
+            after = ["weston.service"];
+            unitConfig = {
+              Type = "simple";
+            };
+            serviceConfig = {
+              ExecStart = "${memsocket}/bin/memsocket -s ${memSocketPath}";
+            };
+            wantedBy = ["ghaf-session.target"];
+          };
+        };
         # Fixed IP-address for debugging subnet
         systemd.network.networks."10-ethint0".addresses = [
           {
@@ -108,19 +132,18 @@
       })
     ];
   };
-  cfg = config.ghaf.virtualization.microvm.guivm;
-  memsocket = pkgs.callPackage ../../../user-apps/memsocket {};
-in {
-  options.ghaf.virtualization.microvm.guivm = {
-    enable = lib.mkEnableOption "GUIVM";
+  cfg = config.ghaf.virtualization.microvm.guivm; in
+  {
+    options.ghaf.virtualization.microvm.guivm = {
+      enable = lib.mkEnableOption "GUIVM";
 
-    extraModules = lib.mkOption {
-      description = ''
-        List of additional modules to be imported and evaluated as part of
-        GUIVM's NixOS configuration.
-      '';
-      default = [];
-    };
+      extraModules = lib.mkOption {
+        description = ''
+          List of additional modules to be imported and evaluated as part of
+          GUIVM's NixOS configuration.
+        '';
+        default = [];
+      };
   };
 
   config = lib.mkIf cfg.enable {
@@ -143,21 +166,28 @@ in {
       specialArgs = {inherit lib;};
     };
 
-    # Waypipe in GUIVM needs to communicate with AppVMs using socket forwading 
-    # application. It uses shared memory between virtual machines to forward 
-    # data between sockets.
-    # 
-    systemd.services.memsocket = let
-        memSocketPath = "/tmp/memsocket.client"; in {
+    systemd.services."ivshmemsrv" = let
+      socketPath = "/tmp/ivshmem_socket";
+      pidFilePath = "/tmp/ivshmem-server.pid";
+      ivShMemSrv = pkgs.writeShellScriptBin "ivshmemsrv" ''
+          if [ -S ${socketPath} ]; then
+            echo Erasing ${socketPath} ${pidFilePath}
+            rm -f ${socketPath}
+          fi
+          ${pkgs.sudo}/sbin/sudo -u microvm -g kvm ${pkgs.qemu_kvm}/bin/ivshmem-server -p ${pidFilePath} -n 2 -m /dev/shm -l ${config.ghaf.profiles.applications.ivShMemServer.memSize}
+        ''; in
+    {
       enable = true;
-      description = "memsocket";
-      unitConfig = {
-        Type = "simple";
-      };
-      serviceConfig = {
-        ExecStart = "${memsocket}/memsocket -s ${memSocketPath}";
-      };
+      description = "Start qemu ivshmem memory server";
+      path = [ivShMemSrv];
       wantedBy = ["multi-user.target"];
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        StandardOutput = "journal";
+        StandardError = "journal";
+        ExecStart = "${ivShMemSrv}/bin/ivshmemsrv";
+      };
     };
   };
 }

@@ -319,7 +319,7 @@
               # Enable all the default UI applications
               profiles = {
                 applications.enable = false;
-                applications.ivShMemServer.enable = true;
+                applications.ivShMemServer.memSize = "16M";
               };
               windows-launcher = {
                 enable = true;
