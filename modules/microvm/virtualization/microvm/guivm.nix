@@ -122,7 +122,7 @@ let
                 pkgs.sticky-notes
               ])
               ++ [
-                pkgs.nm-launcher
+                (pkgs.nm-launcher.override { inherit (config.ghaf.users.accounts) uid; })
                 pkgs.bt-launcher
                 pkgs.pamixer
                 pkgs.eww
@@ -204,7 +204,11 @@ let
             description = "waypipe";
             serviceConfig = {
               Type = "simple";
-              ExecStart = "${pkgs.waypipe}/bin/waypipe --vsock -s ${toString cfg.waypipePort} client";
+              ExecStart =
+                if config.ghaf.shm.display then
+                  "${pkgs.waypipe}/bin/waypipe -s ${config.ghaf.shm.clientSocketPath} client"
+                else
+                  "${pkgs.waypipe}/bin/waypipe --vsock -s ${toString cfg.waypipePort} client";
               Restart = "always";
               RestartSec = "1";
             };
@@ -261,6 +265,7 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    ghaf.shm.vms_enabled = [ vmName ]; # Allow access to VMs shared memory
     microvm.vms."${vmName}" = {
       autostart = true;
       config = guivmBaseConfiguration // {

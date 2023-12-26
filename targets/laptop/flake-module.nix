@@ -30,6 +30,9 @@ let
         ghaf = {
           hardware.definition = import ../../modules/reference/hardware/lenovo-x1/definitions/x1-gen11.nix;
           reference.profiles.mvp-user-trial.enable = true;
+          shm.enable = true;
+          shm.display = true;
+          shm.enable_host = true;
         };
       }
     ])
