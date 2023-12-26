@@ -43,5 +43,6 @@ in
         ++ (lib.optionals cfg.appflowy-vm [ (import ./appflowy.nix { inherit pkgs lib config; }) ])
         ++ (lib.optionals cfg.business-vm [ (import ./business.nix { inherit pkgs lib config; }) ]);
     };
+    ghaf.shm.vms_enabled = ["chromium-vm" "element-vm"]; # Allow access to VMs shared memory
   };
 }
