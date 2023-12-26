@@ -4,21 +4,112 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }: let
   cfg = config.ghaf.profiles.applications;
-in {
-  options.ghaf.profiles.applications = {
-    enable = lib.mkEnableOption "Some sample applications";
-    #TODO Create options to allow enabling individual apps
-  };
-
-  config = lib.mkIf cfg.enable {
-    # TODO: Needs more generic support for defining application launchers
-    #       across different window managers.
-    ghaf = {
-      profiles.graphics.enable = true;
-      graphics.enableDemoApplications = true;
+in
+  with lib; {
+    options.ghaf.profiles.applications = {
+      enable = mkEnableOption "Some sample applications";
+      #TODO Create options to allow enabling individual apps
+      #weston.ini.nix mods needed
+      ivShMemServer = {
+        enable = mkOption {
+          type = types.bool;
+          default = false;
+          description = "Enable memory sharing between virtual machines";
+        };
+        memSize = mkOption {
+          type = lib.types.int;
+          default = 16;
+          description = mdDoc ''
+            Defines shared memory size
+          '';
+        };
+        vmCount = mkOption {
+          type = lib.types.int;
+          default = 6;
+          description = mdDoc ''
+            Defines maximum number of application VMs
+          '';
+        };
+        serverSocketPath = mkOption {
+          type = lib.types.str;
+          default = "/run/user/1000/memsocket-server.sock";
+          description = mdDoc ''
+            Defines location of the listening socket.
+            It's used by waypipe as an output socket when running in server mode
+          '';
+        };
+        clientSocketPath = mkOption {
+          type = lib.types.str;
+          default = "/run/user/1000/memsocket-client.sock";
+          description = mdDoc ''
+            Defines location of the output socket. It's fed
+            with data coming from AppVMs.
+            It's used by waypipe as an input socket when running in client mode
+          '';
+        };
+        hostSocketPath = mkOption {
+          type = lib.types.str;
+          default = "/tmp/ivshmem_socket"; # The value is hardcoded in the application
+          description = mdDoc ''
+            Defines location of the shared memory socket. It's used by qemu
+            instances for memory sharing and sending interrupts.
+          '';
+        };
+        flataddr = mkOption {
+          type = lib.types.str;
+          default = "0x920000000";
+          description = mdDoc ''
+            If set to a non-zero value, it maps the shared memory
+            into this physical address.
+          '';
+        };
+        qemuOption = mkOption {
+          type = lib.types.listOf lib.types.str;
+          default = let
+            vectors = toString (2 * config.ghaf.profiles.applications.ivShMemServer.vmCount);
+          in [
+            "-device"
+            "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket,flataddr=${config.ghaf.profiles.applications.ivShMemServer.flataddr}"
+            "-chardev"
+            "socket,path=${config.ghaf.profiles.applications.ivShMemServer.hostSocketPath},id=ivs_socket"
+          ];
+        };
+        display = mkOption {
+          type = types.bool;
+          default = false;
+          description = "Display VMs using shared memory";
+        };
+        kernelPatches = mkOption {
+          type = lib.types.listOf lib.types.attrs;
+          default =
+            if config.ghaf.profiles.applications.ivShMemServer.enable
+            then [
+              {
+                name = "Shared memory PCI driver";
+                patch = pkgs.fetchpatch {
+                  url = "https://raw.githubusercontent.com/tiiuae/shmsockproxy/main/0001-ivshmem-driver.patch";
+                  sha256 = "sha256-Nj9U9QRqgMluuF9ui946mqG6RQGxNyDmfcYHqMZlcvc=";
+                };
+                extraConfig = ''
+                  KVM_IVSHMEM_VM_COUNT ${toString config.ghaf.profiles.applications.ivShMemServer.vmCount}
+                '';
+              }
+            ]
+            else [];
+        };
+      };
     };
-  };
-}
+
+    config = lib.mkIf cfg.enable {
+      # TODO: Needs more generic support for defining application launchers
+      #       across different window managers.
+      ghaf = {
+        profiles.graphics.enable = true;
+        graphics.enableDemoApplications = true;
+      };
+    };
+  }
