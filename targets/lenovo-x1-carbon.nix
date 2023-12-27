@@ -294,25 +294,30 @@
                           "intel-hda"
                           "-device"
                           "hda-duplex,audiodev=pa1"
+                          # Add shared memory support
+                          "ivshmem-doorbell,vectors=2,chardev=ivs_socket"
+                          "-chardev"
+                          "socket,path=/tmp/ivshmem_socket,id=ivs_socket"
+
                         ];
                         microvm.devices = [];
                       }
                     ];
                   }
-                  {
-                    name = "gala";
-                    packages = [pkgs.gala-app];
-                    macAddress = "02:00:00:03:06:01";
-                    ramMb = 1536;
-                    cores = 2;
-                  }
-                  {
-                    name = "zathura";
-                    packages = [pkgs.zathura];
-                    macAddress = "02:00:00:03:07:01";
-                    ramMb = 512;
-                    cores = 1;
-                  }
+                  # {
+                  #   name = "gala";
+                  #   packages = [pkgs.gala-app];
+                  #   macAddress = "02:00:00:03:06:01";
+                  #   ramMb = 1536;
+                  #   cores = 2;
+                  # }
+                  # {
+                  #   name = "zathura";
+                  #   packages = [pkgs.zathura];
+                  #   macAddress = "02:00:00:03:07:01";
+                  #   ramMb = 512;
+                  #   cores = 1;
+                  # }
                 ];
               };
 
