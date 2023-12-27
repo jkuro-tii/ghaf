@@ -114,11 +114,11 @@
             enable = true;
             description = "memsocket";
             after = ["weston.service"];
-            unitConfig = {
-              Type = "simple";
-            };
             serviceConfig = {
-              ExecStart = "${memsocket}/bin/memsocket -s ${memSocketPath}";
+              Type = "simple";
+              ExecStart = "${memsocket}/bin/memsocket -c ${memSocketPath}";
+              Restart = "always";
+              RestartSec = "1";
             };
             wantedBy = ["ghaf-session.target"];
           };
