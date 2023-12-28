@@ -42,6 +42,16 @@
   lenovo-x1 = variant: extraModules: let
     netvmExtraModules = [
       ({pkgs, ...}: {
+        microvm = {
+          shares = [
+            {
+              tag = "waypipe-ssh-public-key";
+              source = "/run/waypipe-ssh-public-key";
+              mountPoint = "/run/waypipe-ssh-public-key";
+            }
+          ];
+        };
+        fileSystems."/run/waypipe-ssh-public-key".options = ["ro"];
 
         # For WLAN firmwares
         hardware.enableRedistributableFirmware = true;

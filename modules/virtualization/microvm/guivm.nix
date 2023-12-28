@@ -31,6 +31,28 @@
           };
         };
 
+        systemd.services."waypipe-ssh-keygen" = let
+          keygenScript = pkgs.writeShellScriptBin "waypipe-ssh-keygen" ''
+            set -xeuo pipefail
+            mkdir -p /run/waypipe-ssh
+            echo -en "\n\n\n" | ${pkgs.openssh}/bin/ssh-keygen -t ed25519 -f /run/waypipe-ssh/id_ed25519 -C ""
+            chown ghaf:ghaf /run/waypipe-ssh/*
+            cp /run/waypipe-ssh/id_ed25519.pub /run/waypipe-ssh-public-key/id_ed25519.pub
+          '';
+        in {
+          enable = true;
+          description = "Generate SSH keys for Waypipe";
+          path = [keygenScript];
+          wantedBy = ["multi-user.target"];
+          serviceConfig = {
+            Type = "oneshot";
+            RemainAfterExit = true;
+            StandardOutput = "journal";
+            StandardError = "journal";
+            ExecStart = "${keygenScript}/bin/waypipe-ssh-keygen";
+          };
+        };
+
         environment = {
           systemPackages = [
             pkgs.waypipe
@@ -53,6 +75,11 @@
           mem = 2048;
           hypervisor = "qemu";
           shares = [
+            {
+              tag = "rw-waypipe-ssh-public-key";
+              source = "/run/waypipe-ssh-public-key";
+              mountPoint = "/run/waypipe-ssh-public-key";
+            }
             {
               tag = "ro-store";
               source = "/nix/store";
@@ -80,9 +107,9 @@
         # Waypipe service runs in the GUIVM and listens for incoming connections from AppVMs
         # via shared memory socket
         systemd.user.services = let
-            memSocketPath = "/tmp/ivshmem_socket";
-            pidFilePath = "/tmp/ivshmem-server.pid"; in
-        {
+          memSocketPath = "/tmp/ivshmem_socket";
+          pidFilePath = "/tmp/ivshmem-server.pid";
+        in {
           waypipe = {
             enable = true;
             description = "waypipe";
@@ -132,8 +159,8 @@
       })
     ];
   };
-  cfg = config.ghaf.virtualization.microvm.guivm; in
-  {
+  cfg = config.ghaf.virtualization.microvm.guivm;
+  in {
     options.ghaf.virtualization.microvm.guivm = {
       enable = lib.mkEnableOption "GUIVM";
 
@@ -166,7 +193,27 @@
       specialArgs = {inherit lib;};
     };
 
-    systemd.services."ivshmemsrv" = let
+    # This directory needs to be created before any of the microvms start.
+    systemd.services."create-waypipe-ssh-public-key-directory" = let
+      script = pkgs.writeShellScriptBin "create-waypipe-ssh-public-key-directory" ''
+        mkdir -pv /run/waypipe-ssh-public-key
+        chown -v microvm /run/waypipe-ssh-public-key
+      '';
+    in {
+      enable = true;
+      description = "Create shared directory on host";
+      path = [];
+      wantedBy = ["microvms.target"];
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        StandardOutput = "journal";
+        StandardError = "journal";
+        ExecStart = "${script}/bin/create-waypipe-ssh-public-key-directory";
+      };
+    };
+
+    systemd.services.ivshmemsrv = let
       socketPath = "/tmp/ivshmem_socket";
       pidFilePath = "/tmp/ivshmem-server.pid";
       ivShMemSrv = pkgs.writeShellScriptBin "ivshmemsrv" ''
@@ -175,8 +222,8 @@
             rm -f ${socketPath}
           fi
           ${pkgs.sudo}/sbin/sudo -u microvm -g kvm ${pkgs.qemu_kvm}/bin/ivshmem-server -p ${pidFilePath} -n 2 -m /dev/shm -l ${config.ghaf.profiles.applications.ivShMemServer.memSize}
-        ''; in
-    {
+        ''; 
+    in {
       enable = true;
       description = "Start qemu ivshmem memory server";
       path = [ivShMemSrv];
