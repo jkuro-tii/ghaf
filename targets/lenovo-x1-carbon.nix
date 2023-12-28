@@ -42,16 +42,6 @@
   lenovo-x1 = variant: extraModules: let
     netvmExtraModules = [
       ({pkgs, ...}: {
-        microvm = {
-          shares = [
-            {
-              tag = "waypipe-ssh-public-key";
-              source = "/run/waypipe-ssh-public-key";
-              mountPoint = "/run/waypipe-ssh-public-key";
-            }
-          ];
-        };
-        fileSystems."/run/waypipe-ssh-public-key".options = ["ro"];
 
         # For WLAN firmwares
         hardware.enableRedistributableFirmware = true;
@@ -295,10 +285,10 @@
                           "-device"
                           "hda-duplex,audiodev=pa1"
                           # Add shared memory support
+                          "-device"
                           "ivshmem-doorbell,vectors=2,chardev=ivs_socket"
                           "-chardev"
                           "socket,path=/tmp/ivshmem_socket,id=ivs_socket"
-
                         ];
                         microvm.devices = [];
                       }

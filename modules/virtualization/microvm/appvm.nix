@@ -76,11 +76,6 @@
             hypervisor = "qemu";
             shares = [
               {
-                tag = "waypipe-ssh-public-key";
-                source = "/run/waypipe-ssh-public-key";
-                mountPoint = "/run/waypipe-ssh-public-key";
-              }
-              {
                 tag = "ro-store";
                 source = "/nix/store";
                 mountPoint = "/nix/.ro-store";
@@ -91,12 +86,8 @@
             qemu.extraArgs = [
               "-M"
               "q35,accel=kvm:tcg,mem-merge=on,sata=off"
-              "-device"
-              "vhost-vsock-pci,guest-cid=${toString cid}"
             ];
           };
-          fileSystems."/run/waypipe-ssh-public-key".options = ["ro"];
-
           imports = import ../../module-list.nix;
         })
       ];
@@ -162,7 +153,7 @@ in {
               type = int;
               default = 0;
             };
-          };
+               };
         });
         default = [];
       };
