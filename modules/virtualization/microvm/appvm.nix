@@ -3,6 +3,7 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }: let
   configHost = config;
@@ -16,6 +17,7 @@
       if vm.cid > 0
       then vm.cid
       else cfg.vsockBaseCID + index;
+    memsocket = pkgs.callPackage ../../../user-apps/memsocket {};
     appvmConfiguration = {
       imports = [
         (import ./common/vm-networking.nix {
@@ -67,6 +69,7 @@
 
           environment.systemPackages = [
             pkgs.waypipe
+            memsocket
           ];
 
           microvm = {
@@ -101,7 +104,15 @@
     };
   in {
     autostart = true;
-    config = appvmConfiguration // {imports = appvmConfiguration.imports ++ cfg.extraModules ++ vm.extraModules ++ [{environment.systemPackages = vm.packages;}];};
+    config = appvmConfiguration // {imports = appvmConfiguration.imports ++ cfg.extraModules ++ vm.extraModules ++ [{environment.systemPackages = vm.packages;}];
+    } // {
+      boot.kernelPatches = [{
+        name = "Shared memory PCI driver";
+        patch = pkgs.fetchpatch {
+          url = "https://raw.githubusercontent.com/jkuro-tii/ivshmem/dev/0001-Shared-memory-driver.patch";
+          sha256 = "sha256-Nu/r72MIgXcLO7SmvT11kKyfjxu3EpFnATIVmmbEH4o=";
+        };}];
+    };
     specialArgs = {inherit lib;};
   };
 in {
