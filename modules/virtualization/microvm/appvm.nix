@@ -96,6 +96,25 @@
               "q35,accel=kvm:tcg,mem-merge=on,sata=off"
             ];
           };
+
+          services.udev.extraRules = ''
+            SUBSYSTEM=="misc",KERNEL=="ivshmem",GROUP="kvm",MODE="0666"
+          '';
+
+          systemd.user.services.memsocket = let
+            memSocketPath = "/tmp/memsocket-server.sock";
+          in {
+            enable = true;
+            description = "memsocket";
+            serviceConfig = {
+              Type = "simple";
+              ExecStart = "${memsocket}/bin/memsocket -s ${memSocketPath}";
+              Restart = "always";
+              RestartSec = "1";
+            };
+            wantedBy = ["default.target"];
+          };
+
           fileSystems."/run/waypipe-ssh-public-key".options = ["ro"];
 
           imports = import ../../module-list.nix;

@@ -107,8 +107,7 @@
         # Waypipe service runs in the GUIVM and listens for incoming connections from AppVMs
         # via shared memory socket
         systemd.user.services = let
-          memSocketPath = "/tmp/ivshmem_socket";
-          pidFilePath = "/tmp/ivshmem-server.pid";
+          memSocketPath = "/tmp/memsocket-client.sock";
         in {
           waypipe = {
             enable = true;
@@ -222,7 +221,7 @@
             rm -f ${socketPath}
           fi
           ${pkgs.sudo}/sbin/sudo -u microvm -g kvm ${pkgs.qemu_kvm}/bin/ivshmem-server -p ${pidFilePath} -n 2 -m /dev/shm -l ${config.ghaf.profiles.applications.ivShMemServer.memSize}
-        ''; 
+        '';
     in {
       enable = true;
       description = "Start qemu ivshmem memory server";
