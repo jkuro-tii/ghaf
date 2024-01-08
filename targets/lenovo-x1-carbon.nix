@@ -113,6 +113,7 @@
     ];
     guivmConfig = hostConfiguration.config.ghaf.virtualization.microvm.guivm;
     winConfig = hostConfiguration.config.ghaf.windows-launcher;
+
     guivmExtraModules = [
       {
         # Early KMS needed for GNOME to work inside GuiVM
@@ -173,6 +174,7 @@
           ../modules/virtualization/microvm/netvm.nix
           ../modules/virtualization/microvm/guivm.nix
           ../modules/virtualization/microvm/appvm.nix
+          ../modules/virtualization/microvm/hardenedvm.nix
           ({
             pkgs,
             config,
@@ -211,7 +213,8 @@
 
             ghaf = {
               hardware.definition = hwDefinition;
-              host.kernel_hardening.enable = false;
+              host.hardening.enable = false;
+              guest.hardening.enable = false;
 
               host.hypervisor_hardening.enable = false;
 
