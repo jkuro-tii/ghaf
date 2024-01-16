@@ -88,11 +88,13 @@
           ];
           writableStoreOverlay = lib.mkIf config.ghaf.development.debug.tools.enable "/nix/.rw-store";
 
-          qemu.extraArgs = [
+          qemu.extraArgs =
+            let vectors = (toString (2 * config.ghaf.profiles.applications.ivShMemServer.vmCount)); in
+          [
             "-object"
             "memory-backend-file,size=${config.ghaf.profiles.applications.ivShMemServer.memSize},share=on,mem-path=/dev/shm/ivshmem,id=hostmem"
             "-device"
-            "ivshmem-doorbell,vectors=2,chardev=ivs_socket"
+            "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket"
             "-chardev"
             "socket,path=/tmp/ivshmem_socket,id=ivs_socket"
           ];
@@ -215,12 +217,14 @@
     systemd.services.ivshmemsrv = let
       socketPath = "/tmp/ivshmem_socket";
       pidFilePath = "/tmp/ivshmem-server.pid";
-      ivShMemSrv = pkgs.writeShellScriptBin "ivshmemsrv" ''
+      ivShMemSrv =
+          let vectors = (toString (2 * config.ghaf.profiles.applications.ivShMemServer.vmCount)); in
+        pkgs.writeShellScriptBin "ivshmemsrv" ''
           if [ -S ${socketPath} ]; then
             echo Erasing ${socketPath} ${pidFilePath}
             rm -f ${socketPath}
           fi
-          ${pkgs.sudo}/sbin/sudo -u microvm -g kvm ${pkgs.qemu_kvm}/bin/ivshmem-server -p ${pidFilePath} -n 2 -m /dev/shm -l ${config.ghaf.profiles.applications.ivShMemServer.memSize}
+          ${pkgs.sudo}/sbin/sudo -u microvm -g kvm ${pkgs.qemu_kvm}/bin/ivshmem-server -p ${pidFilePath} -n ${vectors} -m /dev/shm -l ${config.ghaf.profiles.applications.ivShMemServer.memSize}
         '';
     in {
       enable = true;

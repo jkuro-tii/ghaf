@@ -21,6 +21,13 @@ in
           Defines shared memory size
         '';
         };
+        vmCount = mkOption {
+          type = lib.types.int;
+          default = 6;
+          description = mdDoc ''
+          Defines maximum number of application VMs
+        '';
+        };
       };
     };
 

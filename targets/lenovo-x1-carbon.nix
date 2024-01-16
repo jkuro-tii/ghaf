@@ -131,7 +131,7 @@
       ({pkgs, ...}: {
         ghaf.graphics.weston.launchers = [
           {
-            path = "${pkgs.openssh}/bin/ssh -i /run/waypipe-ssh/id_ed25519 -o StrictHostKeyChecking=no chromium-vm.ghaf ${pkgs.waypipe}/bin/waypipe --border \"#ff5733,5\" -s  server chromium --enable-features=UseOzonePlatform --ozone-platform=wayland";
+            path = "${pkgs.openssh}/bin/ssh -i /run/waypipe-ssh/id_ed25519 -o StrictHostKeyChecking=no chromium-vm.ghaf ${pkgs.waypipe}/bin/waypipe --border \"#ff5733,5\" -s  /tmp/memsocket-server.sock server chromium --enable-features=UseOzonePlatform --ozone-platform=wayland";
             icon = "${../assets/icons/png/browser.png}";
           }
 
@@ -280,7 +280,9 @@
                         hardware.pulseaudio.enable = true;
                         users.extraUsers.ghaf.extraGroups = ["audio"];
 
-                        microvm.qemu.extraArgs = [
+                        microvm.qemu.extraArgs =
+                            let vectors = (toString (2 * config.ghaf.profiles.applications.ivShMemServer.vmCount)); in
+                          [
                           # Lenovo X1 integrated usb webcam
                           "-device"
                           "qemu-xhci"
@@ -296,7 +298,7 @@
                           "hda-duplex,audiodev=pa1"
                           # Add shared memory support
                           "-device"
-                          "ivshmem-doorbell,vectors=2,chardev=ivs_socket"
+                          "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket"
                           "-chardev"
                           "socket,path=/tmp/ivshmem_socket,id=ivs_socket"
                         ];
@@ -325,6 +327,7 @@
               profiles = {
                 applications.enable = false;
                 applications.ivShMemServer.memSize = "16M";
+                applications.ivShMemServer.vmCount = 1;
               };
               windows-launcher = {
                 enable = true;
