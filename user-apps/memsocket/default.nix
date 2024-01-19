@@ -4,21 +4,29 @@
   stdenv,
   pkgs,
   lib,
+  debug,
+  vms,
   ...
 }:
 stdenv.mkDerivation {
+  inherit debug vms;
   name = "memsocket";
 
   src = pkgs.fetchFromGitHub {
     owner = "tiiuae";
     repo = "shmsockproxy";
-    rev = "83d4ed4cb11cf501db04d0c02092c2d21ecb0dd9";
-    sha256 = "sha256-+OT7BO2EPS/bprQ3DZy/RyVA1mtqWrEXEoqUkM2CecE=";
+    rev = "5c59e3818db108b93d806ef750058ed4d5b71de2";
+    sha256 = "sha256-YfcfxZyUsHez+njYtwrlnUlrlh3hbdubvNDGiuD4UXM=";
   };
+
+  nativeBuildInputs = with pkgs; [ gcc gnumake ];
+
+  CFLAGS = "-DVM_COUNT=" + (toString vms) + (if debug then " -DDEBUG_ON" else "");
 
   prePatch = ''
     cd app
   '';
+
   installPhase = ''
     mkdir -p $out/bin
     install ./memsocket $out/bin/memsocket

@@ -9,7 +9,8 @@
   configHost = config;
   vmName = "gui-vm";
   macAddress = "02:00:00:02:02:02";
-  memsocket = pkgs.callPackage ../../../user-apps/memsocket {};
+  memsocket = pkgs.callPackage ../../../user-apps/memsocket
+    {debug = true; vms = config.ghaf.profiles.applications.ivShMemServer.vmCount;};
   guivmBaseConfiguration = {
     imports = [
       (import ./common/vm-networking.nix {inherit vmName macAddress;})
@@ -89,14 +90,13 @@
           writableStoreOverlay = lib.mkIf config.ghaf.development.debug.tools.enable "/nix/.rw-store";
 
           qemu.extraArgs =
-            let vectors = (toString (2 * config.ghaf.profiles.applications.ivShMemServer.vmCount)); in
-          [
+            let vectors = (toString (2 * config.ghaf.profiles.applications.ivShMemServer.vmCount)); in [
             "-object"
             "memory-backend-file,size=${config.ghaf.profiles.applications.ivShMemServer.memSize},share=on,mem-path=/dev/shm/ivshmem,id=hostmem"
             "-device"
             "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket"
             "-chardev"
-            "socket,path=/tmp/ivshmem_socket,id=ivs_socket"
+            "socket,path=${config.ghaf.profiles.applications.ivShMemServer.hostSocketPath},id=ivs_socket"
           ];
         };
 
@@ -108,9 +108,7 @@
 
         # Waypipe service runs in the GUIVM and listens for incoming connections from AppVMs
         # via shared memory socket
-        systemd.user.services = let
-          memSocketPath = "/tmp/memsocket-client.sock";
-        in {
+        systemd.user.services = {
           waypipe = {
             enable = true;
             description = "waypipe";
@@ -127,7 +125,7 @@
                 "SDL_VIDEODRIVER=\"wayland\""
                 "CLUTTER_BACKEND=\"wayland\""
               ];
-              ExecStart = "${pkgs.waypipe}/bin/waypipe -s ${memSocketPath} client";
+              ExecStart = "${pkgs.waypipe}/bin/waypipe -s ${config.ghaf.profiles.applications.ivShMemServer.clientSocketPath} client";
               Restart = "always";
               RestartSec = "1";
             };
@@ -144,7 +142,7 @@
             after = ["weston.service"];
             serviceConfig = {
               Type = "simple";
-              ExecStart = "${memsocket}/bin/memsocket -c ${memSocketPath}";
+              ExecStart = "${memsocket}/bin/memsocket -c ${config.ghaf.profiles.applications.ivShMemServer.clientSocketPath}";
               Restart = "always";
               RestartSec = "1";
             };
@@ -187,10 +185,13 @@
           config.boot.kernelPatches = [{
             name = "Shared memory PCI driver";
             patch = pkgs.fetchpatch {
-              url = "https://raw.githubusercontent.com/jkuro-tii/ivshmem/dev/0001-Shared-memory-driver.patch";
-              sha256 = "sha256-Nu/r72MIgXcLO7SmvT11kKyfjxu3EpFnATIVmmbEH4o=";
-            };}];
-        };
+              url = "https://raw.githubusercontent.com/tiiuae/shmsockproxy/dev_x1/0001-ivshmem-driver.patch";
+              sha256 = "sha256-ShFpmRuJ6eVuu7xqzcbfMbd0NKbwFOBIV4tL8PgjWlg=";
+            };
+            extraConfig = ''
+              KVM_IVSHMEM_VM_COUNT ${toString config.ghaf.profiles.applications.ivShMemServer.vmCount}
+            '';
+          }];};
       specialArgs = {inherit lib;};
     };
 
@@ -215,7 +216,7 @@
     };
 
     systemd.services.ivshmemsrv = let
-      socketPath = "/tmp/ivshmem_socket";
+      socketPath = config.ghaf.profiles.applications.ivShMemServer.hostSocketPath;
       pidFilePath = "/tmp/ivshmem-server.pid";
       ivShMemSrv =
           let vectors = (toString (2 * config.ghaf.profiles.applications.ivShMemServer.vmCount)); in

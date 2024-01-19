@@ -17,7 +17,9 @@
       if vm.cid > 0
       then vm.cid
       else cfg.vsockBaseCID + index;
-    memsocket = pkgs.callPackage ../../../user-apps/memsocket {};
+    memsocket = pkgs.callPackage ../../../user-apps/memsocket {
+      debug = true; vms = config.ghaf.profiles.applications.ivShMemServer.vmCount;
+    };
     appvmConfiguration = {
       imports = [
         (import ./common/vm-networking.nix {
@@ -101,14 +103,12 @@
             SUBSYSTEM=="misc",KERNEL=="ivshmem",GROUP="kvm",MODE="0666"
           '';
 
-          systemd.user.services.memsocket = let
-            memSocketPath = "/tmp/memsocket-server.sock";
-          in {
+          systemd.user.services.memsocket = {
             enable = true;
             description = "memsocket";
             serviceConfig = {
               Type = "simple";
-              ExecStart = "${memsocket}/bin/memsocket -s ${memSocketPath}";
+              ExecStart = "${memsocket}/bin/memsocket -s ${config.ghaf.profiles.applications.ivShMemServer.serverSocketPath} ${builtins.toString cid}";
               Restart = "always";
               RestartSec = "1";
             };
@@ -128,9 +128,13 @@
       boot.kernelPatches = [{
         name = "Shared memory PCI driver";
         patch = pkgs.fetchpatch {
-          url = "https://raw.githubusercontent.com/jkuro-tii/ivshmem/dev/0001-Shared-memory-driver.patch";
-          sha256 = "sha256-Nu/r72MIgXcLO7SmvT11kKyfjxu3EpFnATIVmmbEH4o=";
-        };}];
+          url = "https://raw.githubusercontent.com/tiiuae/shmsockproxy/dev_x1/0001-ivshmem-driver.patch";
+          sha256 = "sha256-ShFpmRuJ6eVuu7xqzcbfMbd0NKbwFOBIV4tL8PgjWlg=";
+        };
+        extraConfig = ''
+          KVM_IVSHMEM_VM_COUNT ${toString config.ghaf.profiles.applications.ivShMemServer.vmCount}
+          '';
+      }];
     };
     specialArgs = {inherit lib;};
   };
@@ -204,11 +208,11 @@ in {
     };
 
     # Base VSOCK CID which is used for auto assigning CIDs for all AppVMs
-    # For example, when it's set to 100, AppVMs will get 100, 101, 102, etc.
+    # For example, when it's set to 0, AppVMs will get 0, 1, 2, etc.
     # It is also possible to override the auto assinged CID using the vms.cid option
     vsockBaseCID = lib.mkOption {
       type = lib.types.int;
-      default = 100;
+      default = 0;
       description = ''
         Context Identifier (CID) of the AppVM VSOCK
       '';
