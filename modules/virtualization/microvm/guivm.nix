@@ -54,12 +54,14 @@
           };
         };
 
-        environment = {
+        environment = with pkgs; {
           systemPackages = [
             pkgs.waypipe
             pkgs.networkmanagerapplet
             pkgs.nm-launcher
             memsocket
+            # TODO: test
+            gnumake gcc cmake git mc linuxPackages.kernel.dev pahole meson ninja lsof waypipe gdb
           ];
         };
 
@@ -183,8 +185,8 @@
           config.boot.kernelPatches = [{
             name = "Shared memory PCI driver";
             patch = pkgs.fetchpatch {
-              url = "https://raw.githubusercontent.com/tiiuae/shmsockproxy/dev_x1/0001-ivshmem-driver.patch";
-              sha256 = "sha256-ShFpmRuJ6eVuu7xqzcbfMbd0NKbwFOBIV4tL8PgjWlg=";
+              url = "https://raw.githubusercontent.com/tiiuae/shmsockproxy/dev/0001-ivshmem-driver.patch";
+              sha256 = "sha256-dWtqDb0da5QG9fg2tUGZHROoAIE2WcKkjkvj+toPyhA=";
             };
             extraConfig = ''
               KVM_IVSHMEM_VM_COUNT ${toString config.ghaf.profiles.applications.ivShMemServer.vmCount}

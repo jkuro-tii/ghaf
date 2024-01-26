@@ -53,7 +53,6 @@ in
           instances for memory sharing and sending interrupts.
         '';
         };
-
       };
     };
 

@@ -74,10 +74,10 @@
             type=wifi
             [wifi]
             mode=infrastructure
-            ssid=SSID_OF_NETWORK
+            ssid=jk
             [wifi-security]
             key-mgmt=wpa-psk
-            psk=WPA_PASSWORD
+            psk=jkljkljkl17
             [ipv4]
             method=auto
             [ipv6]
@@ -133,7 +133,7 @@
       ({pkgs, config, ...}: {
         ghaf.graphics.weston.launchers = [
           {
-            path = "${pkgs.openssh}/bin/ssh -i /run/waypipe-ssh/id_ed25519 -o StrictHostKeyChecking=no chromium-vm.ghaf ${pkgs.waypipe}/bin/waypipe --border \"#ff5733,5\" -s ${config.ghaf.profiles.applications.ivShMemServer.serverSocketPath} server chromium --enable-features=UseOzonePlatform --ozone-platform=wayland";
+            path = "${pkgs.openssh}/bin/ssh -i /run/waypipe-ssh/id_ed25519 -o StrictHostKeyChecking=no chromium-vm.ghaf ${pkgs.waypipe}/bin/waypipe --border \"#ff5733,5\" -s ${config.ghaf.profiles.applications.ivShMemServer.serverSocketPath} server firefox --enable-features=UseOzonePlatform --ozone-platform=wayland";
             icon = "${../assets/icons/png/browser.png}";
           }
 
@@ -199,9 +199,11 @@
             sound.enable = true;
             hardware.pulseaudio.enable = true;
             hardware.pulseaudio.systemWide = true;
-            # Add systemd to require pulseaudio before starting chromium-vm
-            systemd.services."microvm@chromium-vm".after = ["pulseaudio.service"];
-            systemd.services."microvm@chromium-vm".requires = ["pulseaudio.service"];
+            # Add systemd to require pulseaudio before starting vms
+            systemd.services."microvm@gui-vm".requires = ["pulseaudio.service"];
+            systemd.services."microvm@chromium-vm".requires = ["microvm@gui-vm.service"];
+            systemd.services."microvm@gala-vm".requires = ["microvm@gui-vm.service"];
+            systemd.services."microvm@zathura-vm".requires = ["microvm@gui-vm.service"];
 
             # Allow microvm user to access pulseaudio
             hardware.pulseaudio.extraConfig = "load-module module-combine-sink module-native-protocol-unix auth-anonymous=1";
@@ -267,7 +269,7 @@
                 vms = [
                   {
                     name = "chromium";
-                    packages = [pkgs.chromium pkgs.pamixer];
+                    packages = [pkgs.chromium pkgs.pamixer pkgs.firefox];
                     macAddress = "02:00:00:03:05:01";
                     ramMb = 3072;
                     cores = 4;

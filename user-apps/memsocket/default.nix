@@ -15,13 +15,15 @@ stdenv.mkDerivation {
   src = pkgs.fetchFromGitHub {
     owner = "tiiuae";
     repo = "shmsockproxy";
-    rev = "5c59e3818db108b93d806ef750058ed4d5b71de2";
-    sha256 = "sha256-YfcfxZyUsHez+njYtwrlnUlrlh3hbdubvNDGiuD4UXM=";
+    rev = "6c4c279b18092458e076d74f83363b0815c1f6b2";
+    sha256 = "sha256-xIWjiWtxKXEPdTQwSxtfIDw3zX9Cu5xwH3CSbBiVJEY=";
   };
 
   nativeBuildInputs = with pkgs; [ gcc gnumake ];
 
-  CFLAGS = "-DVM_COUNT=" + (toString vms) + (if debug then " -DDEBUG_ON" else "");
+#  CFLAGS = "-g -O1 -DVM_COUNT=" + (toString vms) + (if debug then " -DDEBUG_ON" else "");
+#  CFLAGS = "-g -pg -DVM_COUNT=" + (toString vms);
+  CFLAGS = "-O2 -DVM_COUNT=" + (toString vms);
 
   prePatch = ''
     cd app
