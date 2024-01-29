@@ -133,7 +133,7 @@
       ({pkgs, config, ...}: {
         ghaf.graphics.weston.launchers = [
           {
-            path = "${pkgs.openssh}/bin/ssh -i /run/waypipe-ssh/id_ed25519 -o StrictHostKeyChecking=no chromium-vm.ghaf ${pkgs.waypipe}/bin/waypipe --border \"#ff5733,5\" -s ${config.ghaf.profiles.applications.ivShMemServer.serverSocketPath} server firefox --enable-features=UseOzonePlatform --ozone-platform=wayland";
+            path = "${pkgs.openssh}/bin/ssh -i /run/waypipe-ssh/id_ed25519 -o StrictHostKeyChecking=no chromium-vm.ghaf ${pkgs.waypipe}/bin/waypipe --border \"#ff5733,5\" -s ${config.ghaf.profiles.applications.ivShMemServer.serverSocketPath} server chromium --enable-features=UseOzonePlatform --ozone-platform=wayland";
             icon = "${../assets/icons/png/browser.png}";
           }
 
@@ -269,7 +269,7 @@
                 vms = [
                   {
                     name = "chromium";
-                    packages = [pkgs.chromium pkgs.pamixer pkgs.firefox];
+                    packages = [pkgs.chromium pkgs.pamixer];
                     macAddress = "02:00:00:03:05:01";
                     ramMb = 3072;
                     cores = 4;
