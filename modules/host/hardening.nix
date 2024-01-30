@@ -14,11 +14,11 @@
 
   config = {
     # host kernel hardening
-    ghaf.host.kernel_baseline_hardening.enable = false;
-    ghaf.host.kernel_virtualization_hardening.enable = false;
-    ghaf.host.kernel_networking_hardening.enable = false;
-    ghaf.host.kernel_usb_hardening.enable = false;
-    ghaf.host.kernel_inputdevices_hardening.enable = false;
+    ghaf.host.kernel_baseline_hardening.enable = true;
+    ghaf.host.kernel_virtualization_hardening.enable = true;
+    ghaf.host.kernel_networking_hardening.enable = true;
+    ghaf.host.kernel_usb_hardening.enable = true;
+    ghaf.host.kernel_inputdevices_hardening.enable = true;
     # host kernel hypervisor (KVM) hardening
     ghaf.host.hypervisor_hardening.enable = false;
     # other host hardening options - user space, etc. - to be defined later

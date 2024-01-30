@@ -127,6 +127,12 @@
   };
   cfg = config.ghaf.virtualization.microvm.guivm;
   vsockproxy = pkgs.callPackage ../../../packages/vsockproxy {};
+  # cfg = config.ghaf.guest.hardening;
+  baseKernel = pkgs.linux_latest;
+  buildKernel = import ../../host/kernel/buildKernel.nix {inherit config pkgs lib;};
+  hardened_kernel = buildKernel {
+    inherit (baseKernel) src modDirVersion version;
+  };
 in {
   options.ghaf.virtualization.microvm.guivm = {
     enable = lib.mkEnableOption "GUIVM";
@@ -171,6 +177,9 @@ in {
           imports =
             guivmBaseConfiguration.imports
             ++ cfg.extraModules;
+        } // {
+          boot.kernelPackages = pkgs.linuxPackagesFor hardened_kernel;
+          inherit (guivmBaseConfiguration) imports;
         };
       specialArgs = {inherit lib;};
     };
