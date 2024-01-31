@@ -212,8 +212,15 @@
             ghaf = {
               hardware.definition = hwDefinition;
               # To enable guest hardening enable host hardening first
-              host.hardening.enable = false;
-              guest.hardening.enable = false;
+              host.hardening.enable = true;
+              host.kernel.baseline_hardening.enable = lib.mkForce true;
+              host.kernel.virtualization_hardening.enable = lib.mkForce true;
+              host.kernel.networking_hardening.enable = lib.mkForce true;
+              host.kernel.usb_hardening.enable = lib.mkForce true;
+              host.kernel.inputdevices_hardening.enable = lib.mkForce true;
+
+              guest.hardening.enable = true;
+              guest.graphics_hardening.enable = lib.mkForce true;
 
               host.hypervisor_hardening.enable = false;
 
