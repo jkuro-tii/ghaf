@@ -49,23 +49,19 @@
     ];
   };
   cfg = config.ghaf.guest.hardening;
-  baseKernel = pkgs.linux_latest;
-  buildKernel = import ../../host/kernel/buildKernel.nix {inherit config pkgs lib;};
-  hardened_kernel = buildKernel {
-    inherit (baseKernel) src modDirVersion version;
-  };
-in {
-  options.ghaf.guest.hardening = {
-    enable = lib.mkEnableOption "Hardened VM";
-  };
 
+  # Importing kernel builder function from packages and checking hardening options
+  buildKernel = import ../../../packages/kernel {inherit config pkgs lib;};
+  enable_kernel_guest = config.ghaf.guest.hardening.enable;
+  guest_hardened_kernel = buildKernel {inherit enable_kernel_guest;};
+in {
   config = lib.mkIf cfg.enable {
     microvm.vms."${vmName}" = {
       autostart = true;
       config =
         kernelvmBaseConfiguration
         // {
-          boot.kernelPackages = pkgs.linuxPackagesFor hardened_kernel;
+          boot.kernelPackages = pkgs.linuxPackagesFor guest_hardened_kernel;
           inherit (kernelvmBaseConfiguration) imports;
         };
       specialArgs = {inherit lib;};

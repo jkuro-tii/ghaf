@@ -211,6 +211,7 @@
 
             ghaf = {
               hardware.definition = hwDefinition;
+              # To enable guest hardening enable host hardening first
               host.hardening.enable = false;
               guest.hardening.enable = false;
 

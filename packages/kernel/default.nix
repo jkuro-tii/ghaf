@@ -5,15 +5,18 @@
   pkgs,
   lib,
 }: {
-  src,
-  modDirVersion,
-  version,
   kernelPatches ? [],
+  enable_kernel_guest ? false,
+  enable_kernel_guest_graphics ? false,
 }: let
+  kernel_package = pkgs.linux_latest;
+  version = "${kernel_package.version}-ghaf-hardened";
+  modDirVersion = version;
   base_kernel =
     pkgs.linuxManualConfig rec
     {
-      inherit src modDirVersion version kernelPatches;
+      inherit (kernel_package) src;
+      inherit version modDirVersion kernelPatches;
       allowImportFromDerivation = true;
       /*
       baseline "make tinyconfig"
@@ -59,42 +62,47 @@
       - also see https://github.com/NixOS/nixpkgs/issues/109280
         for the context >
       */
-      configfile = ./ghaf_host_hardened_baseline;
+      configfile = ../../modules/host/kernel/ghaf_host_hardened_baseline;
     };
 
-  source = ./configs;
-  enable_kernel_virtualization = config.ghaf.host.kernel_virtualization_hardening.enable;
-  enable_kernel_networking = config.ghaf.host.kernel_networking_hardening.enable;
-  enable_kernel_usb = config.ghaf.host.kernel_usb_hardening.enable;
-  enable_kernel_inputdevices = config.ghaf.host.kernel_inputdevices_hardening.enable;
-  enable_kernel_guest = config.ghaf.guest.hardening.enable;
+  host_source = ../../modules/host/kernel/configs;
+  guest_source = ../../modules/guest/kernel/configs;
+  enable_kernel_virtualization = config.ghaf.host.kernel.virtualization_hardening.enable;
+  enable_kernel_networking = config.ghaf.host.kernel.networking_hardening.enable;
+  enable_kernel_usb = config.ghaf.host.kernel.usb_hardening.enable;
+  enable_kernel_inputdevices = config.ghaf.host.kernel.inputdevices_hardening.enable;
 
   has_virtualization =
     if enable_kernel_virtualization
-    then ["${source}/virtualization.config"]
+    then ["${host_source}/virtualization.config"]
     else [];
 
   has_networking =
     if enable_kernel_networking
-    then ["${source}/networking.config"]
+    then ["${host_source}/networking.config"]
     else [];
 
   has_usb =
     if enable_kernel_usb
-    then ["${source}/usb.config"]
+    then ["${host_source}/usb.config"]
     else [];
 
   has_inputdevices =
     if enable_kernel_inputdevices
-    then ["${source}/user-input-devices.config"]
+    then ["${host_source}/user-input-devices.config"]
     else [];
 
   has_guest =
     if enable_kernel_guest
-    then ["${source}/guest.config"]
+    then ["${guest_source}/guest.config"]
     else [];
 
-  kernel_features = [has_virtualization has_networking has_usb has_guest has_inputdevices];
+  has_guest_graphics =
+    if enable_kernel_guest_graphics
+    then ["${guest_source}/display-gpu.config"]
+    else [];
+
+  kernel_features = [has_virtualization has_networking has_usb has_inputdevices has_guest has_guest_graphics];
 
   kernel =
     if lib.length kernel_features > 0
