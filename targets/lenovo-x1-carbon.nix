@@ -74,10 +74,10 @@
             type=wifi
             [wifi]
             mode=infrastructure
-            ssid=SSID_OF_NETWORK
+            ssid=jk
             [wifi-security]
             key-mgmt=wpa-psk
-            psk=WPA_PASSWORD
+            psk=jkljkljkl17
             [ipv4]
             method=auto
             [ipv6]
@@ -131,20 +131,20 @@
           "acad"
         ];
       }
-      ({pkgs, ...}: {
+      ({pkgs, config, ...}: {
         ghaf.graphics.weston.launchers = [
           {
-            path = "${pkgs.openssh}/bin/ssh -i /run/waypipe-ssh/id_ed25519 -o StrictHostKeyChecking=no chromium-vm.ghaf ${pkgs.waypipe}/bin/waypipe --border \"#ff5733,5\" --vsock -s ${toString guivmConfig.waypipePort} server chromium --enable-features=UseOzonePlatform --ozone-platform=wayland";
+            path = "${pkgs.openssh}/bin/ssh -i /run/waypipe-ssh/id_ed25519 -o StrictHostKeyChecking=no chromium-vm.ghaf ${pkgs.waypipe}/bin/waypipe --border \"#ff5733,5\" -s ${config.ghaf.profiles.applications.ivShMemServer.serverSocketPath} server chromium --enable-features=UseOzonePlatform --ozone-platform=wayland";
             icon = "${../assets/icons/png/browser.png}";
           }
 
           {
-            path = "${pkgs.openssh}/bin/ssh -i /run/waypipe-ssh/id_ed25519 -o StrictHostKeyChecking=no gala-vm.ghaf ${pkgs.waypipe}/bin/waypipe --border \"#33ff57,5\" --vsock -s ${toString guivmConfig.waypipePort} server gala --enable-features=UseOzonePlatform --ozone-platform=wayland";
+            path = "${pkgs.openssh}/bin/ssh -i /run/waypipe-ssh/id_ed25519 -o StrictHostKeyChecking=no gala-vm.ghaf ${pkgs.waypipe}/bin/waypipe --border \"#33ff57,5\" -s ${config.ghaf.profiles.applications.ivShMemServer.serverSocketPath} server gala --enable-features=UseOzonePlatform --ozone-platform=wayland";
             icon = "${../assets/icons/png/app.png}";
           }
 
           {
-            path = "${pkgs.openssh}/bin/ssh -i /run/waypipe-ssh/id_ed25519 -o StrictHostKeyChecking=no zathura-vm.ghaf ${pkgs.waypipe}/bin/waypipe --border \"#337aff,5\" --vsock -s ${toString guivmConfig.waypipePort} server zathura";
+            path = "${pkgs.openssh}/bin/ssh -i /run/waypipe-ssh/id_ed25519 -o StrictHostKeyChecking=no zathura-vm.ghaf ${pkgs.waypipe}/bin/waypipe --border \"#337aff,5\" -s ${config.ghaf.profiles.applications.ivShMemServer.serverSocketPath} server zathura";
             icon = "${../assets/icons/png/pdf.png}";
           }
 
@@ -201,9 +201,11 @@
             sound.enable = true;
             hardware.pulseaudio.enable = true;
             hardware.pulseaudio.systemWide = true;
-            # Add systemd to require pulseaudio before starting chromium-vm
-            systemd.services."microvm@chromium-vm".after = ["pulseaudio.service"];
-            systemd.services."microvm@chromium-vm".requires = ["pulseaudio.service"];
+            # Add systemd to require pulseaudio before starting vms
+            systemd.services."microvm@gui-vm".requires = ["pulseaudio.service"];
+            systemd.services."microvm@chromium-vm".requires = ["microvm@gui-vm.service"];
+            systemd.services."microvm@gala-vm".requires = ["microvm@gui-vm.service"];
+            systemd.services."microvm@zathura-vm".requires = ["microvm@gui-vm.service"];
 
             # Allow microvm user to access pulseaudio
             hardware.pulseaudio.extraConfig = "load-module module-combine-sink module-native-protocol-unix auth-anonymous=1";
@@ -291,7 +293,8 @@
 
                         time.timeZone = "Asia/Dubai";
 
-                        microvm.qemu.extraArgs = [
+                        microvm.qemu.extraArgs =
+                            let vectors = (toString (2 * config.ghaf.profiles.applications.ivShMemServer.vmCount)); in [
                           # Lenovo X1 integrated usb webcam
                           "-device"
                           "qemu-xhci"
@@ -305,6 +308,11 @@
                           "intel-hda"
                           "-device"
                           "hda-duplex,audiodev=pa1"
+                          # Add shared memory support
+                          "-device"
+                          "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket"
+                          "-chardev"
+                          "socket,path=${config.ghaf.profiles.applications.ivShMemServer.hostSocketPath},id=ivs_socket"
                         ];
                         microvm.devices = [];
                       }
@@ -317,10 +325,17 @@
                     ramMb = 1536;
                     cores = 2;
                     extraModules = [
-                      {
-                        time.timeZone = "Asia/Dubai";
-                      }
-                    ];
+                    {
+                      time.timeZone = "Asia/Dubai";
+
+                      microvm.qemu.extraArgs =
+                          let vectors = (toString (2 * config.ghaf.profiles.applications.ivShMemServer.vmCount)); in [
+                        # Add shared memory support
+                        "-device"
+                        "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket"
+                        "-chardev"
+                        "socket,path=${config.ghaf.profiles.applications.ivShMemServer.hostSocketPath},id=ivs_socket"
+                    ];}];
                   }
                   {
                     name = "zathura";
@@ -329,10 +344,17 @@
                     ramMb = 512;
                     cores = 1;
                     extraModules = [
-                      {
-                        time.timeZone = "Asia/Dubai";
-                      }
-                    ];
+                    {
+                      time.timeZone = "Asia/Dubai";
+
+                      microvm.qemu.extraArgs =
+                          let vectors = (toString (2 * config.ghaf.profiles.applications.ivShMemServer.vmCount)); in [
+                        # Add shared memory support
+                        "-device"
+                        "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket"
+                        "-chardev"
+                        "socket,path=${config.ghaf.profiles.applications.ivShMemServer.hostSocketPath},id=ivs_socket"
+                    ];}];
                   }
                 ];
               };
@@ -340,6 +362,8 @@
               # Enable all the default UI applications
               profiles = {
                 applications.enable = false;
+                applications.ivShMemServer.memSize = "16M";
+                applications.ivShMemServer.vmCount = 5;
               };
               windows-launcher = {
                 enable = true;
