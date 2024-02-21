@@ -12,6 +12,7 @@
   memsocket = pkgs.callPackage ../../../user-apps/memsocket {
     debug = false; vms = config.ghaf.profiles.applications.ivShMemServer.vmCount;
   };
+  memtest = pkgs.callPackage ../../../user-apps/memsocket/memtest.nix {};
   guivmBaseConfiguration = {
     imports = [
       (import ./common/vm-networking.nix {inherit vmName macAddress;})
@@ -62,6 +63,7 @@
             pkgs.nm-launcher
             memsocket
             # debugging
+            memtest
             pkgs.perf-tools
             linuxPackages.perf
           ];

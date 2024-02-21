@@ -4,13 +4,10 @@
   stdenv,
   pkgs,
   lib,
-  debug,
-  vms,
   ...
 }:
 stdenv.mkDerivation {
-  inherit debug vms;
-  name = "memsocket";
+  name = "memtest";
 
   src = pkgs.fetchFromGitHub {
     owner = "tiiuae";
@@ -21,18 +18,17 @@ stdenv.mkDerivation {
 
   nativeBuildInputs = with pkgs; [ gcc gnumake ];
 
-  CFLAGS = "-O2 -DVM_COUNT=" + (toString vms)  + (if debug then " -DDEBUG_ON" else "");
   prePatch = ''
-    cd app
+    cd app/test
   '';
 
   installPhase = ''
     mkdir -p $out/bin
-    install ./memsocket $out/bin/memsocket
+    install ./memtest $out/bin/memtest
   '';
 
   meta = with lib; {
-    description = "memsocket";
+    description = "memtest";
     platforms = [
       "x86_64-linux"
       "aarch64-linux"

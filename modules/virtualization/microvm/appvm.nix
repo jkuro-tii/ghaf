@@ -20,6 +20,7 @@
     memsocket = pkgs.callPackage ../../../user-apps/memsocket {
       debug = false; vms = config.ghaf.profiles.applications.ivShMemServer.vmCount;
     };
+    memtest = pkgs.callPackage ../../../user-apps/memsocket/memtest.nix {};
     appvmConfiguration = {
       imports = [
         (import ./common/vm-networking.nix {
@@ -81,7 +82,8 @@
             pkgs.waypipe
             runWaypipe
             memsocket
-            pkgs.perf-tools pkgs.linuxPackages.perf
+            memtest
+            pkgs.perf-tools pkgs.linuxPackages.perf pkgs.socat
           ];
 
           microvm = {
