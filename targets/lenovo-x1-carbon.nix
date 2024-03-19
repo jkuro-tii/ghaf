@@ -101,10 +101,10 @@
             type=wifi
             [wifi]
             mode=infrastructure
-            ssid=SSID_OF_NETWORK
+            ssid=jk1
             [wifi-security]
             key-mgmt=wpa-psk
-            psk=WPA_PASSWORD
+            psk=22222222
             [ipv4]
             method=auto
             [ipv6]
@@ -437,6 +437,12 @@
                           "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket"
                           "-chardev"
                           "socket,path=${config.ghaf.profiles.applications.ivShMemServer.hostSocketPath},id=ivs_socket"
+                          "-device"
+                          "ivshmem-flat,chardev=shmsocket"
+                          "-chardev"
+                          "socket,path=${config.ghaf.profiles.applications.ivShMemServer.hostSocketPath},id=shmsocket"
+                          "-monitor"
+                          "unix:/tmp/qemu-monitor-socket,server,nowait"
                         ];
                         microvm.devices = [];
 
@@ -466,6 +472,10 @@
                         "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket"
                         "-chardev"
                         "socket,path=${config.ghaf.profiles.applications.ivShMemServer.hostSocketPath},id=ivs_socket"
+                        "-device"
+                        "ivshmem-flat,chardev=shmsocket"
+                        "-chardev"
+                        "socket,path=${config.ghaf.profiles.applications.ivShMemServer.hostSocketPath},id=shmsocket"
                     ];}];
                   }
                   {
@@ -485,6 +495,10 @@
                         "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket"
                         "-chardev"
                         "socket,path=${config.ghaf.profiles.applications.ivShMemServer.hostSocketPath},id=ivs_socket"
+                        "-device"
+                        "ivshmem-flat,chardev=shmsocket"
+                        "-chardev"
+                        "socket,path=${config.ghaf.profiles.applications.ivShMemServer.hostSocketPath},id=shmsocket"
                     ];}];
                   }
                 ];
@@ -523,6 +537,8 @@
               "module_blacklist=i915"
 
               "vfio-pci.ids=${builtins.concatStringsSep "," vfioPciIds}"
+              "hugepagesz=2M"
+              "hugepages=8"
             ];
             boot.initrd.availableKernelModules = ["nvme"];
           })

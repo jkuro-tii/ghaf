@@ -76,7 +76,7 @@
 
         microvm = {
           optimize.enable = false;
-          vcpu = 2;
+          vcpu = 5;
           mem = 2048;
           hypervisor = "qemu";
           shares = [
@@ -95,10 +95,22 @@
 
           qemu.extraArgs =
             let vectors = (toString (2 * config.ghaf.profiles.applications.ivShMemServer.vmCount)); in [
+            #"-device"
+            #"pci-bridge,id=pci.1,chassis_nr=1"
+            # "-device ivshmem-plain,memdev=sharedmem,bus=pci.1"
             "-device"
-            "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket"
+            "ivshmem-flat"
+            # "ivshmem-flat,chardev=shmsocket"
+            # "-chardev"
+            # "socket,path=${config.ghaf.profiles.applications.ivShMemServer.hostSocketPath},id=shmsocket"
+            # "-object memory-backend-file,id=sharedmem,size=16M,mem-path=/dev/shm/qemu-ivshmem"
+            "-device"
+            "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket" #,bus=pci.1"
             "-chardev"
             "socket,path=${config.ghaf.profiles.applications.ivShMemServer.hostSocketPath},id=ivs_socket"
+            "-M"
+            "q35,accel=kvm:tcg,mem-merge=on,sata=off,kernel_irqchip=on"
+            #"-monitor unix:qemu-monitor-socket,server,nowait"
           ];
         };
 
@@ -178,8 +190,8 @@
           config.boot.kernelPatches = [{
             name = "Shared memory PCI driver";
             patch = pkgs.fetchpatch {
-              url = "https://raw.githubusercontent.com/tiiuae/shmsockproxy/dev/0001-ivshmem-driver.patch";
-              sha256 = "sha256-SBeVxHqoyZNa7Q4iLfJbppqHQyygKGRJjtJGHh04DZA=";
+              url = "https://raw.githubusercontent.com/tiiuae/shmsockproxy/flat_memory/0001-ivshmem-driver.patch";
+              sha256 = "sha256-jAqqANZRSSm1WaQPQUPsqmuNNstM7pgfBWTenTMO9T8=";
             };
             extraConfig = ''
               KVM_IVSHMEM_VM_COUNT ${toString config.ghaf.profiles.applications.ivShMemServer.vmCount}
@@ -214,6 +226,7 @@
       ivShMemSrv =
           let vectors = (toString (2 * config.ghaf.profiles.applications.ivShMemServer.vmCount)); in
         pkgs.writeShellScriptBin "ivshmemsrv" ''
+          chmod a+rwx /dev/hugepages
           if [ -S ${socketPath} ]; then
             echo Erasing ${socketPath} ${pidFilePath}
             rm -f ${socketPath}

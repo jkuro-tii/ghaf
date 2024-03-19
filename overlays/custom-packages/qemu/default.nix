@@ -9,15 +9,18 @@
     prev.qemu_kvm.overrideAttrs (
       _final: prev:
         (final.lib.optionalAttrs (qemu_major == "8" && qemu_minor == "0") {
-          patches = prev.patches ++ [./acpi-devices-passthrough-qemu-8.0.patch];
+          patches = prev.patches ++ [./acpi-devices-passthrough-qemu-8.0.patch /*./ivshmem.patch*/];
         })
         // (final.lib.optionalAttrs (qemu_major == "8" && qemu_minor == "1") {
-          patches = prev.patches ++ [./acpi-devices-passthrough-qemu-8.1.patch];
+          patches = prev.patches ++ [./acpi-devices-passthrough-qemu-8.1.patch ./ivshmem-flatmem-qemu-8.1.patch];
         })
         // {
           postInstall = (prev.postInstall or "") + ''
             cp contrib/ivshmem-server/ivshmem-server $out/bin
           '';
+        }
+        // {
+          configureFlags = prev.configureFlags ++ ["enable-monitor"];
         }
     );
 })
