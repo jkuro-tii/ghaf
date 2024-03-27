@@ -35,11 +35,12 @@ in
           evtest
 
           # Performance testing
+          gdb gcc
           speedtest-cli
           iperf
           perf-tools
           linuxPackages.perf
-
+          socat
         ]
         ++
         # LuaJIT (which is sysbench dependency) not available on RISC-V

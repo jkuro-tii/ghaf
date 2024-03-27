@@ -12,7 +12,7 @@
           patches = prev.patches ++ [./acpi-devices-passthrough-qemu-8.0.patch];
         })
         // (final.lib.optionalAttrs (qemu_major == "8" && qemu_minor == "1") {
-          patches = prev.patches ++ [./acpi-devices-passthrough-qemu-8.1.patch];
+          patches = prev.patches ++ [./acpi-devices-passthrough-qemu-8.1.patch ./ivshmem-hugepages.patch];
         })
         // {
           postInstall = (prev.postInstall or "") + ''

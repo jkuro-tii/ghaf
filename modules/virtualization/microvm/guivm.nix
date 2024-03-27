@@ -99,6 +99,8 @@
             "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket"
             "-chardev"
             "socket,path=${config.ghaf.profiles.applications.ivShMemServer.hostSocketPath},id=ivs_socket"
+            # "-device"
+            # "ivshmem-flat"
           ];
         };
 
@@ -209,16 +211,19 @@
     };
 
     systemd.services.ivshmemsrv = let
-      socketPath = config.ghaf.profiles.applications.ivShMemServer.hostSocketPath;
+      socketPath = builtins.trace (">>> qemu = "+ pkgs.qemu_kvm) config.ghaf.profiles.applications.ivShMemServer.hostSocketPath;
       pidFilePath = "/tmp/ivshmem-server.pid";
       ivShMemSrv =
           let vectors = (toString (2 * config.ghaf.profiles.applications.ivShMemServer.vmCount)); in
         pkgs.writeShellScriptBin "ivshmemsrv" ''
+          chmod a+rwx /dev/hugepages
           if [ -S ${socketPath} ]; then
             echo Erasing ${socketPath} ${pidFilePath}
             rm -f ${socketPath}
           fi
-          ${pkgs.sudo}/sbin/sudo -u microvm -g kvm ${pkgs.qemu_kvm}/bin/ivshmem-server -p ${pidFilePath} -n ${vectors} -m /dev/shm -l ${config.ghaf.profiles.applications.ivShMemServer.memSize}
+          ${pkgs.sudo}/sbin/sudo -u microvm -g kvm ${pkgs.qemu_kvm}/bin/ivshmem-server -p ${pidFilePath} -n ${vectors} -m /dev/hugepages/ -l ${config.ghaf.profiles.applications.ivShMemServer.memSize}
+          sleep 2
+          chmod a+rwx /dev/hugepages/*
         '';
     in {
       enable = true;
