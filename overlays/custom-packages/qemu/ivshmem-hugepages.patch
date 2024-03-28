@@ -1,6 +1,6 @@
 diff -ruN qemu-8.1.3.orig/.codechecker/reports/compiler_info.json qemu-8.1.3/.codechecker/reports/compiler_info.json
 --- qemu-8.1.3.orig/.codechecker/reports/compiler_info.json	1970-01-01 04:00:00.000000000 +0400
-+++ qemu-8.1.3/.codechecker/reports/compiler_info.json	2024-03-27 12:59:03.412773944 +0400
++++ qemu-8.1.3/.codechecker/reports/compiler_info.json	2024-03-28 14:33:02.821761796 +0400
 @@ -0,0 +1 @@
 +{}
 \ No newline at end of file
@@ -110,6 +110,21 @@ diff -ruN qemu-8.1.3.orig/GNUmakefile qemu-8.1.3/GNUmakefile
 +.PHONY: force
 +GNUmakefile: ;
 +
+diff -ruN qemu-8.1.3.orig/hw/core/sysbus.c qemu-8.1.3/hw/core/sysbus.c
+--- qemu-8.1.3.orig/hw/core/sysbus.c	2024-03-11 11:57:16.490516574 +0400
++++ qemu-8.1.3/hw/core/sysbus.c	2024-03-28 14:33:02.517759341 +0400
+@@ -148,9 +148,11 @@
+                                             priority);
+     }
+     else {
++        printf("Before memory_region_add_subregion\n");
+         memory_region_add_subregion(get_system_memory(),
+                                     addr,
+                                     dev->mmio[n].memory);
++        printf("After memory_region_add_subregion\n");
+     }
+ }
+ 
 diff -ruN qemu-8.1.3.orig/hw/i386/pc_q35.c qemu-8.1.3/hw/i386/pc_q35.c
 --- qemu-8.1.3.orig/hw/i386/pc_q35.c	2024-03-11 11:57:16.507516660 +0400
 +++ qemu-8.1.3/hw/i386/pc_q35.c	2024-03-26 11:05:31.454705760 +0400
@@ -832,38 +847,17 @@ diff -ruN qemu-8.1.3.orig/hw/i386/pc_q35.c.rej qemu-8.1.3/hw/i386/pc_q35.c.rej
 +     m->max_cpus = 288;
 + }
 + 
-diff -ruN qemu-8.1.3.orig/hw/i386/x86.c qemu-8.1.3/hw/i386/x86.c
---- qemu-8.1.3.orig/hw/i386/x86.c	2024-03-11 11:57:16.507516660 +0400
-+++ qemu-8.1.3/hw/i386/x86.c	2024-03-26 10:42:07.289398193 +0400
-@@ -649,6 +649,7 @@
-     d = SYS_BUS_DEVICE(dev);
-     sysbus_realize_and_unref(d, &error_fatal);
-     sysbus_mmio_map(d, 0, IO_APIC_DEFAULT_ADDRESS);
-+//    ivshmem_flat_create();
- 
-     for (i = 0; i < IOAPIC_NUM_PINS; i++) {
-         gsi_state->ioapic_irq[i] = qdev_get_gpio_in(dev, i);
 diff -ruN qemu-8.1.3.orig/hw/misc/ivshmem.c qemu-8.1.3/hw/misc/ivshmem.c
 --- qemu-8.1.3.orig/hw/misc/ivshmem.c	2024-03-11 11:57:16.503516640 +0400
-+++ qemu-8.1.3/hw/misc/ivshmem.c	2024-03-27 12:59:03.046772218 +0400
-@@ -26,6 +26,7 @@
- #include "hw/qdev-properties-system.h"
- #include "hw/pci/msi.h"
- #include "hw/pci/msix.h"
-+#include "hw/sysbus.h"
- #include "sysemu/kvm.h"
- #include "migration/blocker.h"
- #include "migration/vmstate.h"
-@@ -36,8 +37,8 @@
++++ qemu-8.1.3/hw/misc/ivshmem.c	2024-03-28 14:26:57.026764618 +0400
+@@ -36,6 +36,7 @@
  #include "chardev/char-fe.h"
  #include "sysemu/hostmem.h"
  #include "qapi/visitor.h"
--
- #include "hw/misc/ivshmem.h"
 +#include "hw/sysbus.h"
- #include "qom/object.h"
  
- #define PCI_VENDOR_ID_IVSHMEM   PCI_VENDOR_ID_REDHAT_QUMRANET
+ #include "hw/misc/ivshmem.h"
+ #include "qom/object.h"
 @@ -59,6 +60,7 @@
  
  #define TYPE_IVSHMEM_COMMON "ivshmem-common"
@@ -882,22 +876,25 @@ diff -ruN qemu-8.1.3.orig/hw/misc/ivshmem.c qemu-8.1.3/hw/misc/ivshmem.c
  typedef struct Peer {
      int nb_eventfds;
      EventNotifier *eventfds;
-@@ -119,6 +124,14 @@
+@@ -117,6 +122,17 @@
+     /* migration stuff */
+     OnOffAuto master;
      Error *migration_blocker;
- };
- 
++
++    /* flat memory stuff */
++    DeviceState *flat_dev;
++};
++
 +struct IvshmemFTState {
 +    SysBusDevice parent_obj;
 +    /* Shared memory */
 +    // MemoryRegion shmem;
 +    // int shmem_fd;
 +    // uint32_t shmem_size;
-+};
-+
+ };
+ 
  /* registers for the Inter-VM shared memory device */
- enum ivshmem_registers {
-     INTRMASK = 0,
-@@ -127,6 +140,8 @@
+@@ -127,6 +143,8 @@
      DOORBELL = 12,
  };
  
@@ -906,7 +903,7 @@ diff -ruN qemu-8.1.3.orig/hw/misc/ivshmem.c qemu-8.1.3/hw/misc/ivshmem.c
  static inline uint32_t ivshmem_has_feature(IVShmemState *ivs,
                                                      unsigned int feature) {
      return (ivs->features & (1 << feature));
-@@ -479,6 +494,11 @@
+@@ -479,6 +497,12 @@
      Error *local_err = NULL;
      struct stat buf;
      size_t size;
@@ -915,10 +912,11 @@ diff -ruN qemu-8.1.3.orig/hw/misc/ivshmem.c qemu-8.1.3/hw/misc/ivshmem.c
 +    SysBusDevice *sbd;
 +
 +    // SysBusDevice *sbd = SYS_BUS_DEVICE(dev);
++    printf("%s\n", __FUNCTION__);
  
      if (s->ivshmem_bar2) {
          error_setg(errp, "server sent unexpected shared memory message");
-@@ -494,10 +514,41 @@
+@@ -494,10 +518,43 @@
      }
  
      size = buf.st_size;
@@ -940,8 +938,10 @@ diff -ruN qemu-8.1.3.orig/hw/misc/ivshmem.c qemu-8.1.3/hw/misc/ivshmem.c
 +    // memory_region_init_ram_from_fd(&s->server_bar2, OBJECT(s), "ivshmem.bar2",
 +    //                                size, RAM_SHARED, fd, 0, &local_err);
 +
++#if 0
 +    printf("sysbus_create_simple\n");
-+    dev = sysbus_create_simple(TYPE_SYS_BUS_DEVICE, (hwaddr)-1, 0);
++    dev = sysbus_create_simple(TYPE_IVSHMEM_FLAT, 0x930000000,
++    /*(hwaddr)-1,*/ 0);
 +
 +    printf("SYS_BUS_DEVICE\n");
 +    sbd = SYS_BUS_DEVICE(dev);
@@ -956,11 +956,11 @@ diff -ruN qemu-8.1.3.orig/hw/misc/ivshmem.c qemu-8.1.3/hw/misc/ivshmem.c
 + 
 +    // sysbus_init_mmio(sbd, &s->server_bar2);
 +    // sysbus_mmio_map(sbd, sbd->num_mmio-1, 0x920000000);
-+
++#endif
      if (local_err) {
          error_propagate(errp, local_err);
          return;
-@@ -1095,9 +1146,42 @@
+@@ -1095,12 +1152,75 @@
  {
      IVShmemState *s = IVSHMEM_DOORBELL(obj);
  
@@ -970,7 +970,14 @@ diff -ruN qemu-8.1.3.orig/hw/misc/ivshmem.c qemu-8.1.3/hw/misc/ivshmem.c
  
 +static void ivshmem_flat_instance_init(Object *obj)
 +{
-+    printf(">>>>>>>>>>>>>>>>%s instance\n", __FUNCTION__);
++    SysBusDevice *sbd = SYS_BUS_DEVICE(obj);
++    
++    printf(">>>>>>>>>>>>>>>>%s\n", __FUNCTION__);
++
++    printf("sbd->mmio=%p\n", sbd->mmio);
++    // sysbus_init_mmio(sbd, 0);
++    // printf("sysbus_init_mmio done\n");
++
 +    // SysBusDevice *sbd = SYS_BUS_DEVICE(obj);
 +    // IvshmemFTState *s = IVSHMEM_FLAT(obj);
 +
@@ -998,12 +1005,44 @@ diff -ruN qemu-8.1.3.orig/hw/misc/ivshmem.c qemu-8.1.3/hw/misc/ivshmem.c
 +    // sysbus_init_irq(sbd, &s->irq);
 +
 +    // QTAILQ_INIT(&s->peer);
++    printf(">>>>>>>>>>>>>>>>%s exit\n", __FUNCTION__);
 +}
 +
  static void ivshmem_doorbell_realize(PCIDevice *dev, Error **errp)
  {
      IVShmemState *s = IVSHMEM_COMMON(dev);
-@@ -1120,6 +1204,27 @@
++    void *ptr;
++    MemoryRegion mr;
++    int size = 16*1024*1024;
++
++    printf(">>>>>>>>>>>>>>>>%s\n", __FUNCTION__);
++    printf("calling sysbus_create_simple\n");
++    // flat_dev created. With -1 no mapping
++    s->flat_dev = sysbus_create_simple(TYPE_IVSHMEM_FLAT, -1, 0);
++    printf("s->flat_dev = %p\n", s->flat_dev);
++
++    ptr = malloc(size);
++
++    printf("calling memory_region_init_ram_ptr (%p)\n", ptr);
++    memory_region_init_ram_ptr(&mr, OBJECT(s), "test",
++                                   size, ptr);
++
++    printf("calling sysbus_init_mmio\n");
++    sysbus_init_mmio(s->flat_dev, &mr);
++
++    printf("calling sysbus_mmio_map\n");
++    sysbus_mmio_map(s->flat_dev, 0, 0x92000000);                                   
++    printf("sysbus_mmio_map done...\n");
+ 
+     if (!qemu_chr_fe_backend_connected(&s->server_chr)) {
+         error_setg(errp, "You must specify a 'chardev'");
+@@ -1115,11 +1235,33 @@
+     DeviceClass *dc = DEVICE_CLASS(klass);
+     PCIDeviceClass *k = PCI_DEVICE_CLASS(klass);
+ 
++    printf(">>>>>>>>>>>>>>>>%s!!!\n", __FUNCTION__);
+     k->realize = ivshmem_doorbell_realize;
+     device_class_set_props(dc, ivshmem_doorbell_properties);
      dc->vmsd = &ivshmem_doorbell_vmsd;
  }
  
@@ -1018,7 +1057,7 @@ diff -ruN qemu-8.1.3.orig/hw/misc/ivshmem.c qemu-8.1.3/hw/misc/ivshmem.c
 +    DeviceClass *dc = DEVICE_CLASS(klass);
 +
 +    dc->hotpluggable = true;
-+    // TODO: check if it's OK. Don't need that
++    // JK: TODO: check if it's OK. Don't need that
 +    // dc->realize = ivshmem_flat_realize;
 +    printf(">>>>>>>>>>>>>>>>%s\n", __FUNCTION__);
 +    set_bit(DEVICE_CATEGORY_MISC, dc->categories);
@@ -1031,7 +1070,7 @@ diff -ruN qemu-8.1.3.orig/hw/misc/ivshmem.c qemu-8.1.3/hw/misc/ivshmem.c
  static const TypeInfo ivshmem_doorbell_info = {
      .name          = TYPE_IVSHMEM_DOORBELL,
      .parent        = TYPE_IVSHMEM_COMMON,
-@@ -1128,11 +1233,32 @@
+@@ -1128,11 +1270,23 @@
      .class_init    = ivshmem_doorbell_class_init,
  };
  
@@ -1039,6 +1078,7 @@ diff -ruN qemu-8.1.3.orig/hw/misc/ivshmem.c qemu-8.1.3/hw/misc/ivshmem.c
 +    .name = TYPE_IVSHMEM_FLAT,
 +    .parent = TYPE_SYS_BUS_DEVICE,
 +    .instance_size = sizeof(IvshmemFTState),
++    // JK: TODO: probable we don't need it
 +    .instance_init = ivshmem_flat_instance_init,
 +    .class_init = ivshmem_flat_class_init,
 +};
@@ -1053,22 +1093,11 @@ diff -ruN qemu-8.1.3.orig/hw/misc/ivshmem.c qemu-8.1.3/hw/misc/ivshmem.c
  
  type_init(ivshmem_register_types)
 +
-+void ivshmem_flat_create()
-+{
-+    //DeviceState *dev = qdev_new(TYPE_IVSHMEM_FLAT);
-+
-+    printf("ivshmem_flat_create()\n");
-+    // -> qemu-kvm: unable to map backing store for guest RAM: No such device
-+
-+    // sysbus_realize_and_unref(SYS_BUS_DEVICE(dev), &error_fatal);
-+    // sysbus_mmio_map(SYS_BUS_DEVICE(dev), 0, 0x1300000000);
-+
-+}
-\ No newline at end of file
++//DeviceState *dev = qdev_new(TYPE_IVSHMEM_FLAT);
 diff -ruN qemu-8.1.3.orig/hw/misc/ivshmem-flat.c qemu-8.1.3/hw/misc/ivshmem-flat.c
 --- qemu-8.1.3.orig/hw/misc/ivshmem-flat.c	1970-01-01 04:00:00.000000000 +0400
-+++ qemu-8.1.3/hw/misc/ivshmem-flat.c	2024-03-27 11:05:23.883506366 +0400
-@@ -0,0 +1,508 @@
++++ qemu-8.1.3/hw/misc/ivshmem-flat.c	2024-03-28 10:28:38.168012756 +0400
+@@ -0,0 +1,494 @@
 +/*
 + * Inter-VM Shared Memory Flat Device
 + *
@@ -1521,10 +1550,6 @@ diff -ruN qemu-8.1.3.orig/hw/misc/ivshmem-flat.c qemu-8.1.3/hw/misc/ivshmem-flat
 +
 +static void ivshmem_flat_realize(DeviceState *dev, Error **errp)
 +{
-+// qemu-kvm: ../hw/core/qdev.c:282: qdev_realize: Assertion `!dev->realized && !dev->parent_bus' failed.
-+// Aborted (core dumped)
-+    // sysbus_realize_and_unref(SYS_BUS_DEVICE(dev), &error_fatal);
-+    // sysbus_mmio_map(SYS_BUS_DEVICE(dev), 0, 0x1300000000);
 +    printf("%s\n", __FUNCTION__);
 +    if (!ivshmem_flat_connect_server(dev, errp)) {
 +        return;
@@ -1566,18 +1591,7 @@ diff -ruN qemu-8.1.3.orig/hw/misc/ivshmem-flat.c qemu-8.1.3/hw/misc/ivshmem-flat
 +
 +type_init(ivshmem_flat_register_types);
 +
-+void ivshmem_flat_create()
-+{
-+    DeviceState *dev = qdev_new(TYPE_IVSHMEM_FLAT);
-+
-+    printf("ivshmem_flat_create()\n");
-+    // -> qemu-kvm: unable to map backing store for guest RAM: No such device
-+
-+    // sysbus_realize_and_unref(SYS_BUS_DEVICE(dev), &error_fatal);
-+    // sysbus_mmio_map(SYS_BUS_DEVICE(dev), 0, 0x1300000000);
-+
-+}
-\ No newline at end of file
++//    DeviceState *dev = qdev_new(TYPE_IVSHMEM_FLAT);
 diff -ruN qemu-8.1.3.orig/hw/misc/Kconfig qemu-8.1.3/hw/misc/Kconfig
 --- qemu-8.1.3.orig/hw/misc/Kconfig	2024-03-11 11:57:16.502516635 +0400
 +++ qemu-8.1.3/hw/misc/Kconfig	2024-03-11 12:03:10.508301941 +0400
@@ -2506,7 +2520,7 @@ diff -ruN qemu-8.1.3.orig/ivshmem-flat.patch qemu-8.1.3/ivshmem-flat.patch
 + system_ss.add(when: 'CONFIG_ALLWINNER_A10_CCM', if_true: files('allwinner-a10-ccm.c'))
 diff -ruN qemu-8.1.3.orig/util/mmap-alloc.c qemu-8.1.3/util/mmap-alloc.c
 --- qemu-8.1.3.orig/util/mmap-alloc.c	2024-03-11 11:57:16.537516813 +0400
-+++ qemu-8.1.3/util/mmap-alloc.c	2024-03-15 13:35:28.921813644 +0400
++++ qemu-8.1.3/util/mmap-alloc.c	2024-03-28 11:06:30.192337175 +0400
 @@ -181,6 +181,7 @@
   * Activate memory in a reserved region from the given fd (if any), to make
   * it accessible.
@@ -2526,14 +2540,14 @@ diff -ruN qemu-8.1.3.orig/util/mmap-alloc.c qemu-8.1.3/util/mmap-alloc.c
 +        flags |= MAP_HUGETLB;
 +        flags &= ~MAP_FIXED;
 +    }
-+    printf("flags=0x%x\n", flags);
++    printf("mmap_activate: flags=0x%x\n", flags);
      if (shared && sync) {
          map_sync_flags = MAP_SYNC | MAP_SHARED_VALIDATE;
      }
  
      activated_ptr = mmap(ptr, size, prot, flags | map_sync_flags, fd,
                           map_offset);
-+    printf("activated_ptr1=0x%p\n", activated_ptr);
++    printf("mmap_activate: activated_ptr1=0x%p\n", activated_ptr);
      if (activated_ptr == MAP_FAILED && map_sync_flags) {
          if (errno == ENOTSUP) {
              char *proc_link = g_strdup_printf("/proc/self/fd/%d", fd);
@@ -2543,7 +2557,7 @@ diff -ruN qemu-8.1.3.orig/util/mmap-alloc.c qemu-8.1.3/util/mmap-alloc.c
           */
 +        flags &= ~MAP_HUGETLB;
          activated_ptr = mmap(ptr, size, prot, flags, fd, map_offset);
-+        printf("activated_ptr1=0x%p\n", activated_ptr);
++        printf("mmap_activate: activated_ptr1=0x%p\n", activated_ptr);
      }
      return activated_ptr;
  }

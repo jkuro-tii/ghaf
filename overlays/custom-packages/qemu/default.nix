@@ -19,5 +19,8 @@
             cp contrib/ivshmem-server/ivshmem-server $out/bin
           '';
         }
+        // {
+          configureFlags = prev.configureFlags ++ ["enable-monitor"];
+        }
     );
 })

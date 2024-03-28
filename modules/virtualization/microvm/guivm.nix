@@ -211,7 +211,7 @@
     };
 
     systemd.services.ivshmemsrv = let
-      socketPath = builtins.trace (">>> qemu = "+ pkgs.qemu_kvm) config.ghaf.profiles.applications.ivShMemServer.hostSocketPath;
+      socketPath = builtins.trace (">>> qemu = "+ pkgs.qemu_kvm + "/bin/qemu-kvm") config.ghaf.profiles.applications.ivShMemServer.hostSocketPath;
       pidFilePath = "/tmp/ivshmem-server.pid";
       ivShMemSrv =
           let vectors = (toString (2 * config.ghaf.profiles.applications.ivShMemServer.vmCount)); in
