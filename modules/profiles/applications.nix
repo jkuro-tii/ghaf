@@ -45,12 +45,20 @@ in
           It's used by waypipe as an input socket when running in client mode
         '';
         };
-          hostSocketPath = mkOption {
+        hostSocketPath = mkOption {
           type = lib.types.str;
           default = "/tmp/ivshmem_socket";
           description = mdDoc ''
           Defines location of the shared memory socket. It's used by qemu 
           instances for memory sharing and sending interrupts.
+        '';
+        };
+        flataddr = mkOption {
+          type = lib.types.str;
+          default = "0x920000000";
+          description = mdDoc ''
+          If set to a non-zero value, it maps the shared memory
+          into this physical address.
         '';
         };
       };

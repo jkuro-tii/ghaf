@@ -96,11 +96,9 @@
           qemu.extraArgs =
             let vectors = (toString (2 * config.ghaf.profiles.applications.ivShMemServer.vmCount)); in [
             "-device"
-            "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket"
+            "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket,flataddr=${config.ghaf.profiles.applications.ivShMemServer.flataddr}"
             "-chardev"
             "socket,path=${config.ghaf.profiles.applications.ivShMemServer.hostSocketPath},id=ivs_socket"
-            # "-device"
-            # "ivshmem-flat"
           ];
         };
 
@@ -180,8 +178,8 @@
           config.boot.kernelPatches = [{
             name = "Shared memory PCI driver";
             patch = pkgs.fetchpatch {
-              url = "https://raw.githubusercontent.com/tiiuae/shmsockproxy/dev/0001-ivshmem-driver.patch";
-              sha256 = "sha256-SBeVxHqoyZNa7Q4iLfJbppqHQyygKGRJjtJGHh04DZA=";
+              url = "https://raw.githubusercontent.com/tiiuae/shmsockproxy/flat_memory/0001-ivshmem-driver.patch";
+              sha256 = "sha256-jAqqANZRSSm1WaQPQUPsqmuNNstM7pgfBWTenTMO9T8=";
             };
             extraConfig = ''
               KVM_IVSHMEM_VM_COUNT ${toString config.ghaf.profiles.applications.ivShMemServer.vmCount}
@@ -211,7 +209,7 @@
     };
 
     systemd.services.ivshmemsrv = let
-      socketPath = builtins.trace (">>> qemu = "+ pkgs.qemu_kvm + "/bin/qemu-kvm") config.ghaf.profiles.applications.ivShMemServer.hostSocketPath;
+      socketPath = builtins.trace (">>> sudo ./microvm-ru1 " + pkgs.qemu_kvm + "/bin/qemu-kvm") config.ghaf.profiles.applications.ivShMemServer.hostSocketPath;
       pidFilePath = "/tmp/ivshmem-server.pid";
       ivShMemSrv =
           let vectors = (toString (2 * config.ghaf.profiles.applications.ivShMemServer.vmCount)); in

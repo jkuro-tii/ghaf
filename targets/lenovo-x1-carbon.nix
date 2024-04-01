@@ -151,6 +151,9 @@
           "-audiodev"
           "pa,id=pa1,server=unix:/run/pulse/native"
         ];
+        microvm.kernelParams = [
+          "ivshmem_flataddr=${hostConfiguration.config.ghaf.profiles.applications.ivShMemServer.flataddr}"
+        ];
       }
       ({pkgs, ...}: let
         sshKeyPath = "/run/waypipe-ssh/id_ed25519";
@@ -434,11 +437,9 @@
                           "hda-duplex,audiodev=pa1"
                           # Add shared memory support
                           "-device"
-                          "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket"
+                          "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket,flataddr=${config.ghaf.profiles.applications.ivShMemServer.flataddr}"
                           "-chardev"
                           "socket,path=${config.ghaf.profiles.applications.ivShMemServer.hostSocketPath},id=ivs_socket"
-                          # "-device"
-                          # "ivshmem-flat"
                           "-monitor"
                           "unix:/tmp/qemu-monitor-socket,server,nowait"
                         ];
@@ -467,7 +468,7 @@
                           let vectors = (toString (2 * config.ghaf.profiles.applications.ivShMemServer.vmCount)); in [
                         # Add shared memory support
                         "-device"
-                        "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket"
+                        "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket,flataddr=${config.ghaf.profiles.applications.ivShMemServer.flataddr}"
                         "-chardev"
                         "socket,path=${config.ghaf.profiles.applications.ivShMemServer.hostSocketPath},id=ivs_socket"
                     ];}];
@@ -486,7 +487,7 @@
                           let vectors = (toString (2 * config.ghaf.profiles.applications.ivShMemServer.vmCount)); in [
                         # Add shared memory support
                         "-device"
-                        "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket"
+                        "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket,flataddr=${config.ghaf.profiles.applications.ivShMemServer.flataddr}"
                         "-chardev"
                         "socket,path=${config.ghaf.profiles.applications.ivShMemServer.hostSocketPath},id=ivs_socket"
                     ];}];
