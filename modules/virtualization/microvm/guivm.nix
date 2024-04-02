@@ -179,7 +179,7 @@
             name = "Shared memory PCI driver";
             patch = pkgs.fetchpatch {
               url = "https://raw.githubusercontent.com/tiiuae/shmsockproxy/flat_memory/0001-ivshmem-driver.patch";
-              sha256 = "sha256-jAqqANZRSSm1WaQPQUPsqmuNNstM7pgfBWTenTMO9T8=";
+              sha256 = "sha256-jAqqANZRSSm1WaQPQUPsqmuNNstM7agfBWTenTMO9T8=";
             };
             extraConfig = ''
               KVM_IVSHMEM_VM_COUNT ${toString config.ghaf.profiles.applications.ivShMemServer.vmCount}
