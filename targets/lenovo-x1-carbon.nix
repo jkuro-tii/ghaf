@@ -487,7 +487,7 @@
                           let vectors = (toString (2 * config.ghaf.profiles.applications.ivShMemServer.vmCount)); in [
                         # Add shared memory support
                         "-device"
-                        "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket,flataddr=${config.ghaf.profiles.applications.ivShMemServer.flataddr}"
+                        "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket,ivshmem_kvm.flataddr=${config.ghaf.profiles.applications.ivShMemServer.flataddr}"
                         "-chardev"
                         "socket,path=${config.ghaf.profiles.applications.ivShMemServer.hostSocketPath},id=ivs_socket"
                     ];}];

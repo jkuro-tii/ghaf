@@ -35,7 +35,6 @@ in
           evtest
 
           # Performance testing
-          gdb gcc
           speedtest-cli
           iperf
           perf-tools
