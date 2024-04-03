@@ -1,8 +1,24 @@
 diff --git a/contrib/ivshmem-server/ivshmem-server.c b/contrib/ivshmem-server/ivshmem-server.c
-index 2f3c7320a..d3bd7b35c 100644
+index 2f3c7320a..3c376a935 100644
 --- a/contrib/ivshmem-server/ivshmem-server.c
 +++ b/contrib/ivshmem-server/ivshmem-server.c
-@@ -297,7 +297,7 @@ ivshmem_server_start(IvshmemServer *server)
+@@ -11,6 +11,7 @@
+ 
+ #include <sys/socket.h>
+ #include <sys/un.h>
++#include <sys/mman.h>
+ 
+ #include "ivshmem-server.h"
+ 
+@@ -290,6 +291,7 @@ ivshmem_server_start(IvshmemServer *server)
+ {
+     struct sockaddr_un s_un;
+     int shm_fd, sock_fd, ret;
++    void *ptr;
+ 
+     /* open shm file */
+     if (server->use_shm_open) {
+@@ -297,10 +299,11 @@ ivshmem_server_start(IvshmemServer *server)
                               server->shm_path);
          shm_fd = shm_open(server->shm_path, O_CREAT | O_RDWR, S_IRWXU);
      } else {
@@ -10,7 +26,22 @@ index 2f3c7320a..d3bd7b35c 100644
 +        gchar *filename = g_strdup_printf("%s/ivshmem", server->shm_path);
          IVSHMEM_SERVER_DEBUG(server, "Using file-backed shared memory: %s\n",
                               server->shm_path);
-         shm_fd = mkstemp(filename);
+-        shm_fd = mkstemp(filename);
++        // shm_fd = mkstemp(filename);
++        shm_fd = open(filename, O_RDWR | O_CREAT, 0666);
+         unlink(filename);
+         g_free(filename);
+     }
+@@ -315,6 +318,9 @@ ivshmem_server_start(IvshmemServer *server)
+                 strerror(errno));
+         goto err_close_shm;
+     }
++    ptr = mmap(0, server->shm_size, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_HUGETLB/*|MAP_LOCKED*/,
++            server->shm_fd, 0);
++    printf("mmap(): ptr = 0x%p\n", ptr);
+ 
+     IVSHMEM_SERVER_DEBUG(server, "create & bind socket %s\n",
+                          server->unix_sock_path);
 diff --git a/hw/i386/pc_q35.c b/hw/i386/pc_q35.c
 index dc27a9e22..a760caebc 100644
 --- a/hw/i386/pc_q35.c
