@@ -101,10 +101,10 @@
             type=wifi
             [wifi]
             mode=infrastructure
-            ssid=jk1
+            ssid=SSID_OF_NETWORK
             [wifi-security]
             key-mgmt=wpa-psk
-            psk=22222222
+            psk=WPA_PASSWORD
             [ipv4]
             method=auto
             [ipv6]
@@ -152,7 +152,7 @@
           "pa,id=pa1,server=unix:/run/pulse/native"
         ];
         microvm.kernelParams = [
-          "ivshmem_flataddr=${hostConfiguration.config.ghaf.profiles.applications.ivShMemServer.flataddr}"
+          "kvm_ivshmem.flataddr=${hostConfiguration.config.ghaf.profiles.applications.ivShMemServer.flataddr}"
         ];
       }
       ({pkgs, ...}: let

@@ -1,5 +1,5 @@
 diff --git a/contrib/ivshmem-server/ivshmem-server.c b/contrib/ivshmem-server/ivshmem-server.c
-index 2f3c7320a..3c376a935 100644
+index 2f3c7320a..906c5d0b5 100644
 --- a/contrib/ivshmem-server/ivshmem-server.c
 +++ b/contrib/ivshmem-server/ivshmem-server.c
 @@ -11,6 +11,7 @@
@@ -10,15 +10,7 @@ index 2f3c7320a..3c376a935 100644
  
  #include "ivshmem-server.h"
  
-@@ -290,6 +291,7 @@ ivshmem_server_start(IvshmemServer *server)
- {
-     struct sockaddr_un s_un;
-     int shm_fd, sock_fd, ret;
-+    void *ptr;
- 
-     /* open shm file */
-     if (server->use_shm_open) {
-@@ -297,10 +299,11 @@ ivshmem_server_start(IvshmemServer *server)
+@@ -297,11 +298,10 @@ ivshmem_server_start(IvshmemServer *server)
                               server->shm_path);
          shm_fd = shm_open(server->shm_path, O_CREAT | O_RDWR, S_IRWXU);
      } else {
@@ -27,21 +19,11 @@ index 2f3c7320a..3c376a935 100644
          IVSHMEM_SERVER_DEBUG(server, "Using file-backed shared memory: %s\n",
                               server->shm_path);
 -        shm_fd = mkstemp(filename);
-+        // shm_fd = mkstemp(filename);
+-        unlink(filename);
 +        shm_fd = open(filename, O_RDWR | O_CREAT, 0666);
-         unlink(filename);
          g_free(filename);
      }
-@@ -315,6 +318,9 @@ ivshmem_server_start(IvshmemServer *server)
-                 strerror(errno));
-         goto err_close_shm;
-     }
-+    ptr = mmap(0, server->shm_size, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_HUGETLB/*|MAP_LOCKED*/,
-+            server->shm_fd, 0);
-+    printf("mmap(): ptr = 0x%p\n", ptr);
  
-     IVSHMEM_SERVER_DEBUG(server, "create & bind socket %s\n",
-                          server->unix_sock_path);
 diff --git a/hw/i386/pc_q35.c b/hw/i386/pc_q35.c
 index dc27a9e22..a760caebc 100644
 --- a/hw/i386/pc_q35.c
@@ -63,7 +45,7 @@ index dc27a9e22..a760caebc 100644
  
  static void pc_q35_8_1_machine_options(MachineClass *m)
 diff --git a/hw/misc/ivshmem.c b/hw/misc/ivshmem.c
-index d66d91217..59a96854c 100644
+index d66d91217..b1761b33f 100644
 --- a/hw/misc/ivshmem.c
 +++ b/hw/misc/ivshmem.c
 @@ -36,6 +36,7 @@
@@ -108,18 +90,16 @@ index d66d91217..59a96854c 100644
  };
  
  /* registers for the Inter-VM shared memory device */
-@@ -479,6 +493,10 @@ static void process_msg_shmem(IVShmemState *s, int fd, Error **errp)
+@@ -479,6 +493,8 @@ static void process_msg_shmem(IVShmemState *s, int fd, Error **errp)
      Error *local_err = NULL;
      struct stat buf;
      size_t size;
 +    void *ptr;
 +    SysBusDevice *sbd;
-+
-+    printf("%s\n", __FUNCTION__);
  
      if (s->ivshmem_bar2) {
          error_setg(errp, "server sent unexpected shared memory message");
-@@ -495,14 +513,38 @@ static void process_msg_shmem(IVShmemState *s, int fd, Error **errp)
+@@ -495,6 +511,19 @@ static void process_msg_shmem(IVShmemState *s, int fd, Error **errp)
  
      size = buf.st_size;
  
@@ -127,32 +107,19 @@ index d66d91217..59a96854c 100644
 +
 +        ptr = mmap(0, size, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_HUGETLB|MAP_LOCKED,
 +                fd, 0);
-+        printf("mmap(): %p\n", ptr);
-+        printf("flataddr: %p\n", s->flataddr);
-+        printf("sysbus_create_simple\n");
 +        s->flat_dev = sysbus_create_simple(TYPE_IVSHMEM_FLAT, -1, 0);
-+        printf("s->flat_dev = %p\n", s->flat_dev);
 +
-+        memory_region_init_ram_ptr(&s->flat_mem, OBJECT(IVSHMEM_FLAT(s->flat_dev)), 
-+                                "ivshmem.flat", size, ptr);
-+
-+        printf("SYS_BUS_DEVICE\n");
++        memory_region_init_ram_ptr(&s->flat_mem, OBJECT(IVSHMEM_FLAT(s->flat_dev)),
++                                   "ivshmem.flat", size, ptr);
 +        sbd = SYS_BUS_DEVICE(s->flat_dev);
-+
-+        printf("sysbus_init_mmio\n");
 +        sysbus_init_mmio(sbd, &s->flat_mem);
-+        printf("sbd->num_mmio=%d\n", sbd->num_mmio);
-+
-+        printf("sysbus_mmio_map\n");
 +        sysbus_mmio_map(sbd, 0, s->flataddr);
-+        printf("sysbus_mmio_map executed\n");
 +    }
 +
      /* mmap the region and map into the BAR2 */
      memory_region_init_ram_from_fd(&s->server_bar2, OBJECT(s), "ivshmem.bar2",
--                                   size, RAM_SHARED, fd, 0, &local_err);
-+                                size, RAM_SHARED, fd, 0, &local_err);
-     if (local_err) {
+                                    size, RAM_SHARED, fd, 0, &local_err);
+@@ -502,7 +531,6 @@ static void process_msg_shmem(IVShmemState *s, int fd, Error **errp)
          error_propagate(errp, local_err);
          return;
      }
@@ -160,7 +127,7 @@ index d66d91217..59a96854c 100644
      s->ivshmem_bar2 = &s->server_bar2;
  }
  
-@@ -1088,6 +1130,7 @@ static Property ivshmem_doorbell_properties[] = {
+@@ -1088,6 +1116,7 @@ static Property ivshmem_doorbell_properties[] = {
      DEFINE_PROP_BIT("ioeventfd", IVShmemState, features, IVSHMEM_IOEVENTFD,
                      true),
      DEFINE_PROP_ON_OFF_AUTO("master", IVShmemState, master, ON_OFF_AUTO_OFF),
@@ -168,7 +135,7 @@ index d66d91217..59a96854c 100644
      DEFINE_PROP_END_OF_LIST(),
  };
  
-@@ -1120,6 +1163,21 @@ static void ivshmem_doorbell_class_init(ObjectClass *klass, void *data)
+@@ -1120,6 +1149,20 @@ static void ivshmem_doorbell_class_init(ObjectClass *klass, void *data)
      dc->vmsd = &ivshmem_doorbell_vmsd;
  }
  
@@ -181,7 +148,6 @@ index d66d91217..59a96854c 100644
 +    DeviceClass *dc = DEVICE_CLASS(klass);
 +
 +    dc->hotpluggable = true;
-+    printf(">>>>>>>>>>>>>>>%s\n", __FUNCTION__);
 +    set_bit(DEVICE_CATEGORY_MISC, dc->categories);
 +    device_class_set_props(dc, ivshmem_flat_props);
 +    dc->user_creatable = false;
@@ -190,7 +156,7 @@ index d66d91217..59a96854c 100644
  static const TypeInfo ivshmem_doorbell_info = {
      .name          = TYPE_IVSHMEM_DOORBELL,
      .parent        = TYPE_IVSHMEM_COMMON,
-@@ -1128,11 +1186,19 @@ static const TypeInfo ivshmem_doorbell_info = {
+@@ -1128,11 +1171,19 @@ static const TypeInfo ivshmem_doorbell_info = {
      .class_init    = ivshmem_doorbell_class_init,
  };
  
