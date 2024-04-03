@@ -90,6 +90,9 @@
             optimize.enable = false;
             mem = vm.ramMb;
             vcpu = vm.cores;
+            kernelParams = [
+              "kvm_ivshmem.flataddr=${config.ghaf.profiles.applications.ivShMemServer.flataddr}"
+            ];
             hypervisor = "qemu";
             shares = [
               {
@@ -141,7 +144,7 @@
         name = "Shared memory PCI driver";
         patch = pkgs.fetchpatch {
           url = "https://raw.githubusercontent.com/tiiuae/shmsockproxy/flat_memory/0001-ivshmem-driver.patch";
-          sha256 = "sha256-jAqqANZRSSm1WaQPQUPsqmuNNstM7pgfBWTenTMO9T8=";
+          sha256 = "sha256-u/MNrGnSqC4yJenp6ey1/gLNbt2hZDDBCDA6gjQlC7g=";
         };
         extraConfig = ''
           KVM_IVSHMEM_VM_COUNT ${toString config.ghaf.profiles.applications.ivShMemServer.vmCount}

@@ -101,10 +101,10 @@
             type=wifi
             [wifi]
             mode=infrastructure
-            ssid=jk1
+            ssid=SSID_OF_NETWORK
             [wifi-security]
             key-mgmt=wpa-psk
-            psk=22222222
+            psk=WPA_PASSWORD
             [ipv4]
             method=auto
             [ipv6]
@@ -150,6 +150,9 @@
           # Connect sound device to hosts pulseaudio socket
           "-audiodev"
           "pa,id=pa1,server=unix:/run/pulse/native"
+        ];
+        microvm.kernelParams = [
+          "kvm_ivshmem.flataddr=${hostConfiguration.config.ghaf.profiles.applications.ivShMemServer.flataddr}"
         ];
       }
       ({pkgs, ...}: let
@@ -434,15 +437,9 @@
                           "hda-duplex,audiodev=pa1"
                           # Add shared memory support
                           "-device"
-                          "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket"
+                          "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket,flataddr=${config.ghaf.profiles.applications.ivShMemServer.flataddr}"
                           "-chardev"
                           "socket,path=${config.ghaf.profiles.applications.ivShMemServer.hostSocketPath},id=ivs_socket"
-                          "-device"
-                          "ivshmem-flat,chardev=shmsocket"
-                          "-chardev"
-                          "socket,path=${config.ghaf.profiles.applications.ivShMemServer.hostSocketPath},id=shmsocket"
-                          "-monitor"
-                          "unix:/tmp/qemu-monitor-socket,server,nowait"
                         ];
                         microvm.devices = [];
 
@@ -469,13 +466,9 @@
                           let vectors = (toString (2 * config.ghaf.profiles.applications.ivShMemServer.vmCount)); in [
                         # Add shared memory support
                         "-device"
-                        "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket"
+                        "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket,flataddr=${config.ghaf.profiles.applications.ivShMemServer.flataddr}"
                         "-chardev"
                         "socket,path=${config.ghaf.profiles.applications.ivShMemServer.hostSocketPath},id=ivs_socket"
-                        "-device"
-                        "ivshmem-flat,chardev=shmsocket"
-                        "-chardev"
-                        "socket,path=${config.ghaf.profiles.applications.ivShMemServer.hostSocketPath},id=shmsocket"
                     ];}];
                   }
                   {
@@ -492,13 +485,9 @@
                           let vectors = (toString (2 * config.ghaf.profiles.applications.ivShMemServer.vmCount)); in [
                         # Add shared memory support
                         "-device"
-                        "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket"
+                        "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket,ivshmem_kvm.flataddr=${config.ghaf.profiles.applications.ivShMemServer.flataddr}"
                         "-chardev"
                         "socket,path=${config.ghaf.profiles.applications.ivShMemServer.hostSocketPath},id=ivs_socket"
-                        "-device"
-                        "ivshmem-flat,chardev=shmsocket"
-                        "-chardev"
-                        "socket,path=${config.ghaf.profiles.applications.ivShMemServer.hostSocketPath},id=shmsocket"
                     ];}];
                   }
                 ];

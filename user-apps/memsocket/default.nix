@@ -9,14 +9,14 @@
   ...
 }:
 stdenv.mkDerivation {
-
+  inherit debug vms;
   name = "memsocket";
 
   src = pkgs.fetchFromGitHub {
     owner = "tiiuae";
     repo = "shmsockproxy";
-    rev = "9e3e97edaf727dcf0743d497652cf9fd61be0494";
-    sha256 = "sha256-hWpueXazTlqyy21V/ZuKj07+Gq/ee5UCyt2wqXMwy0U=";
+    rev = "f5d9d80f009c10f48ea4f2ceac732dbd9ebaf660";
+    sha256 = "sha256-jtV44a9IxVpO/pWPkKsXPQKHjiDoPJ9RzrVGF6lhR/c=";
   };
 
   nativeBuildInputs = with pkgs; [ gcc gnumake ];

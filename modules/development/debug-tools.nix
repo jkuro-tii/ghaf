@@ -35,9 +35,8 @@ in
           evtest
 
           # Performance testing
-          # speedtest-cli
-          # iperf
-          gdb gcc
+          speedtest-cli
+          iperf
           perf-tools
           linuxPackages.perf
           socat
