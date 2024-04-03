@@ -440,8 +440,6 @@
                           "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket,flataddr=${config.ghaf.profiles.applications.ivShMemServer.flataddr}"
                           "-chardev"
                           "socket,path=${config.ghaf.profiles.applications.ivShMemServer.hostSocketPath},id=ivs_socket"
-                          "-monitor"
-                          "unix:/tmp/qemu-monitor-socket,server,nowait"
                         ];
                         microvm.devices = [];
 
