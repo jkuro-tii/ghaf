@@ -1,5 +1,18 @@
+From 516be8fa7fd1773198387fc0d062edb578d4e84d Mon Sep 17 00:00:00 2001
+From: Jaroslaw Kurowski <jaroslaw.kurowski@tii.ae>
+Date: Mon, 1 Jul 2024 16:40:42 +0400
+Subject: ivshmem flat memory support
+
+---
+ contrib/ivshmem-server/ivshmem-server.c |  6 +--
+ hw/arm/virt.c                           |  2 +
+ hw/i386/pc_q35.c                        |  2 +
+ hw/misc/ivshmem.c                       | 53 ++++++++++++++++++++++++-
+ include/hw/misc/ivshmem.h               |  1 +
+ 5 files changed, 60 insertions(+), 4 deletions(-)
+
 diff --git a/contrib/ivshmem-server/ivshmem-server.c b/contrib/ivshmem-server/ivshmem-server.c
-index 2f3c7320a..906c5d0b5 100644
+index 2f3c732..906c5d0 100644
 --- a/contrib/ivshmem-server/ivshmem-server.c
 +++ b/contrib/ivshmem-server/ivshmem-server.c
 @@ -11,6 +11,7 @@
@@ -24,18 +37,38 @@ index 2f3c7320a..906c5d0b5 100644
          g_free(filename);
      }
  
-diff --git a/hw/i386/pc_q35.c b/hw/i386/pc_q35.c
-index dc27a9e22..a760caebc 100644
---- a/hw/i386/pc_q35.c
-+++ b/hw/i386/pc_q35.c
-@@ -57,6 +57,7 @@
- #include "hw/hyperv/vmbus-bridge.h"
- #include "hw/mem/nvdimm.h"
- #include "hw/i386/acpi-build.h"
+diff --git a/hw/arm/virt.c b/hw/arm/virt.c
+index 7d9dbc2..8d61075 100644
+--- a/hw/arm/virt.c
++++ b/hw/arm/virt.c
+@@ -80,6 +80,7 @@
+ #include "hw/virtio/virtio-iommu.h"
+ #include "hw/char/pl011.h"
+ #include "qemu/guest-random.h"
 +#include "hw/misc/ivshmem.h"
  
- /* ICH9 AHCI has 6 ports */
- #define MAX_SATA_PORTS     6
+ #define DEFINE_VIRT_MACHINE_LATEST(major, minor, latest) \
+     static void virt_##major##_##minor##_class_init(ObjectClass *oc, \
+@@ -2938,6 +2939,7 @@ static void virt_machine_class_init(ObjectClass *oc, void *data)
+     machine_class_allow_dynamic_sysbus_dev(mc, TYPE_VFIO_AMD_XGBE);
+     machine_class_allow_dynamic_sysbus_dev(mc, TYPE_RAMFB_DEVICE);
+     machine_class_allow_dynamic_sysbus_dev(mc, TYPE_VFIO_PLATFORM);
++    machine_class_allow_dynamic_sysbus_dev(mc, TYPE_IVSHMEM_FLAT);
+ #ifdef CONFIG_TPM
+     machine_class_allow_dynamic_sysbus_dev(mc, TYPE_TPM_TIS_SYSBUS);
+ #endif
+diff --git a/hw/i386/pc_q35.c b/hw/i386/pc_q35.c
+index dc27a9e..f3ed060 100644
+--- a/hw/i386/pc_q35.c
++++ b/hw/i386/pc_q35.c
+@@ -55,6 +55,7 @@
+ #include "qemu/error-report.h"
+ #include "sysemu/numa.h"
+ #include "hw/hyperv/vmbus-bridge.h"
++#include "hw/misc/ivshmem.h"
+ #include "hw/mem/nvdimm.h"
+ #include "hw/i386/acpi-build.h"
+ 
 @@ -377,6 +378,7 @@ static void pc_q35_machine_options(MachineClass *m)
      machine_class_allow_dynamic_sysbus_dev(m, TYPE_INTEL_IOMMU_DEVICE);
      machine_class_allow_dynamic_sysbus_dev(m, TYPE_RAMFB_DEVICE);
@@ -45,7 +78,7 @@ index dc27a9e22..a760caebc 100644
  
  static void pc_q35_8_1_machine_options(MachineClass *m)
 diff --git a/hw/misc/ivshmem.c b/hw/misc/ivshmem.c
-index d66d91217..b1761b33f 100644
+index d66d912..b1761b3 100644
 --- a/hw/misc/ivshmem.c
 +++ b/hw/misc/ivshmem.c
 @@ -36,6 +36,7 @@
@@ -177,7 +210,7 @@ index d66d91217..b1761b33f 100644
  
  type_init(ivshmem_register_types)
 diff --git a/include/hw/misc/ivshmem.h b/include/hw/misc/ivshmem.h
-index 433ef53d7..43aeab73d 100644
+index 433ef53..43aeab7 100644
 --- a/include/hw/misc/ivshmem.h
 +++ b/include/hw/misc/ivshmem.h
 @@ -21,5 +21,6 @@
@@ -187,3 +220,6 @@ index 433ef53d7..43aeab73d 100644
 +#define TYPE_IVSHMEM_FLAT "ivshmem-flat"
  
  #endif /* IVSHMEM_H */
+-- 
+2.45.2
+

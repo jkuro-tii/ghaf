@@ -122,10 +122,10 @@
             writableStoreOverlay = lib.mkIf config.ghaf.development.debug.tools.enable "/nix/.rw-store";
 
             qemu = {
-              extraArgs =
+              extraArgs = let tmp = 
                 let
                 vectors = toString (2 * configHost.ghaf.profiles.applications.ivShMemServer.vmCount);
-                sharedMemory =
+                sharedMemoryOpts =
                   if configHost.ghaf.profiles.applications.ivShMemServer.enable
                   then [
                     "-device"
@@ -148,8 +148,8 @@
                   "emulator,id=tpm0,chardev=chrtpm"
                   "-device"
                   "tpm-tis,tpmdev=tpm0"
-                  ]
-                ++ sharedMemory;
+                ]
+                ++ sharedMemoryOpts; in builtins.trace (">>>appvm extraArgs=" + (builtins.toString tmp)) tmp; /* jarekk: remove */
 
               machine =
                 {
@@ -196,7 +196,7 @@
             wantedBy = ["default.target"];
           };
 
-          fileSystems."/run/waypipe-ssh-public-key".options = ["ro"];
+          fileSystems."${configHost.ghaf.security.sshKeys.waypipeSshPublicKeyDir}".options = ["ro"];
 
           imports = [../../../common];
         })

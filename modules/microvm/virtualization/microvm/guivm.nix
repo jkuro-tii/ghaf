@@ -103,9 +103,9 @@
           mem = 2048;
           hypervisor = "qemu";
           kernelParams =
-            if configHost.ghaf.profiles.applications.ivShMemServer.enable
+            if config.ghaf.profiles.applications.ivShMemServer.enable
             then [
-              "kvm_ivshmem.flataddr=${configHost.ghaf.profiles.applications.ivShMemServer.flataddr}"
+              "kvm_ivshmem.flataddr=${config.ghaf.profiles.applications.ivShMemServer.flataddr}"
             ]
             else [];
 
@@ -124,10 +124,10 @@
           writableStoreOverlay = lib.mkIf config.ghaf.development.debug.tools.enable "/nix/.rw-store";
 
           qemu = {
-            extraArgs = let
+            extraArgs = let tmp = let
               vectors = toString (2 * config.ghaf.profiles.applications.ivShMemServer.vmCount);
-              sharedMemory =
-                if configHost.ghaf.profiles.applications.ivShMemServer.enable
+              sharedMemoryOpts =
+                if false # config.ghaf.profiles.applications.ivShMemServer.enable /* jarekk */
                 then [
                   "-device"
                   "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket,flataddr=${config.ghaf.profiles.applications.ivShMemServer.flataddr}"
@@ -140,7 +140,7 @@
                 "-device"
                 "vhost-vsock-pci,guest-cid=${toString cfg.vsockCID}"
               ]
-              ++ sharedMemory;
+              ++ sharedMemoryOpts; in builtins.trace (">>>guivm extraArgs=" + (builtins.toString tmp)) tmp; /* jarekk: remove */
 
             machine =
               {
@@ -190,12 +190,6 @@
             wantedBy = ["ghaf-session.target"];
           };
         };
-        # Fixed IP-address for debugging subnet
-        systemd.network.networks."10-ethint0".addresses = [
-          {
-            addressConfig.Address = "192.168.101.3/24";
-          }
-        ];
       })
     ];
   };
@@ -254,10 +248,9 @@ in {
           imports =
             guivmBaseConfiguration.imports
             ++ cfg.extraModules;
-        }
-        // {
+        } // {
           boot.kernelPatches =
-            if configHost.ghaf.profiles.applications.ivShMemServer.enable
+            if config.ghaf.profiles.applications.ivShMemServer.enable
             then [
               {
                 name = "Shared memory PCI driver";
@@ -328,7 +321,7 @@ in {
             sleep 2
           '';
       in
-        lib.mkIf configHost.ghaf.profiles.applications.ivShMemServer.enable {
+        lib.mkIf config.ghaf.profiles.applications.ivShMemServer.enable {
           enable = true;
           description = "Start qemu ivshmem memory server";
           path = [ivShMemSrv];

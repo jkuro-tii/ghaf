@@ -41,7 +41,7 @@ in {
         inherit (config.ghaf.hardware.definition.host.kernelConfig.stage1) kernelModules;
       };
       inherit (config.ghaf.hardware.definition.host.kernelConfig.stage2) kernelModules;
-      kernelParams = let
+      kernelParams = let tmp = let
         # PCI device passthroughs for vfio
         filterDevices = filter (d: d.vendorId != null && d.productId != null);
         mapPciIdsToString = map (d: "${d.vendorId}:${d.productId}");
@@ -50,11 +50,21 @@ in {
           ++ config.ghaf.hardware.definition.gpu.pciDevices
           ++ config.ghaf.hardware.definition.audio.pciDevices
         ));
+        hugepagesz = 2 /*MB*/; 
+        hugepages = config.ghaf.profiles.applications.ivShMemServer.memSize / hugepagesz;
+        hugePagesArg =
+          if config.ghaf.profiles.applications.ivShMemServer.enable
+          then [
+            "hugepagesz=${toString hugepagesz}M"
+            "hugepages=${toString hugepages}"
+          ]
+          else [];
       in
         config.ghaf.hardware.definition.host.kernelConfig.kernelParams
         ++ [
           "vfio-pci.ids=${concatStringsSep "," vfioPciIds}"
-        ];
+        ] ++ hugePagesArg; 
+        in builtins.trace (">>>host kernelParams=" + (builtins.toString tmp)) tmp; /* jarekk: remove */
     };
 
     # Guest kernel configurations
@@ -65,7 +75,14 @@ in {
             inherit (config.ghaf.hardware.definition.gpu.kernelConfig.stage1) kernelModules;
           };
           inherit (config.ghaf.hardware.definition.gpu.kernelConfig.stage2) kernelModules;
-          inherit (config.ghaf.hardware.definition.gpu.kernelConfig) kernelParams;
+          kernelParams = let tmp = let flatMemArg =
+            if config.ghaf.profiles.applications.ivShMemServer.enable
+            then [
+              "kvm_ivshmem.flataddr=${config.ghaf.profiles.applications.ivShMemServer.flataddr}"
+            ]
+            else [];
+            in config.ghaf.hardware.definition.gpu.kernelConfig.kernelParams ++ flatMemArg;
+             in builtins.trace (">>>guest kernelParams=" + (builtins.toString tmp)) tmp; /* jarekk: remove */
         };
       };
       audiovm = {
