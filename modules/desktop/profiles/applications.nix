@@ -69,12 +69,12 @@ in
       };
     };
 
-  config = lib.mkIf cfg.enable {
-    # TODO: Needs more generic support for defining application launchers
-    #       across different window managers.
-    ghaf = {
-      profiles.graphics.enable = true;
-      graphics.enableDemoApplications = true;
+    config = lib.mkIf cfg.enable {
+      # TODO: Needs more generic support for defining application launchers
+      #       across different window managers.
+      ghaf = {
+        profiles.graphics.enable = true;
+        graphics.enableDemoApplications = true;
+      };
     };
-  };
-}
+  }

@@ -13,6 +13,7 @@
     debug = false;
     vms = config.ghaf.profiles.applications.ivShMemServer.vmCount;
   };
+  memtest = pkgs.callPackage ../../../../packages/memsocket/memtest.nix {};
   guivmBaseConfiguration = {
     imports = [
       (import ./common/vm-networking.nix {
@@ -81,6 +82,8 @@
               pkgs.nm-launcher
               pkgs.pamixer
               memsocket
+              memtest
+              pkgs.socat /* for testing */
             ]
             ++ (lib.optional (config.ghaf.profiles.debug.enable && config.ghaf.virtualization.microvm.idsvm.mitmproxy.enable) pkgs.mitmweb-ui);
         };
@@ -124,10 +127,10 @@
           writableStoreOverlay = lib.mkIf config.ghaf.development.debug.tools.enable "/nix/.rw-store";
 
           qemu = {
-            extraArgs = let tmp = let
+            extraArgs = let
               vectors = toString (2 * config.ghaf.profiles.applications.ivShMemServer.vmCount);
               sharedMemoryOpts =
-                if false # config.ghaf.profiles.applications.ivShMemServer.enable /* jarekk */
+                if config.ghaf.profiles.applications.ivShMemServer.enable
                 then [
                   "-device"
                   "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket,flataddr=${config.ghaf.profiles.applications.ivShMemServer.flataddr}"
@@ -140,7 +143,7 @@
                 "-device"
                 "vhost-vsock-pci,guest-cid=${toString cfg.vsockCID}"
               ]
-              ++ sharedMemoryOpts; in builtins.trace (">>>guivm extraArgs=" + (builtins.toString tmp)) tmp; /* jarekk: remove */
+              ++ sharedMemoryOpts;
 
             machine =
               {
@@ -248,7 +251,8 @@ in {
           imports =
             guivmBaseConfiguration.imports
             ++ cfg.extraModules;
-        } // {
+        }
+        // {
           boot.kernelPatches =
             if config.ghaf.profiles.applications.ivShMemServer.enable
             then [
@@ -256,7 +260,7 @@ in {
                 name = "Shared memory PCI driver";
                 patch = pkgs.fetchpatch {
                   url = "https://raw.githubusercontent.com/tiiuae/shmsockproxy/main/0001-ivshmem-driver.patch";
-                  sha256 = "sha256-u/MNrGnSqC4yJenp6ey1/gLNbt2hZDDBCDA6gjQlC7g=";
+                  sha256 = "sha256-zzbUD3G3+albIDA3DuOqIGZJXlLMKY2EB9dl9f6am70=";
                 };
                 extraConfig = ''
                   KVM_IVSHMEM_VM_COUNT ${toString config.ghaf.profiles.applications.ivShMemServer.vmCount}

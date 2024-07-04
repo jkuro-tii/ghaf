@@ -3,44 +3,34 @@
 {
   stdenv,
   lib,
-  debug,
-  vms,
   gcc,
   gnumake,
   fetchFromGitHub,
   ...
 }:
 stdenv.mkDerivation {
-  name = "memsocket";
+  name = "memtest";
 
   src = fetchFromGitHub {
     owner = "tiiuae";
     repo = "shmsockproxy";
-    rev = "694d90393ae7bd7a67000c0e4373bfe07f0aafc3";
-    sha256 = "sha256-y1o9Md9apgn+mjBZ9wScWUNQ3ZgxbT0TKxl8bIMZxGs=";
+    rev = "d793c23e606bf6ad3ffdf9db0049408792e2c727";
+    sha256 = "sha256-zzgdptykR6OjbjzXbN7oNXfgpQ6nfegNMUeYJdzJvB0=";
   };
 
   nativeBuildInputs = [gcc gnumake];
 
-  CFLAGS =
-    "-O2 -DVM_COUNT="
-    + (toString vms)
-    + (
-      if debug
-      then " -DDEBUG_ON"
-      else ""
-    );
   prePatch = ''
-    cd app
+    cd app/test
   '';
 
   installPhase = ''
     mkdir -p $out/bin
-    install ./memsocket $out/bin/memsocket
+    install ./memtest $out/bin/memtest
   '';
 
   meta = with lib; {
-    description = "memsocket";
+    description = "memtest";
     platforms = [
       "x86_64-linux"
       "aarch64-linux"

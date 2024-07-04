@@ -29,6 +29,7 @@
       debug = false;
       vms = configHost.ghaf.profiles.applications.ivShMemServer.vmCount;
     };
+    memtest = pkgs.callPackage ../../../../packages/memsocket/memtest.nix {};
     appvmConfiguration = {
       imports = [
         (import ./common/vm-networking.nix {
@@ -89,6 +90,7 @@
             pkgs.tpm2-tools
             pkgs.opensc
             memsocket
+            memtest
           ];
 
           security.tpm2 = {
@@ -122,8 +124,7 @@
             writableStoreOverlay = lib.mkIf config.ghaf.development.debug.tools.enable "/nix/.rw-store";
 
             qemu = {
-              extraArgs = let tmp = 
-                let
+              extraArgs = let
                 vectors = toString (2 * configHost.ghaf.profiles.applications.ivShMemServer.vmCount);
                 sharedMemoryOpts =
                   if configHost.ghaf.profiles.applications.ivShMemServer.enable
@@ -136,10 +137,10 @@
                   else [];
               in
                 [
-                    "-M"
-                    "accel=kvm:tcg,mem-merge=on,sata=off"
-                    "-device"
-                    "vhost-vsock-pci,guest-cid=${toString cid}"
+                  "-M"
+                  "accel=kvm:tcg,mem-merge=on,sata=off"
+                  "-device"
+                  "vhost-vsock-pci,guest-cid=${toString cid}"
                 ]
                 ++ lib.optionals vm.vtpm.enable [
                   "-chardev"
@@ -149,7 +150,7 @@
                   "-device"
                   "tpm-tis,tpmdev=tpm0"
                 ]
-                ++ sharedMemoryOpts; in builtins.trace (">>>appvm extraArgs=" + (builtins.toString tmp)) tmp; /* jarekk: remove */
+                ++ sharedMemoryOpts;
 
               machine =
                 {
@@ -168,7 +169,7 @@
                 name = "Shared memory PCI driver";
                 patch = pkgs.fetchpatch {
                   url = "https://raw.githubusercontent.com/tiiuae/shmsockproxy/main/0001-ivshmem-driver.patch";
-                  sha256 = "sha256-u/MNrGnSqC4yJenp6ey1/gLNbt2hZDDBCDA6gjQlC7g=";
+                  sha256 = "sha256-zzbUD3G3+albIDA3DuOqIGZJXlLMKY2EB9dl9f6am70=";
                 };
                 extraConfig = ''
                   KVM_IVSHMEM_VM_COUNT ${toString configHost.ghaf.profiles.applications.ivShMemServer.vmCount}
