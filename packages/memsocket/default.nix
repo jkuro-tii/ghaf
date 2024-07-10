@@ -17,7 +17,7 @@ stdenv.mkDerivation {
     owner = "tiiuae";
     repo = "shmsockproxy";
     rev = "694d90393ae7bd7a67000c0e4373bfe07f0aafc3";
-    sha256 = "sha256-y1o9Md9apgn+mjBZ9wScWUNQ3ZgxbT0TKxl8bIMZxGs=";
+    sha256 = "sha256-qNeIjJj3VJ1ngvWTa914zacQMwzpM+9KLysJyJTcnGk=";
   };
 
   nativeBuildInputs = [gcc gnumake];

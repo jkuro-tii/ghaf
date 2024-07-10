@@ -127,24 +127,12 @@
           writableStoreOverlay = lib.mkIf config.ghaf.development.debug.tools.enable "/nix/.rw-store";
 
           qemu = {
-            extraArgs = let
-              vectors = toString (2 * config.ghaf.profiles.applications.ivShMemServer.vmCount);
-              sharedMemoryOpts =
-                if config.ghaf.profiles.applications.ivShMemServer.enable
-                then [
-                  "-device"
-                  "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket,flataddr=${config.ghaf.profiles.applications.ivShMemServer.flataddr}"
-                  "-chardev"
-                  "socket,path=${config.ghaf.profiles.applications.ivShMemServer.hostSocketPath},id=ivs_socket"
-                ]
-                else [];
-            in
+            extraArgs =
               [
                 "-device"
                 "vhost-vsock-pci,guest-cid=${toString cfg.vsockCID}"
               ]
-              ++ sharedMemoryOpts;
-
+              ++ config.ghaf.profiles.applications.ivShMemServer.qemuOption;
             machine =
               {
                 # Use the same machine type as the host
@@ -254,20 +242,7 @@ in {
         }
         // {
           boot.kernelPatches =
-            if config.ghaf.profiles.applications.ivShMemServer.enable
-            then [
-              {
-                name = "Shared memory PCI driver";
-                patch = pkgs.fetchpatch {
-                  url = "https://raw.githubusercontent.com/tiiuae/shmsockproxy/main/0001-ivshmem-driver.patch";
-                  sha256 = "sha256-zzbUD3G3+albIDA3DuOqIGZJXlLMKY2EB9dl9f6am70=";
-                };
-                extraConfig = ''
-                  KVM_IVSHMEM_VM_COUNT ${toString config.ghaf.profiles.applications.ivShMemServer.vmCount}
-                '';
-              }
-            ]
-            else [];
+            config.ghaf.profiles.applications.ivShMemServer.kernelPatches;
         };
     };
 

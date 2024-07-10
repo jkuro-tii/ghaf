@@ -164,21 +164,7 @@
           };
 
           boot.kernelPatches =
-            if configHost.ghaf.profiles.applications.ivShMemServer.enable
-            then [
-              {
-                name = "Shared memory PCI driver";
-                patch = pkgs.fetchpatch {
-                  url = "https://raw.githubusercontent.com/tiiuae/shmsockproxy/main/0001-ivshmem-driver.patch";
-                  sha256 = "sha256-zzbUD3G3+albIDA3DuOqIGZJXlLMKY2EB9dl9f6am70=";
-                };
-                extraConfig = ''
-                  KVM_IVSHMEM_VM_COUNT ${toString configHost.ghaf.profiles.applications.ivShMemServer.vmCount}
-                '';
-              }
-            ]
-            else [];
-
+            configHost.ghaf.profiles.applications.ivShMemServer.kernelPatches;
           services.udev.extraRules =
             if configHost.ghaf.profiles.applications.ivShMemServer.enable
             then ''
