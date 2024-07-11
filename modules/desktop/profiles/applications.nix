@@ -70,33 +70,34 @@ in
         qemuOption = mkOption {
           type = lib.types.listOf lib.types.str;
           default = let
-            vectors = toString (2 * config.ghaf.profiles.applications.ivShMemServer.vmCount); in
-          if config.ghaf.profiles.applications.ivShMemServer.enable
-          then [
-            "-device"
-            "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket,flataddr=${config.ghaf.profiles.applications.ivShMemServer.flataddr}"
-            "-chardev"
-            "socket,path=${config.ghaf.profiles.applications.ivShMemServer.hostSocketPath},id=ivs_socket"
-          ]
-          else [];
+            vectors = toString (2 * config.ghaf.profiles.applications.ivShMemServer.vmCount);
+          in
+            if config.ghaf.profiles.applications.ivShMemServer.enable
+            then [
+              "-device"
+              "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket,flataddr=${config.ghaf.profiles.applications.ivShMemServer.flataddr}"
+              "-chardev"
+              "socket,path=${config.ghaf.profiles.applications.ivShMemServer.hostSocketPath},id=ivs_socket"
+            ]
+            else [];
         };
         kernelPatches = mkOption {
           type = lib.types.listOf lib.types.attrs;
-          default = 
-          if config.ghaf.profiles.applications.ivShMemServer.enable
-          then [
-            {
-              name = "Shared memory PCI driver";
-              patch = pkgs.fetchpatch {
-                url = "https://raw.githubusercontent.com/tiiuae/shmsockproxy/main/0001-ivshmem-driver.patch";
-                sha256 = "sha256-zzbUD3G3+albIDA3DuOqIGZJXlLMKY2EB9dl9f6am70=";
-              };
-              extraConfig = ''
-                KVM_IVSHMEM_VM_COUNT ${toString config.ghaf.profiles.applications.ivShMemServer.vmCount}
-              '';
-            }
-          ]
-          else [];
+          default =
+            if config.ghaf.profiles.applications.ivShMemServer.enable
+            then [
+              {
+                name = "Shared memory PCI driver";
+                patch = pkgs.fetchpatch {
+                  url = "https://raw.githubusercontent.com/tiiuae/shmsockproxy/main/0001-ivshmem-driver.patch";
+                  sha256 = "sha256-zzbUD3G3+albIDA3DuOqIGZJXlLMKY2EB9dl9f6am70=";
+                };
+                extraConfig = ''
+                  KVM_IVSHMEM_VM_COUNT ${toString config.ghaf.profiles.applications.ivShMemServer.vmCount}
+                '';
+              }
+            ]
+            else [];
         };
       };
     };
