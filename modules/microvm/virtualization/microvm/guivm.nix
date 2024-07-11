@@ -9,9 +9,10 @@
   vmName = "gui-vm";
   macAddress = "02:00:00:02:02:02";
   inherit (import ../../../../lib/launcher.nix {inherit pkgs lib;}) rmDesktopEntries;
+  shmConfig = config.ghaf.profiles.applications.ivShMemServer;
   memsocket = pkgs.callPackage ../../../../packages/memsocket {
     debug = false;
-    vms = config.ghaf.profiles.applications.ivShMemServer.vmCount;
+    vms = shmConfig.vmCount;
   };
   memtest = pkgs.callPackage ../../../../packages/memsocket/memtest.nix {};
   guivmBaseConfiguration = {
@@ -82,7 +83,7 @@
               pkgs.nm-launcher
               pkgs.pamixer
               memsocket
-              memtest
+              memtest /* for testing */
               pkgs.socat /* for testing */
             ]
             ++ (lib.optional (config.ghaf.profiles.debug.enable && config.ghaf.virtualization.microvm.idsvm.mitmproxy.enable) pkgs.mitmweb-ui);
@@ -106,9 +107,9 @@
           mem = 2048;
           hypervisor = "qemu";
           kernelParams =
-            if config.ghaf.profiles.applications.ivShMemServer.enable
+            if shmConfig.enable
             then [
-              "kvm_ivshmem.flataddr=${config.ghaf.profiles.applications.ivShMemServer.flataddr}"
+              "kvm_ivshmem.flataddr=${shmConfig.flataddr}"
             ]
             else [];
 
@@ -132,7 +133,7 @@
                 "-device"
                 "vhost-vsock-pci,guest-cid=${toString cfg.vsockCID}"
               ]
-              ++ config.ghaf.profiles.applications.ivShMemServer.qemuOption;
+              ++ lib.optionals shmConfig.enable shmConfig.qemuOption;
             machine =
               {
                 # Use the same machine type as the host
@@ -168,13 +169,13 @@
             wantedBy = ["ghaf-session.target"];
           };
 
-          memsocket = lib.mkIf config.ghaf.profiles.applications.ivShMemServer.enable {
+          memsocket = lib.mkIf shmConfig.enable {
             enable = true;
             description = "memsocket";
             after = ["weston.service"];
             serviceConfig = {
               Type = "simple";
-              ExecStart = "${memsocket}/bin/memsocket -c ${config.ghaf.profiles.applications.ivShMemServer.clientSocketPath}";
+              ExecStart = "${memsocket}/bin/memsocket -c ${shmConfig.clientSocketPath}";
               Restart = "always";
               RestartSec = "1";
             };
@@ -242,7 +243,7 @@ in {
         }
         // {
           boot.kernelPatches =
-            config.ghaf.profiles.applications.ivShMemServer.kernelPatches;
+            shmConfig.kernelPatches;
         };
     };
 
@@ -284,23 +285,22 @@ in {
       };
 
       ivshmemsrv = let
-        socketPath = config.ghaf.profiles.applications.ivShMemServer.hostSocketPath;
         pidFilePath = "/tmp/ivshmem-server.pid";
         ivShMemSrv = let
-          vectors = toString (2 * config.ghaf.profiles.applications.ivShMemServer.vmCount);
+          vectors = toString (2 * shmConfig.vmCount);
         in
           pkgs.writeShellScriptBin "ivshmemsrv" ''
             chown microvm /dev/hugepages
             chgrp kvm /dev/hugepages
-            if [ -S ${socketPath} ]; then
-              echo Erasing ${socketPath} ${pidFilePath}
-              rm -f ${socketPath}
+            if [ -S ${shmConfig.hostSocketPath} ]; then
+              echo Erasing ${shmConfig.hostSocketPath} ${pidFilePath}
+              rm -f ${shmConfig.hostSocketPath}
             fi
             ${pkgs.sudo}/sbin/sudo -u microvm -g kvm ${pkgs.qemu_kvm}/bin/ivshmem-server -p ${pidFilePath} -n ${vectors} -m /dev/hugepages/ -l ${(toString config.ghaf.profiles.applications.ivShMemServer.memSize) + "M"}
             sleep 2
           '';
       in
-        lib.mkIf config.ghaf.profiles.applications.ivShMemServer.enable {
+        lib.mkIf shmConfig.enable {
           enable = true;
           description = "Start qemu ivshmem memory server";
           path = [ivShMemSrv];

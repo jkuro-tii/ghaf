@@ -25,9 +25,10 @@
       if vm.cid > 0
       then vm.cid
       else cfg.vsockBaseCID + index;
+    shmConfig = configHost.ghaf.profiles.applications.ivShMemServer;
     memsocket = pkgs.callPackage ../../../../packages/memsocket {
       debug = false;
-      vms = configHost.ghaf.profiles.applications.ivShMemServer.vmCount;
+      vms = shmConfig.vmCount;
     };
     memtest = pkgs.callPackage ../../../../packages/memsocket/memtest.nix {};
     appvmConfiguration = {
@@ -104,9 +105,9 @@
             mem = vm.ramMb;
             vcpu = vm.cores;
             kernelParams =
-              if configHost.ghaf.profiles.applications.ivShMemServer.enable
+              if shmConfig.enable
               then [
-                "kvm_ivshmem.flataddr=${configHost.ghaf.profiles.applications.ivShMemServer.flataddr}"
+                "kvm_ivshmem.flataddr=${shmConfig.flataddr}"
               ]
               else [];
             hypervisor = "qemu";
@@ -125,18 +126,7 @@
             writableStoreOverlay = lib.mkIf config.ghaf.development.debug.tools.enable "/nix/.rw-store";
 
             qemu = {
-              extraArgs = let
-                vectors = toString (2 * configHost.ghaf.profiles.applications.ivShMemServer.vmCount);
-                sharedMemoryOpts =
-                  if configHost.ghaf.profiles.applications.ivShMemServer.enable
-                  then [
-                    "-device"
-                    "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket,flataddr=${configHost.ghaf.profiles.applications.ivShMemServer.flataddr}"
-                    "-chardev"
-                    "socket,path=${configHost.ghaf.profiles.applications.ivShMemServer.hostSocketPath},id=ivs_socket"
-                  ]
-                  else [];
-              in
+              extraArgs =
                 [
                   "-M"
                   "accel=kvm:tcg,mem-merge=on,sata=off"
@@ -151,7 +141,7 @@
                   "-device"
                   "tpm-tis,tpmdev=tpm0"
                 ]
-                ++ sharedMemoryOpts;
+                ++ lib.optionals shmConfig.enable shmConfig.qemuOption;
 
               machine =
                 {
@@ -164,20 +154,20 @@
           };
 
           boot.kernelPatches =
-            configHost.ghaf.profiles.applications.ivShMemServer.kernelPatches;
+            shmConfig.kernelPatches;
           services.udev.extraRules =
-            if configHost.ghaf.profiles.applications.ivShMemServer.enable
+            if shmConfig.enable
             then ''
               SUBSYSTEM=="misc",KERNEL=="ivshmem",GROUP="kvm",MODE="0666"
             ''
             else "";
 
-          systemd.user.services.memsocket = lib.mkIf configHost.ghaf.profiles.applications.ivShMemServer.enable {
+          systemd.user.services.memsocket = lib.mkIf shmConfig.enable {
             enable = true;
             description = "memsocket";
             serviceConfig = {
               Type = "simple";
-              ExecStart = "${memsocket}/bin/memsocket -s ${configHost.ghaf.profiles.applications.ivShMemServer.serverSocketPath} ${builtins.toString index}";
+              ExecStart = "${memsocket}/bin/memsocket -s ${shmConfig.serverSocketPath} ${builtins.toString index}";
               Restart = "always";
               RestartSec = "1";
             };
