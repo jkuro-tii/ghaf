@@ -11,7 +11,7 @@
   inherit (import ../../../../lib/launcher.nix {inherit pkgs lib;}) rmDesktopEntries;
   shmConfig = config.ghaf.profiles.applications.ivShMemServer;
   memsocket = pkgs.callPackage ../../../../packages/memsocket {
-    debug = false;
+    debug = true;
     vms = shmConfig.vmCount;
   };
   memtest = pkgs.callPackage ../../../../packages/memsocket/memtest.nix {};
@@ -172,7 +172,7 @@
           memsocket = lib.mkIf shmConfig.enable {
             enable = true;
             description = "memsocket";
-            after = ["weston.service"];
+            after = ["labwc.service"];
             serviceConfig = {
               Type = "simple";
               ExecStart = "${memsocket}/bin/memsocket -c ${shmConfig.clientSocketPath}";
