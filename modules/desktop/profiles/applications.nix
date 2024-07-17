@@ -36,7 +36,7 @@ in
         };
         serverSocketPath = mkOption {
           type = lib.types.str;
-          default = "/run/user/%U/memsocket-server.sock";
+          default = "/run/user/1000/memsocket-server.sock";
           description = mdDoc ''
             Defines location of the listening socket.
             It's used by waypipe as an output socket when running in server mode
@@ -44,9 +44,9 @@ in
         };
         clientSocketPath = mkOption {
           type = lib.types.str;
-          default = "/run/user/%U/memsocket-client.sock";
+          default = "/run/user/1000/memsocket-client.sock";
           description = mdDoc ''
-            Defines location of the output socket. It's outputed
+            Defines location of the output socket. It's fed
             with data coming from AppVMs.
             It's used by waypipe as an input socket when running in client mode
           '';
@@ -71,13 +71,17 @@ in
           type = lib.types.listOf lib.types.str;
           default = let
             vectors = toString (2 * config.ghaf.profiles.applications.ivShMemServer.vmCount);
-          in
-            [
-              "-device"
-              "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket,flataddr=${config.ghaf.profiles.applications.ivShMemServer.flataddr}"
-              "-chardev"
-              "socket,path=${config.ghaf.profiles.applications.ivShMemServer.hostSocketPath},id=ivs_socket"
-            ];
+          in [
+            "-device"
+            "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket,flataddr=${config.ghaf.profiles.applications.ivShMemServer.flataddr}"
+            "-chardev"
+            "socket,path=${config.ghaf.profiles.applications.ivShMemServer.hostSocketPath},id=ivs_socket"
+          ];
+        };
+        display = mkOption {
+          type = types.bool;
+          default = false;
+          description = "Display VMs using shared memory";
         };
         kernelPatches = mkOption {
           type = lib.types.listOf lib.types.attrs;

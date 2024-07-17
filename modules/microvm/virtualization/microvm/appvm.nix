@@ -48,10 +48,18 @@
             if vm.borderColor != null
             then "--border \"${vm.borderColor}\""
             else "";
-          runWaypipe = pkgs.writeScriptBin "run-waypipe" ''
-            #!${pkgs.runtimeShell} -e
-            ${pkgs.waypipe}/bin/waypipe --vsock -s ${toString configHost.ghaf.virtualization.microvm.guivm.waypipePort} ${waypipeBorder} server "$@"
-          '';
+          runWaypipe =
+              if configHost.ghaf.profiles.applications.ivShMemServer.display
+              then
+                pkgs.writeScriptBin "run-waypipe" ''
+                  #!${pkgs.runtimeShell} -e
+                  ${pkgs.waypipe}/bin/waypipe -s ${configHost.ghaf.profiles.applications.ivShMemServer.serverSocketPath} ${waypipeBorder} server "$@"
+                ''
+              else
+                pkgs.writeScriptBin "run-waypipe" ''
+                  #!${pkgs.runtimeShell} -e
+                  ${pkgs.waypipe}/bin/waypipe --vsock -s ${toString configHost.ghaf.virtualization.microvm.guivm.waypipePort} ${waypipeBorder} server "$@"
+                '';
         in {
           ghaf = {
             users.accounts.enable = lib.mkDefault configHost.ghaf.users.accounts.enable;
