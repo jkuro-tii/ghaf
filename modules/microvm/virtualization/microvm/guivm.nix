@@ -11,7 +11,7 @@
   inherit (import ../../../../lib/launcher.nix {inherit pkgs lib;}) rmDesktopEntries;
   shmConfig = config.ghaf.profiles.applications.ivShMemServer;
   memsocket = pkgs.callPackage ../../../../packages/memsocket {
-    debug = true;
+    debug = false;
     vms = shmConfig.vmCount;
   };
   memtest = pkgs.callPackage ../../../../packages/memsocket/memtest.nix {};
