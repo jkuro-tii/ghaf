@@ -84,7 +84,6 @@
               pkgs.pamixer
               memsocket
               memtest /* for testing */
-              pkgs.socat /* for testing */
             ]
             ++ (lib.optional (config.ghaf.profiles.debug.enable && config.ghaf.virtualization.microvm.idsvm.mitmproxy.enable) pkgs.mitmweb-ui);
         };
