@@ -30,7 +30,6 @@
       debug = false;
       vms = shmConfig.vmCount;
     };
-    memtest = pkgs.callPackage ../../../../packages/memsocket/memtest.nix {};
     appvmConfiguration = {
       imports = [
         (import ./common/vm-networking.nix {
@@ -49,11 +48,11 @@
             then "--border \"${vm.borderColor}\""
             else "";
           runWaypipe =
-              if configHost.ghaf.profiles.applications.ivShMemServer.display
+              if shmConfig.display
               then
                 pkgs.writeScriptBin "run-waypipe" ''
                   #!${pkgs.runtimeShell} -e
-                  ${pkgs.waypipe}/bin/waypipe -s ${configHost.ghaf.profiles.applications.ivShMemServer.serverSocketPath} ${waypipeBorder} server "$@"
+                  ${pkgs.waypipe}/bin/waypipe -s ${shmConfig.serverSocketPath} ${waypipeBorder} server "$@"
                 ''
               else
                 pkgs.writeScriptBin "run-waypipe" ''
@@ -100,7 +99,6 @@
             pkgs.tpm2-tools
             pkgs.opensc
             memsocket
-            memtest
           ];
 
           security.tpm2 = {
@@ -161,8 +159,9 @@
             };
           };
 
-          boot.kernelPatches =
-            shmConfig.kernelPatches;
+          boot.kernelPatches = if shmConfig.enable then
+            shmConfig.kernelPatches
+          else [];
           services.udev.extraRules =
             if shmConfig.enable
             then ''

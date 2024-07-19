@@ -14,7 +14,6 @@
     debug = false;
     vms = shmConfig.vmCount;
   };
-  memtest = pkgs.callPackage ../../../../packages/memsocket/memtest.nix {};
   guivmBaseConfiguration = {
     imports = [
       (import ./common/vm-networking.nix {
@@ -83,7 +82,6 @@
               pkgs.nm-launcher
               pkgs.pamixer
               memsocket
-              memtest /* for testing */
             ]
             ++ (lib.optional (config.ghaf.profiles.debug.enable && config.ghaf.virtualization.microvm.idsvm.mitmproxy.enable) pkgs.mitmweb-ui);
         };
