@@ -52,7 +52,6 @@ in {
           
           speedtest-cli
           iperf
-          socat
           ;
       }
       ++
