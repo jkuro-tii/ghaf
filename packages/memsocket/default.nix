@@ -16,8 +16,8 @@ stdenv.mkDerivation {
   src = fetchFromGitHub {
     owner = "tiiuae";
     repo = "shmsockproxy";
-    rev = "ebee711b06514ce941f1284db49b95f620b2f61b";
-    sha256 = "sha256-2ChDC3uFZYgRrY4ZcERXg81IWtrEL7A1wCTFnveOqL8=";
+    rev = "4eef1a7e1f6993a9ba0ef1aa066145c410e2eec6";
+    sha256 = "sha256-uaKBtb+bD42RK/Z96dhMrGxNXg+ZV/6iW52ouNQ+QSY=";
   };
 
   nativeBuildInputs = [gcc gnumake];
