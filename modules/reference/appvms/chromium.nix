@@ -57,7 +57,9 @@ in {
 
       time.timeZone = config.time.timeZone;
 
-      microvm.qemu.extraArgs = lib.optionals config.ghaf.hardware.usb.internal.enable config.ghaf.hardware.usb.internal.qemuExtraArgs.webcam;
+      microvm.qemu.memfdExtraArgs = let tmp = 
+          "";#hugetlb=on";#,hugetlbsize=1G";
+        in builtins.trace (">>>>>ChromiumVM: " + (builtins.toString tmp)) tmp;
       microvm.devices = [];
 
       ghaf.reference.programs.chromium.enable = true;

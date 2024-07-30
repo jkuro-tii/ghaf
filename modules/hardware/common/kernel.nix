@@ -41,7 +41,7 @@ in {
         inherit (config.ghaf.hardware.definition.host.kernelConfig.stage1) kernelModules;
       };
       inherit (config.ghaf.hardware.definition.host.kernelConfig.stage2) kernelModules;
-      kernelParams = let
+      kernelParams = let tmp = let
         # PCI device passthroughs for vfio
         filterDevices = filter (d: d.vendorId != null && d.productId != null);
         mapPciIdsToString = map (d: "${d.vendorId}:${d.productId}");
@@ -50,8 +50,9 @@ in {
           ++ config.ghaf.hardware.definition.gpu.pciDevices
           ++ config.ghaf.hardware.definition.audio.pciDevices
         ));
-        hugepagesz = 2; # MBytes
-        hugepages = config.ghaf.profiles.applications.ivShMemServer.memSize / hugepagesz;
+        hugepagesz = 2; # shmem + Chromium + GuiVM MBytes
+        hugepages = (config.ghaf.profiles.applications.ivShMemServer.memSize +
+              (3 + 2)*1024) / hugepagesz; #config.ghaf.profiles.applications.ivShMemServer.memSize / hugepagesz;
         hugePagesArg =
           if config.ghaf.profiles.applications.ivShMemServer.enable
           then [
@@ -65,6 +66,7 @@ in {
           "vfio-pci.ids=${concatStringsSep "," vfioPciIds}"
         ]
         ++ hugePagesArg;
+        in builtins.trace (">>>>>kernelParams: " + (builtins.toString tmp)) tmp;
     };
 
     # Guest kernel configurations

@@ -138,6 +138,8 @@
                 aarch64-linux = "virt";
               }
               .${config.nixpkgs.hostPlatform.system};
+            memfdExtraArgs = let tmp = "";#"hugetlb=on";#,hugetlbsize=1G";
+              in builtins.trace (">>>>>GuiVM: " + (builtins.toString tmp)) tmp;
           };
         };
 

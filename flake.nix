@@ -93,7 +93,8 @@
     };
 
     microvm = {
-      url = "github:astro/microvm.nix";
+      # url = "github:astro/microvm.nix";
+      url = "/home/jaroslawkurowski/Project/Memshare/microvm.nix";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         flake-utils.follows = "flake-utils";

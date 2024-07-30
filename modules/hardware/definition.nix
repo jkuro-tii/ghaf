@@ -38,6 +38,13 @@ in {
             PCI device name (optional)
           '';
         };
+        # hugeMemory = mkOption {
+        #   type = types.nullOr types.int;
+        #   default = null;
+        #   description = ''
+        #     Huge pages area size in GiB
+        #   '';
+        # };
       };
     };
 
