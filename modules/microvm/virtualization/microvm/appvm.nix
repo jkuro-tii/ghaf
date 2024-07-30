@@ -26,10 +26,10 @@
       then vm.cid
       else cfg.vsockBaseCID + index;
     shmConfig = configHost.ghaf.profiles.applications.ivShMemServer;
-    memsocket = let tmp = pkgs.callPackage ../../../../packages/memsocket {
+    memsocket = pkgs.callPackage ../../../../packages/memsocket {
       debug = false;
       vms = shmConfig.vmCount;
-    }; in builtins.trace (">>>> typeOf memsocket: " + (builtins.typeOf tmp)) tmp;
+    };
     appvmConfiguration = {
       imports = [
         (import ./common/vm-networking.nix {

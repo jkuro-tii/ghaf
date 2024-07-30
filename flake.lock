@@ -251,16 +251,18 @@
         "spectrum": "spectrum"
       },
       "locked": {
-        "dirtyRev": "3692c11ceed00632345b106b24a8cd2c9ffe5569-dirty",
-        "dirtyShortRev": "3692c11-dirty",
-        "lastModified": 1719525795,
-        "narHash": "sha256-mG68NWE7umnLmH68ycPE+VSqyxLoYSpSDPwO6Vldj7o=",
-        "type": "git",
-        "url": "file:///home/jaroslawkurowski/Project/Memshare/microvm.nix"
+        "lastModified": 1722321255,
+        "narHash": "sha256-tuYgv+nEiFo7QshdsWujApeBdSsXex1UIX1q1kI1y/c=",
+        "owner": "jkuro-tii",
+        "repo": "microvm.nix",
+        "rev": "cf51b75008ac5f9ed484b4ecc4d82e81df80f8f7",
+        "type": "github"
       },
       "original": {
-        "type": "git",
-        "url": "file:///home/jaroslawkurowski/Project/Memshare/microvm.nix"
+        "owner": "jkuro-tii",
+        "repo": "microvm.nix",
+        "rev": "cf51b75008ac5f9ed484b4ecc4d82e81df80f8f7",
+        "type": "github"
       }
     },
     "nix-fast-build": {

@@ -3,7 +3,6 @@
 #
 {
   pkgs,
-  lib,
   config,
   ...
 }: let
@@ -57,9 +56,7 @@ in {
 
       time.timeZone = config.time.timeZone;
 
-      microvm.qemu.memfdExtraArgs = let tmp = 
-          "";#hugetlb=on";#,hugetlbsize=1G";
-        in builtins.trace (">>>>>ChromiumVM: " + (builtins.toString tmp)) tmp;
+      microvm.qemu.memfdExtraArgs = "hugetlb=on";
       microvm.devices = [];
 
       ghaf.reference.programs.chromium.enable = true;
