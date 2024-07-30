@@ -14,6 +14,8 @@
     debug = false;
     vms = builtins.length config.ghaf.reference.appvms.enabled-app-vms;
   };
+  thrift = pkgs.callPackage ../../../../packages/thrift {};
+  thrift_demo = pkgs.callPackage ../../../../packages/thrift/demo.nix {inherit thrift;};
   guivmBaseConfiguration = {
     imports = [
       (import ./common/vm-networking.nix {
@@ -82,6 +84,8 @@
               (pkgs.nm-launcher.override {inherit (config.ghaf.users.accounts) uid;})
               pkgs.pamixer
               memsocket
+              thrift
+              thrift_demo
             ]
             ++ (lib.optional (config.ghaf.profiles.debug.enable && config.ghaf.virtualization.microvm.idsvm.mitmproxy.enable) pkgs.mitmweb-ui);
         };
