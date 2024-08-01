@@ -12,7 +12,7 @@
   shmConfig = config.ghaf.profiles.applications.ivShMemServer;
   memsocket = pkgs.callPackage ../../../../packages/memsocket {
     debug = false;
-    vms = shmConfig.vmCount;
+    vms = builtins.length config.ghaf.reference.appvms.enabled-app-vms;
   };
   guivmBaseConfiguration = {
     imports = [
@@ -287,7 +287,7 @@ in {
       ivshmemsrv = let
         pidFilePath = "/tmp/ivshmem-server.pid";
         ivShMemSrv = let
-          vectors = toString (2 * shmConfig.vmCount);
+          vectors = toString (2 * (builtins.length config.ghaf.reference.appvms.enabled-app-vms));
         in
           pkgs.writeShellScriptBin "ivshmemsrv" ''
             chown microvm /dev/hugepages

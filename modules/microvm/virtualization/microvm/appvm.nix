@@ -28,7 +28,7 @@
     shmConfig = configHost.ghaf.profiles.applications.ivShMemServer;
     memsocket = pkgs.callPackage ../../../../packages/memsocket {
       debug = false;
-      vms = shmConfig.vmCount;
+      vms = builtins.length config.ghaf.reference.appvms.enabled-app-vms;
     };
     appvmConfiguration = {
       imports = [

@@ -27,13 +27,6 @@ in
             Defines shared memory size in MBytes
           '';
         };
-        vmCount = mkOption {
-          type = lib.types.int;
-          default = 6;
-          description = mdDoc ''
-            Defines maximum number of application VMs
-          '';
-        };
         serverSocketPath = mkOption {
           type = lib.types.str;
           default = "/run/user/${builtins.toString config.ghaf.users.accounts.uid}/memsocket-server.sock";
@@ -71,7 +64,7 @@ in
         qemuOption = mkOption {
           type = lib.types.listOf lib.types.str;
           default = let
-            vectors = toString (2 * config.ghaf.profiles.applications.ivShMemServer.vmCount);
+            vectors = toString (2 * (builtins.length config.ghaf.reference.appvms.enabled-app-vms));
           in [
             "-device"
             "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket,flataddr=${config.ghaf.profiles.applications.ivShMemServer.flataddr}"
@@ -96,7 +89,7 @@ in
                   sha256 = "sha256-Nj9U9QRqgMluuF9ui946mqG6RQGxNyDmfcYHqMZlcvc=";
                 };
                 extraConfig = ''
-                  KVM_IVSHMEM_VM_COUNT ${toString config.ghaf.profiles.applications.ivShMemServer.vmCount}
+                  KVM_IVSHMEM_VM_COUNT ${toString (builtins.length config.ghaf.reference.appvms.enabled-app-vms)}
                 '';
               }
             ]
