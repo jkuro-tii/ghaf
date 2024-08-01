@@ -79,7 +79,7 @@
               pkgs.networkmanagerapplet
             ])
             ++ [
-              pkgs.nm-launcher
+              (pkgs.nm-launcher.override {inherit (config.ghaf.users.accounts) uid;})
               pkgs.pamixer
               memsocket
             ]

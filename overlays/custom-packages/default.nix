@@ -13,7 +13,7 @@
   wifi-connector = final.callPackage ../../packages/wifi-connector {};
   wifi-connector-nmcli = final.callPackage ../../packages/wifi-connector {useNmcli = true;};
   qemu_kvm = import ./qemu {inherit final prev;};
-  nm-launcher = final.callPackage ../../packages/nm-launcher {};
+  nm-launcher = final.callPackage ../../packages/nm-launcher {uid = null;};
   icon-pack = final.callPackage ../../packages/icon-pack {};
   ghaf-openbox-theme = final.callPackage ../../packages/ghaf-openbox-theme {};
   labwc = import ./labwc {inherit prev;};

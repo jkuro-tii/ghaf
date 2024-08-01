@@ -36,7 +36,7 @@ in
         };
         serverSocketPath = mkOption {
           type = lib.types.str;
-          default = "/run/user/1000/memsocket-server.sock";
+          default = "/run/user/${builtins.toString config.ghaf.users.accounts.uid}/memsocket-server.sock";
           description = mdDoc ''
             Defines location of the listening socket.
             It's used by waypipe as an output socket when running in server mode
@@ -44,7 +44,7 @@ in
         };
         clientSocketPath = mkOption {
           type = lib.types.str;
-          default = "/run/user/1000/memsocket-client.sock";
+          default = "/run/user/${builtins.toString config.ghaf.users.accounts.uid}/memsocket-client.sock";
           description = mdDoc ''
             Defines location of the output socket. It's fed
             with data coming from AppVMs.
@@ -64,7 +64,8 @@ in
           default = "0x920000000";
           description = mdDoc ''
             If set to a non-zero value, it maps the shared memory
-            into this physical address.
+            into this physical address. The value is arbitrary chosen, platform
+            specific, in order not to conflict with other memory areas (e.g. PCI).
           '';
         };
         qemuOption = mkOption {
