@@ -50,12 +50,16 @@ in {
           ++ config.ghaf.hardware.definition.gpu.pciDevices
           ++ config.ghaf.hardware.definition.audio.pciDevices
         ));
-        hugepagesz = 2; # MBytes
-        hugepages = config.ghaf.profiles.applications.ivShMemServer.memSize / hugepagesz;
         hugePagesArg =
           if config.ghaf.profiles.applications.ivShMemServer.enable
-          then [
-            "hugepagesz=${toString hugepagesz}M"
+          then let
+            hugepagesz = "2M"; # valid values: "2M" and "1G", as kernel supports these huge pages' size
+            hugepages =
+              if hugepagesz == "2M"
+              then config.ghaf.profiles.applications.ivShMemServer.memSize / 2
+              else config.ghaf.profiles.applications.ivShMemServer.memSize / 1024;
+          in [
+            "hugepagesz=${hugepagesz}"
             "hugepages=${toString hugepages}"
           ]
           else [];

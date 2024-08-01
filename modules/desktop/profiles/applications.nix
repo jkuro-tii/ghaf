@@ -24,7 +24,7 @@ in
           type = lib.types.int;
           default = 16;
           description = mdDoc ''
-            Defines shared memory size
+            Defines shared memory size in MBytes
           '';
         };
         vmCount = mkOption {
