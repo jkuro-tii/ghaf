@@ -5,8 +5,6 @@
   lib,
   debug,
   vms,
-  gcc,
-  gnumake,
   fetchFromGitHub,
   ...
 }:
@@ -20,8 +18,6 @@ stdenv.mkDerivation {
     sha256 = "sha256-uaKBtb+bD42RK/Z96dhMrGxNXg+ZV/6iW52ouNQ+QSY=";
   };
 
-  nativeBuildInputs = [gcc gnumake];
-
   CFLAGS =
     "-O2 -DVM_COUNT="
     + (toString vms)
@@ -30,9 +26,7 @@ stdenv.mkDerivation {
       then " -DDEBUG_ON"
       else ""
     );
-  prePatch = ''
-    cd app
-  '';
+  sourceRoot = "source/app";
 
   installPhase = ''
     mkdir -p $out/bin

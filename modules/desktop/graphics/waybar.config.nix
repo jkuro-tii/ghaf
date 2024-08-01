@@ -108,7 +108,7 @@ in {
               },
               "custom/admin": {
                 "format": " ",
-                "on-click": "${pkgs.nm-launcher}/bin/nm-launcher",
+                "on-click": "${pkgs.nm-launcher.override {uid = config.ghaf.users.accounts.uid;}}/bin/nm-launcher",
                 "tooltip": false
               },
               "pulseaudio": {
