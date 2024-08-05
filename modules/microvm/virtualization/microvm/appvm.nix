@@ -30,6 +30,8 @@
       debug = false;
       vms = builtins.length config.ghaf.reference.appvms.enabled-app-vms;
     };
+    thrift = pkgs.callPackage ../../../../packages/thrift {};
+    thrift_demo = pkgs.callPackage ../../../../packages/thrift/demo.nix {inherit thrift;};
     appvmConfiguration = {
       imports = [
         (import ./common/vm-networking.nix {
@@ -99,6 +101,8 @@
             pkgs.tpm2-tools
             pkgs.opensc
             memsocket
+            thrift
+            thrift_demo
           ];
 
           security.tpm2 = {
