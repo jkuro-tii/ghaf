@@ -83,11 +83,6 @@
               pkgs.pamixer
               memsocket
               gRpcDemo
-              # TODO: remove
-              pkgs.gcc
-              pkgs.gdb
-              pkgs.gnumake
-              pkgs.git
             ]
             ++ (lib.optional (config.ghaf.profiles.debug.enable && config.ghaf.virtualization.microvm.idsvm.mitmproxy.enable) pkgs.mitmweb-ui);
         };

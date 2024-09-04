@@ -100,11 +100,6 @@
             pkgs.opensc
             memsocket
             gRpcDemo
-            # TODO: remove
-            pkgs.gcc
-            pkgs.gdb
-            pkgs.gnumake
-            pkgs.git
           ];
 
           security.tpm2 = {

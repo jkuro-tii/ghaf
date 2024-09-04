@@ -3,7 +3,7 @@
 {
   stdenv,
   lib,
-  debug ? true, # TODO: change to false
+  debug ? false,
   vms,
   fetchFromGitHub,
   ...
@@ -18,8 +18,7 @@ stdenv.mkDerivation {
     sha256 = "sha256-Km0zDMPp9gEUa+ING+NW4IO63eC8+gFVzNZSAhF4gv4=";
   };
 
-  CFLAGS = let
-    tmp =
+  CFLAGS = 
       "-O2 -DVM_COUNT="
       + (toString vms)
       + (
@@ -27,8 +26,6 @@ stdenv.mkDerivation {
         then " -DDEBUG_ON"
         else ""
       );
-  in
-    builtins.trace (">> CFLAGS=" + tmp) tmp;
   sourceRoot = "source/app";
 
   installPhase = ''
