@@ -5,6 +5,7 @@
   config,
   lib,
   pkgs,
+  options,
   ...
 }: let
   cfg = config.ghaf.profiles.applications;
@@ -61,10 +62,14 @@ in
             specific, in order not to conflict with other memory areas (e.g. PCI).
           '';
         };
+        instancesCount = mkOption {
+          type = types.int;
+          default = builtins.length options.ghaf.namespaces.vms.value;
+        };
         qemuOption = mkOption {
           type = types.listOf types.str;
           default = let
-            vectors = toString (2 * (builtins.length config.ghaf.reference.appvms.enabled-app-vms));
+            vectors = toString (2 * config.ghaf.profiles.applications.ivShMemServer.instancesCount);
           in [
             "-device"
             "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket,flataddr=${config.ghaf.profiles.applications.ivShMemServer.flataddr}"
@@ -89,7 +94,7 @@ in
                   sha256 = "sha256-Nj9U9QRqgMluuF9ui946mqG6RQGxNyDmfcYHqMZlcvc=";
                 };
                 extraConfig = ''
-                  KVM_IVSHMEM_VM_COUNT ${toString (builtins.length config.ghaf.reference.appvms.enabled-app-vms)}
+                  KVM_IVSHMEM_VM_COUNT ${toString config.ghaf.profiles.applications.ivShMemServer.instancesCount}
                 '';
               }
             ]

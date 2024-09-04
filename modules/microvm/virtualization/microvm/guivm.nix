@@ -11,9 +11,9 @@
   inherit (import ../../../../lib/launcher.nix {inherit pkgs lib;}) rmDesktopEntries;
   shmConfig = config.ghaf.profiles.applications.ivShMemServer;
   memsocket = pkgs.callPackage ../../../../packages/memsocket {
-    debug = false;
-    vms = builtins.length config.ghaf.reference.appvms.enabled-app-vms;
+    vms = config.ghaf.profiles.applications.ivShMemServer.instancesCount;
   };
+  gRpcDemo = pkgs.callPackage ../../../../packages/grpc-demo {};
   guivmBaseConfiguration = {
     imports = [
       (import ./common/vm-networking.nix {
@@ -82,6 +82,12 @@
               (pkgs.nm-launcher.override {inherit (config.ghaf.users.accounts) uid;})
               pkgs.pamixer
               memsocket
+              gRpcDemo
+              # TODO: remove
+              pkgs.gcc
+              pkgs.gdb
+              pkgs.gnumake
+              pkgs.git
             ]
             ++ (lib.optional (config.ghaf.profiles.debug.enable && config.ghaf.virtualization.microvm.idsvm.mitmproxy.enable) pkgs.mitmweb-ui);
         };
@@ -170,7 +176,7 @@
           };
 
           memsocket = lib.mkIf shmConfig.enable {
-            enable = true;
+            enable = false;
             description = "memsocket";
             after = ["labwc.service"];
             serviceConfig = {
@@ -287,7 +293,7 @@ in {
       ivshmemsrv = let
         pidFilePath = "/tmp/ivshmem-server.pid";
         ivShMemSrv = let
-          vectors = toString (2 * (builtins.length config.ghaf.reference.appvms.enabled-app-vms));
+          vectors = toString (2 * config.ghaf.profiles.applications.ivShMemServer.instancesCount);
         in
           pkgs.writeShellScriptBin "ivshmemsrv" ''
             chown microvm /dev/hugepages

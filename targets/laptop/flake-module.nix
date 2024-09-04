@@ -28,7 +28,7 @@
           hardware.definition.configFile = "/lenovo-x1/definitions/x1-gen11.nix";
           profiles.mvp-user-trial.enable = true;
           profiles.applications.ivShMemServer.enable = true;
-          profiles.applications.ivShMemServer.display = true;
+          profiles.applications.ivShMemServer.display = false;
         };
       }
     ])

@@ -3,7 +3,7 @@
 {
   stdenv,
   lib,
-  debug,
+  debug ? true, # TODO: change to false
   vms,
   fetchFromGitHub,
   ...
@@ -14,18 +14,21 @@ stdenv.mkDerivation {
   src = fetchFromGitHub {
     owner = "tiiuae";
     repo = "shmsockproxy";
-    rev = "5e1cd6bdb2f9e4d5825be689d86f57ceeb7c3b5d";
-    sha256 = "sha256-7U3NpX/FalIGxX7gf5ImEX+k7YTTdF4FtL7OsY3uTvg=";
+    rev = "52ac5d3719d2139ac36f25f81f93b8ae4ad3f527";
+    sha256 = "sha256-Km0zDMPp9gEUa+ING+NW4IO63eC8+gFVzNZSAhF4gv4=";
   };
 
-  CFLAGS =
-    "-O2 -DVM_COUNT="
-    + (toString vms)
-    + (
-      if debug
-      then " -DDEBUG_ON"
-      else ""
-    );
+  CFLAGS = let
+    tmp =
+      "-O2 -DVM_COUNT="
+      + (toString vms)
+      + (
+        if debug
+        then " -DDEBUG_ON"
+        else ""
+      );
+  in
+    builtins.trace (">> CFLAGS=" + tmp) tmp;
   sourceRoot = "source/app";
 
   installPhase = ''

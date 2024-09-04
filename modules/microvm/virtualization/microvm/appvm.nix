@@ -27,9 +27,9 @@
       else cfg.vsockBaseCID + index;
     shmConfig = configHost.ghaf.profiles.applications.ivShMemServer;
     memsocket = pkgs.callPackage ../../../../packages/memsocket {
-      debug = false;
-      vms = builtins.length config.ghaf.reference.appvms.enabled-app-vms;
+      vms = config.ghaf.profiles.applications.ivShMemServer.instancesCount;
     };
+    gRpcDemo = pkgs.callPackage ../../../../packages/grpc-demo {};
     appvmConfiguration = {
       imports = [
         (import ./common/vm-networking.nix {
@@ -99,6 +99,12 @@
             pkgs.tpm2-tools
             pkgs.opensc
             memsocket
+            gRpcDemo
+            # TODO: remove
+            pkgs.gcc
+            pkgs.gdb
+            pkgs.gnumake
+            pkgs.git
           ];
 
           security.tpm2 = {
@@ -171,7 +177,7 @@
             else "";
 
           systemd.user.services.memsocket = lib.mkIf shmConfig.enable {
-            enable = true;
+            enable = false;
             description = "memsocket";
             serviceConfig = {
               Type = "simple";

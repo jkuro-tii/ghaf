@@ -13,6 +13,14 @@
   sysbench-test-script = pkgs.callPackage ./scripts/sysbench_test.nix {};
   sysbench-fileio-test-script = pkgs.callPackage ./scripts/sysbench_fileio_test.nix {};
   nvpmodel-check = pkgs.callPackage ./scripts/nvpmodel_check.nix {};
+  memsocket = pkgs.callPackage ../../../packages/memsocket {
+    vms = config.ghaf.profiles.applications.ivShMemServer.instancesCount;
+  };
+  grpc-demo = pkgs.callPackage ../../../packages/grpc-demo {};
+  memsocket-grpc =
+    if (builtins.hasAttr "applications" config.ghaf.profiles)
+    then [memsocket grpc-demo]
+    else [];
 
   inherit (lib) mkEnableOption mkIf;
   inherit (import ../../../lib/launcher.nix {inherit pkgs lib;}) rmDesktopEntries;
@@ -52,6 +60,13 @@ in {
           
           speedtest-cli
           iperf
+          # TODO remove
+          
+          gcc
+          gnumake
+          git
+          mc
+          gdb
           ;
       }
       ++
@@ -71,6 +86,8 @@ in {
       # runtimeShell (unixbench dependency) not available on RISC-V nor on cross-compiled Orin AGX/NX
       ++ lib.optional (pkgs.stdenv.hostPlatform == pkgs.stdenv.buildPlatform) pkgs.unixbench
       # Build VLC only on x86
-      ++ lib.optionals (config.nixpkgs.hostPlatform.system == "x86_64-linux") (rmDesktopEntries [pkgs.vlc]);
+      ++ lib.optionals (config.nixpkgs.hostPlatform.system == "x86_64-linux") (rmDesktopEntries [pkgs.vlc])
+      # ++ [memsocket grpc-demo];
+      ++ memsocket-grpc;
   };
 }
