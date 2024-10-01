@@ -50,25 +50,11 @@ in {
           ++ config.ghaf.hardware.definition.gpu.pciDevices
           ++ config.ghaf.hardware.definition.audio.pciDevices
         ));
-        hugePagesArg =
-          if config.ghaf.profiles.applications.ivShMemServer.enable
-          then let
-            hugepagesz = "2M"; # valid values: "2M" and "1G", as kernel supports these huge pages' size
-            hugepages =
-              if hugepagesz == "2M"
-              then config.ghaf.profiles.applications.ivShMemServer.memSize / 2
-              else config.ghaf.profiles.applications.ivShMemServer.memSize / 1024;
-          in [
-            "hugepagesz=${hugepagesz}"
-            "hugepages=${toString hugepages}"
-          ]
-          else [];
       in
         config.ghaf.hardware.definition.host.kernelConfig.kernelParams
         ++ [
           "vfio-pci.ids=${concatStringsSep "," vfioPciIds}"
-        ]
-        ++ hugePagesArg;
+        ];
     };
 
     # Guest kernel configurations
