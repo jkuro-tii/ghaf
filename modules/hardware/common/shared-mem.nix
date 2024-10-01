@@ -45,7 +45,7 @@ with lib; {
       };
       instancesCount = mkOption {
         type = types.int;
-        default = builtins.length options.ghaf.namespaces.vms.value;
+        default = builtins.length config.ghaf.namespaces.vms;
       };
     };
     
@@ -63,6 +63,7 @@ with lib; {
 
     /*TODO: jarekk maybe implement separate parameter for including GuiVM? */
     config.ghaf.hardware.definition.gpu.kernelConfig.kernelParams = 
+      builtins.trace (">>>>> " + (builtins.toString config.ghaf.shm.instancesCount))
       optionals config.ghaf.shm.enable
       [
         "kvm_ivshmem.flataddr=${config.ghaf.shm.flataddr}"
