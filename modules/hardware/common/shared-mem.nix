@@ -25,6 +25,28 @@ with lib; {
           Defines shared memory size in MBytes
       '';
       };
+      flataddr = mkOption {
+        type = types.str;
+        default = "0x920000000";
+        description = mdDoc ''
+          If set to a non-zero value, it maps the shared memory
+          into this physical address. The value is arbitrary chosen, platform
+          specific, in order not to conflict with other memory areas (e.g. PCI).
+        '';
+      };
+      vms_enabled = mkOption {
+        type = types.listOf types.str;
+        default = [];
+        description = mdDoc ''
+          If set to a non-zero value, it maps the shared memory
+          into this physical address. The value is arbitrary chosen, platform
+          specific, in order not to conflict with other memory areas (e.g. PCI).
+        '';
+      };
+      instancesCount = mkOption {
+        type = types.int;
+        default = builtins.length options.ghaf.namespaces.vms.value;
+      };
     };
     
     config.boot.kernelParams = let 
@@ -39,4 +61,10 @@ with lib; {
             "hugepages=${toString hugepages}"
       ];
 
+    /*TODO: jarekk maybe implement separate parameter for including GuiVM? */
+    config.ghaf.hardware.definition.gpu.kernelConfig.kernelParams = 
+      optionals config.ghaf.shm.enable
+      [
+        "kvm_ivshmem.flataddr=${config.ghaf.shm.flataddr}"
+      ];
 }

@@ -104,13 +104,6 @@
           vcpu = 2;
           mem = 2048;
           hypervisor = "qemu";
-          kernelParams =
-            if shmConfig.enable
-            then [
-              "kvm_ivshmem.flataddr=${shmConfig.flataddr}"
-            ]
-            else [];
-
           shares = [
             {
               tag = "rw-waypipe-ssh-public-key";

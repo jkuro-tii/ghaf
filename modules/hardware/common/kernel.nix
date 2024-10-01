@@ -65,15 +65,7 @@ in {
             inherit (config.ghaf.hardware.definition.gpu.kernelConfig.stage1) kernelModules;
           };
           inherit (config.ghaf.hardware.definition.gpu.kernelConfig.stage2) kernelModules;
-          kernelParams = let
-            flatMemArg =
-              if config.ghaf.profiles.applications.ivShMemServer.enable
-              then [
-                "kvm_ivshmem.flataddr=${config.ghaf.profiles.applications.ivShMemServer.flataddr}"
-              ]
-              else [];
-          in
-            config.ghaf.hardware.definition.gpu.kernelConfig.kernelParams ++ flatMemArg;
+          inherit (config.ghaf.hardware.definition.gpu.kernelConfig) kernelParams;
         };
       };
       audiovm = {
