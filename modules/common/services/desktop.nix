@@ -163,7 +163,7 @@ in
             {
               name = "Network Settings";
               description = "Manage Network & Wi-Fi Settings";
-              path = "${pkgs.nm-launcher}/bin/nm-launcher";
+              path = "${pkgs.nm-launcher.override { inherit (config.ghaf.users.accounts) uid; }}/bin/nm-launcher";
               icon = "${pkgs.icon-pack}/preferences-system-network.svg";
             }
 
@@ -208,6 +208,12 @@ in
               description = "Reboot System";
               path = "${pkgs.givc-cli}/bin/givc-cli ${cliArgs} reboot";
               icon = "${pkgs.icon-pack}/system-reboot.svg";
+            }
+
+            {
+              name = "Control panel";
+              path = "${pkgs.ctrl-panel}/bin/ctrl-panel";
+              icon = "${pkgs.icon-pack}/utilities-tweak-tool.svg";
             }
           ]
           ++ optionals config.ghaf.reference.programs.windows-launcher.enable [
