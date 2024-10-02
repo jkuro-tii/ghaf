@@ -36,7 +36,7 @@ in
     };
     pulseaudioUseShmem = mkOption {
       type = types.bool;
-      default = false;
+      default = true;
       description = "Use shared memory for audio service";
     };
   };
