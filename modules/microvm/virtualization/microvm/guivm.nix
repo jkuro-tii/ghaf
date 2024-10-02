@@ -123,8 +123,7 @@
               [
                 "-device"
                 "vhost-vsock-pci,guest-cid=${toString cfg.vsockCID}"
-              ]
-              ++ lib.optionals shmConfig.enable shmConfig.qemuOption;
+              ];
             machine =
               {
                 # Use the same machine type as the host

@@ -111,12 +111,6 @@
             optimize.enable = false;
             mem = vm.ramMb;
             vcpu = vm.cores;
-            kernelParams =
-              if shmConfig.enable
-              then [
-                "kvm_ivshmem.flataddr=${shmConfig.flataddr}"
-              ]
-              else [];
             hypervisor = "qemu";
             shares = [
               {
@@ -147,8 +141,7 @@
                   "emulator,id=tpm0,chardev=chrtpm"
                   "-device"
                   "tpm-tis,tpmdev=tpm0"
-                ]
-                ++ lib.optionals shmConfig.enable shmConfig.qemuOption;
+                ];
 
               machine =
                 {

@@ -53,29 +53,9 @@ in
             instances for memory sharing and sending interrupts.
           '';
         };
-        flataddr = mkOption {
-          type = types.str;
-          default = "0x920000000";
-          description = mdDoc ''
-            If set to a non-zero value, it maps the shared memory
-            into this physical address. The value is arbitrary chosen, platform
-            specific, in order not to conflict with other memory areas (e.g. PCI).
-          '';
-        };
         instancesCount = mkOption {
           type = types.int;
           default = builtins.length options.ghaf.namespaces.vms.value;
-        };
-        qemuOption = mkOption {
-          type = types.listOf types.str;
-          default = let
-            vectors = toString (2 * config.ghaf.profiles.applications.ivShMemServer.instancesCount);
-          in [
-            "-device"
-            "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket,flataddr=${config.ghaf.profiles.applications.ivShMemServer.flataddr}"
-            "-chardev"
-            "socket,path=${config.ghaf.profiles.applications.ivShMemServer.hostSocketPath},id=ivs_socket"
-          ];
         };
         display = mkOption {
           type = types.bool;
