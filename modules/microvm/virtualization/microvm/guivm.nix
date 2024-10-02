@@ -222,6 +222,7 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
+    ghaf.shm.vms_enabled = [vmName]; # Allow access to VMs shared memory
     microvm.vms."${vmName}" = {
       autostart = true;
       config =

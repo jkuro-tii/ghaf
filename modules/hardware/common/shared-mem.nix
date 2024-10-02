@@ -10,7 +10,7 @@
   ...
 }:
 with lib; {
-    options.ghaf.shm = builtins.trace "!!! shm !!!" {
+    options.ghaf.shm = builtins.trace "!!! shm !!!" { # jarekk: remove
       enable = lib.mkOption {
         type = lib.types.bool;
         default = true;
@@ -35,7 +35,7 @@ with lib; {
         '';
       };
       vms_enabled = mkOption {
-        type = types.listOf types.str;
+        type = types.listOf types.str; 
         default = [];
         description = mdDoc ''
           If set to a non-zero value, it maps the shared memory
@@ -54,14 +54,14 @@ with lib; {
       hugepages =
         if hugepagesz == "2M"
           then config.ghaf.shm.memSize / 2
-          else config.ghaf.shm.memSize / 1024;
-    in optionals config.ghaf.shm.enable
+          else config.ghaf.shm.memSize / 1024; # TODO jarekk: remove
+    in builtins.trace (">>>> kernelParams vms_enabled=" + (builtins.toString config.ghaf.shm.vms_enabled)) 
+    (optionals config.ghaf.shm.enable
       [
             "hugepagesz=${hugepagesz}"
             "hugepages=${toString hugepages}"
-      ];
+      ]);
 
-    /*TODO: jarekk maybe implement separate parameter for including GuiVM? */
     config.ghaf.hardware.definition.gpu.kernelConfig.kernelParams = 
       builtins.trace (">>>>> " + (builtins.toString config.ghaf.shm.instancesCount))
       optionals config.ghaf.shm.enable

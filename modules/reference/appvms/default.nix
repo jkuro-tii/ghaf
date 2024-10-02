@@ -27,7 +27,7 @@ in {
       '';
     };
   };
-
+  
   config = lib.mkIf cfg.enable {
     ghaf.reference.appvms = {
       enabled-app-vms =
@@ -38,5 +38,6 @@ in {
         ++ (lib.optionals cfg.appflowy-vm [(import ./appflowy.nix {inherit pkgs config;})])
         ++ (lib.optionals cfg.business-vm [(import ./business.nix {inherit pkgs lib config;})]);
     };
+    ghaf.shm.vms_enabled = ["chromium-vm" "element-vm"];  # Allow access to VMs shared memory
   };
 }
