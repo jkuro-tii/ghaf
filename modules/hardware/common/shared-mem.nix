@@ -13,21 +13,66 @@ let
   cfg = config.ghaf.shm;
   inherit (lib)
     foldl'
-    lists
     mkMerge
     mkIf
     mkOption
     mdDoc
     types
     ;
+  enabledServices = lib.filterAttrs (_name: serverAttrs: serverAttrs.enabled) cfg.service;
+  clientsPerService =
+    service:
+    lib.flatten (
+      lib.mapAttrsToList (
+        name: value: if (name == service || service == "all") then value.clients else [ ]
+      ) enabledServices
+    );
+  allVMs = lib.unique (
+    lib.flatten (
+      lib.mapAttrsToList (
+        _serviceName: serviceAttrs: serviceAttrs.clients ++ [ serviceAttrs.server ]
+      ) enabledServices
+    )
+  );
+  clientServicePairs = lib.flatten (
+    lib.mapAttrsToList (
+      serverName: serverAttrs:
+      lib.map (client: {
+        service = serverName;
+        inherit client;
+      }) serverAttrs.clients
+    ) enabledServices
+  );
+  clientServiceWithID = lib.foldl' (
+    acc: pair: acc ++ [ (pair // { id = builtins.length acc; }) ]
+  ) [ ] clientServicePairs;
+  clientID =
+    client: service:
+    let
+      filtered = builtins.filter (x: x.client == client && x.service == service) clientServiceWithID;
+    in
+    if filtered != [ ] then (builtins.toString (builtins.head filtered).id) else null;
+  clientsArg = lib.foldl' (
+    acc: pair:
+    (
+      acc
+      // {
+        "${pair.service}" =
+          if (builtins.hasAttr "${pair.service}" acc) then
+            acc.${pair.service} + "," + (builtins.toString pair.id)
+          else
+            (builtins.toString pair.id);
+      }
+    )
+  ) { } clientServiceWithID;
 in
 {
   options.ghaf.shm = {
     enable = mkOption {
       type = types.bool;
-      default = false;
+      default = true;
       description = mdDoc ''
-        Enables shared memory communication between virtual machines (VMs)
+        Enables shared memory communication between virtual machines (VMs) and the host
       '';
     };
     memSize = mkOption {
@@ -52,6 +97,62 @@ in
         else
           value;
     };
+
+    service = mkOption {
+      type = types.attrsOf types.anything;
+      default =
+        let
+          stdConfig = service: {
+            server = "${service}-vm";
+            cmdClientSocketPath = "/run/user/$UID/memsocket-${service}-client.sock";
+            clientSocketPath = "/run/user/%U/memsocket-${service}-client.sock"; # redundant definition, as systemd does not support $UID
+            serverSocketPath = service: suffix: "/run/user/%U/memsocket-${service}${suffix}.sock";
+          };
+        in
+        {
+          gui = {
+            serverConfig = {
+              systemdParams = {
+                after = [ "labwc.service" ];
+                wantedBy = [ "ghaf-session.target" ];
+              };
+              multiProcess = true;
+            };
+            clients = [
+              "chrome-vm"
+              "business-vm"
+              "comms-vm"
+              "gala-vm"
+              "zathura-vm"
+            ];
+            clientConfig = {
+              systemdParams = {
+                wantedBy = [ "default.target" ];
+              };
+            };
+            enabled = true;
+          } // stdConfig "gui";
+          audio = {
+            serverConfig = {
+              systemdParams = { };
+            };
+            clients = [
+              "chrome-vm"
+              "business-vm"
+            ];
+            clientConfig = {
+              systemdParams = {
+                wantedBy = [ "default.target" ];
+              };
+            };
+            enabled = false;
+          } // stdConfig "audio";
+        };
+      description = mdDoc ''
+        Specifies the configuration of shared memory services
+      '';
+    };
+
     hostSocketPath = mkOption {
       type = types.path;
       default = "/tmp/ivshmem_socket"; # The value is hardcoded in the application
@@ -69,53 +170,22 @@ in
         conflicts with other memory areas, such as PCI regions.
       '';
     };
-    vms_enabled = mkOption {
-      type = types.listOf types.str;
-      default = [ ];
-      description = mdDoc ''
-        List of vms having access to shared memory
-      '';
-    };
     enable_host = mkOption {
       type = types.bool;
-      default = false;
+      default = true;
       description = mdDoc ''
         Enables the memsocket functionality on the host system
       '';
     };
-    instancesCount = mkOption {
+    shmSlots = mkOption {
       type = types.int;
       default =
-        if cfg.enable_host then (builtins.length cfg.vms_enabled) + 1 else builtins.length cfg.vms_enabled;
+        if cfg.enable_host then
+          (builtins.length clientServiceWithID) + 1
+        else
+          builtins.length clientServiceWithID;
       description = mdDoc ''
         Number of memory slots allocated in the shared memory region
-      '';
-    };
-    serverSocketPath = mkOption {
-      type = types.path;
-      default = "/run/user/${builtins.toString config.ghaf.users.loginUser.uid}/memsocket-server.sock";
-      description = mdDoc ''
-        Specifies the path of the listening socket, which is used by Waypipe
-        or other server applications as the output socket in server mode for
-        data transmission
-      '';
-    };
-    clientSocketPath = mkOption {
-      type = types.path;
-      default = "/run/user/${builtins.toString config.ghaf.users.loginUser.uid}/memsocket-client.sock";
-      description = mdDoc ''
-        Specifies the location of the output socket, which will connected to
-        in order to receive data from AppVMs. This socket must be created by
-        another application, such as Waypipe, when operating in client mode
-      '';
-    };
-    display = mkOption {
-      type = types.bool;
-      default = false;
-      description = mdDoc ''
-        Enables the use of shared memory with Waypipe for Wayland-enabled
-        applications running on virtual machines (VMs), facilitating
-        efficient inter-VM communication
       '';
     };
   };
@@ -142,7 +212,7 @@ in
       }
       (mkIf cfg.enable_host {
         environment.systemPackages = [
-          (pkgs.callPackage ../../../packages/memsocket { vms = cfg.instancesCount; })
+          (pkgs.callPackage ../../../packages/memsocket { inherit (cfg) shmSlots; })
         ];
       })
       {
@@ -151,7 +221,7 @@ in
             pidFilePath = "/tmp/ivshmem-server.pid";
             ivShMemSrv =
               let
-                vectors = toString (2 * cfg.instancesCount);
+                vectors = toString (2 * cfg.shmSlots);
               in
               pkgs.writeShellScriptBin "ivshmemsrv" ''
                 if [ -S ${cfg.hostSocketPath} ]; then
@@ -180,9 +250,9 @@ in
       {
         microvm.vms =
           let
-            memsocket = pkgs.callPackage ../../../packages/memsocket { vms = cfg.instancesCount; };
-            vectors = toString (2 * cfg.instancesCount);
-            makeAssignment = vmName: {
+            memsocket = pkgs.callPackage ../../../packages/memsocket { inherit (cfg) shmSlots; };
+            vectors = toString (2 * cfg.shmSlots);
+            configCommon = vmName: {
               ${vmName} = {
                 config = {
                   config = {
@@ -200,7 +270,7 @@ in
                     boot.extraModulePackages = [
                       (pkgs.linuxPackages.callPackage ../../../packages/memsocket/module.nix {
                         inherit (config.microvm.vms.${vmName}.config.config.boot.kernelPackages) kernel;
-                        vmCount = cfg.instancesCount;
+                        inherit (cfg) shmSlots;
                       })
                     ];
                     services = {
@@ -213,47 +283,85 @@ in
                     environment.systemPackages = [
                       memsocket
                     ];
-                    systemd.user.services.memsocket =
-                      if vmName == "gui-vm" then
-                        {
-                          enable = true;
-                          description = "memsocket";
-                          after = [ "labwc.service" ];
-                          serviceConfig = {
-                            Type = "simple";
-                            ExecStart = "${memsocket}/bin/memsocket -c ${cfg.clientSocketPath}";
-                            Restart = "always";
-                            RestartSec = "1";
-                          };
-                          wantedBy = [ "ghaf-session.target" ];
-                        }
-                      else
-                        # machines connecting to gui-vm
-                        let
-                          vmIndex = lists.findFirstIndex (vm: vm == vmName) null cfg.vms_enabled;
-                        in
-                        {
-                          enable = true;
-                          description = "memsocket";
-                          serviceConfig = {
-                            Type = "simple";
-                            ExecStart = "${memsocket}/bin/memsocket -s ${cfg.serverSocketPath} ${builtins.toString vmIndex}";
-                            Restart = "always";
-                            RestartSec = "1";
-                          };
-                          wantedBy = [ "default.target" ];
-                        };
                   };
                 };
               };
             };
+            configClient = data: {
+              ${data.client} = {
+                config = {
+                  config =
+                    if !cfg.service.${data.service}.enabled then
+                      {
+                      }
+                    else
+                      {
+                        systemd.user.services."memsocket-${data.service}" = lib.attrsets.recursiveUpdate {
+                          enable = true;
+                          description = "memsocket";
+                          serviceConfig = {
+                            Type = "simple";
+                            ExecStart = "${memsocket}/bin/memsocket -c ${
+                              cfg.service.${data.service}.clientSocketPath
+                            } ${builtins.toString (clientID data.client data.service)}";
+                            Restart = "always";
+                            RestartSec = "1";
+                            Conflicts = [ "memsocket-${data.service}*" ];
+                          };
+                        } cfg.service.${data.service}.clientConfig.systemdParams;
+                      };
+                };
+              };
+            };
+            configServer = clientSuffix: clientId: service: {
+              "${cfg.service.${service}.server}" = {
+                config = {
+                  config = {
+                    systemd.user.services."memsocket-${service}${clientSuffix}" = lib.attrsets.recursiveUpdate {
+                      enable = true;
+                      description = "memsocket";
+                      serviceConfig = {
+                        Type = "simple";
+                        ExecStart = "${memsocket}/bin/memsocket -s ${
+                          cfg.service.${service}.serverSocketPath service clientSuffix
+                        } -l ${clientId}";
+                        Restart = "always";
+                        RestartSec = "1";
+                      };
+                    } cfg.service.${service}.serverConfig.systemdParams;
+                  };
+                };
+              };
+            };
+            clientsConfig = foldl' lib.attrsets.recursiveUpdate { } (map configClient clientServicePairs);
+            clientsAndServers = lib.foldl' lib.attrsets.recursiveUpdate clientsConfig (
+              map (
+                service:
+                let
+                  multiProcess =
+                    if lib.attrsets.hasAttr "multiProcess" cfg.service.${service}.serverConfig then
+                      cfg.service.${service}.serverConfig.multiProcess
+                    else
+                      false;
+                  result =
+                    if multiProcess then
+                      (lib.foldl' lib.attrsets.recursiveUpdate { } (
+                        map (client: configServer "-${client}" (clientID client service) service) (
+                          clientsPerService service
+                        )
+                      ))
+                    else
+                      (configServer "" # clientSuffix
+                        clientsArg.${service}
+                        service
+                      );
+                in
+                result
+              ) (builtins.attrNames enabledServices)
+            );
+            finalConfig = foldl' lib.attrsets.recursiveUpdate clientsAndServers (map configCommon allVMs);
           in
-          foldl' lib.attrsets.recursiveUpdate { } (map makeAssignment cfg.vms_enabled);
-      }
-      {
-        microvm.vms.gui-vm.config.config.boot.kernelParams = [
-          "kvm_ivshmem.flataddr=${cfg.flataddr}"
-        ];
+          finalConfig;
       }
     ]);
 }

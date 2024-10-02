@@ -123,7 +123,6 @@ in
       profiles = {
         applications.enable = false;
       };
-
       # Logging configuration
       logging = {
         client = {
