@@ -115,6 +115,13 @@ with lib; {
                 ];
               };
             };
+            services = {
+              udev = {
+                extraRules = ''
+                  SUBSYSTEM=="misc",KERNEL=="ivshmem",GROUP="kvm",MODE="0666"
+                '';
+              };
+            };
           };
         };
       };

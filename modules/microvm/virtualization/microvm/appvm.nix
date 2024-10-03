@@ -157,12 +157,6 @@
             if shmConfig.enable
             then shmConfig.kernelPatches
             else [];
-          services.udev.extraRules =
-            if shmConfig.enable
-            then ''
-              SUBSYSTEM=="misc",KERNEL=="ivshmem",GROUP="kvm",MODE="0666"
-            ''
-            else "";
 
           systemd.user.services.memsocket = lib.mkIf shmConfig.enable {
             enable = false;
