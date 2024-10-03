@@ -25,7 +25,6 @@
       if vm.cid > 0
       then vm.cid
       else cfg.vsockBaseCID + index;
-    shmConfig = configHost.ghaf.shm;
     appvmConfiguration = {
       imports = [
         (import ./common/vm-networking.nix {
@@ -44,11 +43,11 @@
             then "--border \"${vm.borderColor}\""
             else "";
           runWaypipe =
-            if shmConfig.display
+            if configHost.ghaf.shm.display
             then
               pkgs.writeScriptBin "run-waypipe" ''
                 #!${pkgs.runtimeShell} -e
-                ${pkgs.waypipe}/bin/waypipe -s ${shmConfig.serverSocketPath} ${waypipeBorder} server "$@"
+                ${pkgs.waypipe}/bin/waypipe -s ${configHost.ghaf.shm.serverSocketPath} ${waypipeBorder} server "$@"
               ''
             else
               pkgs.writeScriptBin "run-waypipe" ''
@@ -146,19 +145,6 @@
                 .${configHost.nixpkgs.hostPlatform.system};
             };
           };
-
-          # systemd.user.services.memsocket = lib.mkIf shmConfig.enable {
-          #   enable = false;
-          #   description = "memsocket";
-          #   serviceConfig = {
-          #     Type = "simple";
-          #     ExecStart = "$$ {memsocket}/bin/memsocket -s $$ {shmConfig.serverSocketPath} ${builtins.toString index}";
-          #     Restart = "always";
-          #     RestartSec = "1";
-          #   };
-          #   wantedBy = ["default.target"];
-          # };
-
           fileSystems."${configHost.ghaf.security.sshKeys.waypipeSshPublicKeyDir}".options = ["ro"];
 
           imports = [../../../common];

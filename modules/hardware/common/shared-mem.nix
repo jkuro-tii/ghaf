@@ -168,6 +168,9 @@ with lib; {
                   "socket,path=${config.ghaf.shm.hostSocketPath},id=ivs_socket"
                 ];
               };
+              kernelParams = [
+                "kvm_ivshmem.flataddr=${config.ghaf.shm.flataddr}"
+              ];
             };
             boot = {inherit (config.ghaf.shm) kernelPatches;};
             services = {
@@ -184,18 +187,39 @@ with lib; {
                 memsocket
                 (pkgs.callPackage ../../../packages/grpc-demo {})
               ];
-            systemd.user.services.memsocket = lib.mkIf true {
-              enable = true;
-              description = "memsocket";
-              after = ["labwc.service"];
-              serviceConfig = {
-                Type = "simple";
-                ExecStart = "${memsocket}/bin/memsocket -c ${config.ghaf.shm.clientSocketPath}";
-                Restart = "always";
-                RestartSec = "1";
-              };
-              wantedBy = ["ghaf-session.target"];
-            };
+            systemd.user.services.memsocket =
+              if vmName == "gui-vm"
+              then
+                lib.mkIf config.ghaf.shm.enable {
+                  enable = true;
+                  description = "memsocket";
+                  after = ["labwc.service"];
+                  serviceConfig = {
+                    Type = "simple";
+                    ExecStart = "${memsocket}/bin/memsocket -c ${config.ghaf.shm.clientSocketPath}";
+                    Restart = "always";
+                    RestartSec = "1";
+                  };
+                  wantedBy = ["ghaf-session.target"];
+                }
+              else
+                # machines connecting to gui-vm
+                let
+                  vmIndex = lib.lists.findFirstIndex (vm: vm == vmName) null config.ghaf.shm.vms_enabled;
+                in
+                  builtins.trace (">>>> vmIndex = " + (builtins.toString vmIndex))
+                  lib.mkIf
+                  config.ghaf.shm.enable {
+                    enable = true;
+                    description = "memsocket";
+                    serviceConfig = {
+                      Type = "simple";
+                      ExecStart = "${memsocket}/bin/memsocket -s ${config.ghaf.shm.serverSocketPath} ${builtins.toString vmIndex}";
+                      Restart = "always";
+                      RestartSec = "1";
+                    };
+                    wantedBy = ["default.target"];
+                  };
           };
         };
       };
@@ -204,13 +228,10 @@ with lib; {
     mkIf config.ghaf.shm.enable (foldl' lib.attrsets.recursiveUpdate {} (map makeAssignment config.ghaf.shm.vms_enabled)); #(makeAssignment "chromium-vm");
 
   config.ghaf.hardware.definition.gpu.kernelConfig.kernelParams =
-    builtins.trace (">>>>> " + (builtins.toString config.ghaf.shm.instancesCount))
+    builtins.trace (">>>>> instancesCount" + (builtins.toString config.ghaf.shm.instancesCount))
     optionals
     config.ghaf.shm.enable
     [
       "kvm_ivshmem.flataddr=${config.ghaf.shm.flataddr}"
     ];
-
-  # microvm.vms.chromium-vm.config.config.microvm.qemu.extraArgs = [ "????!!2" ];
-  # builtins.toString (config.ghaf.shm.vms_enabled)
 }

@@ -27,7 +27,7 @@ in {
       '';
     };
   };
-  
+
   config = lib.mkIf cfg.enable {
     ghaf.reference.appvms = {
       enabled-app-vms =

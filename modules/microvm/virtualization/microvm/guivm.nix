@@ -112,11 +112,11 @@
           writableStoreOverlay = lib.mkIf config.ghaf.development.debug.tools.enable "/nix/.rw-store";
 
           qemu = {
-            extraArgs =
-              [
-                "-device"
-                "vhost-vsock-pci,guest-cid=${toString cfg.vsockCID}"
-              ];
+            extraArgs = [
+              "-device"
+              "vhost-vsock-pci,guest-cid=${toString cfg.vsockCID}"
+            ];
+
             machine =
               {
                 # Use the same machine type as the host
@@ -133,36 +133,18 @@
         ];
 
         # Waypipe service runs in the GUIVM and listens for incoming connections from AppVMs
-        systemd.user.services = {
-          waypipe = {
-            enable = true;
-            description = "waypipe";
-            after = ["labwc.service"];
-            serviceConfig = {
-              Type = "simple";
-              ExecStart =
-                if config.ghaf.shm.display
-                then "${pkgs.waypipe}/bin/waypipe -s ${config.ghaf.shm.clientSocketPath} client"
-                else "${pkgs.waypipe}/bin/waypipe --vsock -s ${toString cfg.waypipePort} client";
-              Restart = "always";
-              RestartSec = "1";
-            };
-            startLimitIntervalSec = 0;
-            wantedBy = ["ghaf-session.target"];
+        systemd.user.services.waypipe = {
+          enable = true;
+          description = "waypipe";
+          after = ["labwc.service"];
+          serviceConfig = {
+            Type = "simple";
+            ExecStart = "${pkgs.waypipe}/bin/waypipe --vsock -s ${toString cfg.waypipePort} client";
+            Restart = "always";
+            RestartSec = "1";
           };
-
-          # memsocket = lib.mkIf true {
-          #   enable = false;
-          #   description = "memsocket";
-          #   after = ["labwc.service"];
-          #   serviceConfig = {
-          #     Type = "simple";
-          #     ExecStart = "$ {memsocket}/bin/memsocket -c $ {config.ghaf.shm.clientSocketPath}";
-          #     Restart = "always";
-          #     RestartSec = "1";
-          #   };
-          #   wantedBy = ["ghaf-session.target"];
-          # };
+          startLimitIntervalSec = 0;
+          wantedBy = ["ghaf-session.target"];
         };
       })
     ];
@@ -246,23 +228,20 @@ in {
       };
     };
 
-    systemd.services = {
-      # Waypipe in GUIVM needs to communicate with AppVMs over VSOCK
-      # However, VSOCK does not support direct guest to guest communication
-      # The vsockproxy app is used on host as a bridge between AppVMs and GUIVM
-      # It listens for incoming connections from AppVMs and forwards data to GUIVM
-      vsockproxy = {
-        enable = true;
-        description = "vsockproxy";
-        serviceConfig = {
-          Type = "simple";
-          Restart = "always";
-          RestartSec = "1";
-          ExecStart = "${vsockproxy}/bin/vsockproxy ${toString cfg.waypipePort} ${toString cfg.vsockCID} ${toString cfg.waypipePort}";
-        };
-        wantedBy = ["multi-user.target"];
+    # Waypipe in GUIVM needs to communicate with AppVMs over VSOCK
+    # However, VSOCK does not support direct guest to guest communication
+    # The vsockproxy app is used on host as a bridge between AppVMs and GUIVM
+    # It listens for incoming connections from AppVMs and forwards data to GUIVM
+    systemd.services.vsockproxy = {
+      enable = true;
+      description = "vsockproxy";
+      serviceConfig = {
+        Type = "simple";
+        Restart = "always";
+        RestartSec = "1";
+        ExecStart = "${vsockproxy}/bin/vsockproxy ${toString cfg.waypipePort} ${toString cfg.vsockCID} ${toString cfg.waypipePort}";
       };
-
+      wantedBy = ["multi-user.target"];
     };
   };
 }

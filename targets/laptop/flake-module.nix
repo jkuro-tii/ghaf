@@ -29,7 +29,7 @@
           profiles.mvp-user-trial.enable = true;
           # shm.enable = false;
           shm.enable = true;
-          shm.display = false;
+          shm.display = true;
         };
       }
     ])
