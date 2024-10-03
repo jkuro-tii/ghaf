@@ -16,18 +16,6 @@ in
       #TODO Create options to allow enabling individual apps
       #weston.ini.nix mods needed
       ivShMemServer = {
-        enable = mkOption {
-          type = types.bool;
-          default = false;
-          description = "Enable memory sharing between virtual machines";
-        };
-        memSize = mkOption {
-          type = types.int;
-          default = 16;
-          description = mdDoc ''
-            Defines shared memory size in MBytes
-          '';
-        };
         serverSocketPath = mkOption {
           type = types.path;
           default = "/run/user/${builtins.toString config.ghaf.users.accounts.uid}/memsocket-server.sock";
@@ -45,40 +33,9 @@ in
             It's used by waypipe as an input socket when running in client mode
           '';
         };
-        hostSocketPath = mkOption {
-          type = types.path;
-          default = "/tmp/ivshmem_socket"; # The value is hardcoded in the application
-          description = mdDoc ''
-            Defines location of the shared memory socket. It's used by qemu
-            instances for memory sharing and sending interrupts.
-          '';
-        };
         instancesCount = mkOption {
           type = types.int;
           default = builtins.length options.ghaf.namespaces.vms.value;
-        };
-        display = mkOption {
-          type = types.bool;
-          default = false;
-          description = "Display VMs using shared memory";
-        };
-        kernelPatches = mkOption {
-          type = types.listOf types.attrs;
-          default =
-            if config.ghaf.profiles.applications.ivShMemServer.enable
-            then [
-              {
-                name = "Shared memory PCI driver";
-                patch = pkgs.fetchpatch {
-                  url = "https://raw.githubusercontent.com/tiiuae/shmsockproxy/main/0001-ivshmem-driver.patch";
-                  sha256 = "sha256-Nj9U9QRqgMluuF9ui946mqG6RQGxNyDmfcYHqMZlcvc=";
-                };
-                extraConfig = ''
-                  KVM_IVSHMEM_VM_COUNT ${toString config.ghaf.profiles.applications.ivShMemServer.instancesCount}
-                '';
-              }
-            ]
-            else [];
         };
       };
     };

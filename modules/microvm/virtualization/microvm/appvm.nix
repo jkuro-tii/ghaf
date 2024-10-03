@@ -25,9 +25,9 @@
       if vm.cid > 0
       then vm.cid
       else cfg.vsockBaseCID + index;
-    shmConfig = configHost.ghaf.profiles.applications.ivShMemServer;
+    shmConfig = configHost.ghaf.shm;
     memsocket = pkgs.callPackage ../../../../packages/memsocket {
-      vms = config.ghaf.profiles.applications.ivShMemServer.instancesCount;
+      vms = config.ghaf.shm.instancesCount;
     };
     gRpcDemo = pkgs.callPackage ../../../../packages/grpc-demo {};
     appvmConfiguration = {
@@ -152,11 +152,6 @@
                 .${configHost.nixpkgs.hostPlatform.system};
             };
           };
-
-          boot.kernelPatches =
-            if shmConfig.enable
-            then shmConfig.kernelPatches
-            else [];
 
           systemd.user.services.memsocket = lib.mkIf shmConfig.enable {
             enable = false;

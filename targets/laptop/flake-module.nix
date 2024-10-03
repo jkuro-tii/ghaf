@@ -29,8 +29,7 @@
           profiles.mvp-user-trial.enable = true;
           # shm.enable = false;
           shm.enable = true;
-          profiles.applications.ivShMemServer.enable = true;
-          profiles.applications.ivShMemServer.display = false;
+          shm.display = false;
         };
       }
     ])

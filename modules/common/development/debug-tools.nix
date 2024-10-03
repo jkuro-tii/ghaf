@@ -60,7 +60,6 @@ in {
           
           speedtest-cli
           iperf
-          
           ;
       }
       ++

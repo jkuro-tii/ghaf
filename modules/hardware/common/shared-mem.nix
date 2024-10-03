@@ -42,6 +42,21 @@ with lib; {
         specific, in order not to conflict with other memory areas (e.g. PCI).
       '';
     };
+    kernelPatches = mkOption {
+      type = types.listOf types.attrs;
+      default = [
+        {
+          name = "Shared memory PCI driver";
+          patch = pkgs.fetchpatch {
+            url = "https://raw.githubusercontent.com/tiiuae/shmsockproxy/main/0001-ivshmem-driver.patch";
+            sha256 = "sha256-Nj9U9QRqgMluuF9ui946mqG6RQGxNyDmfcYHqMZlcvc=";
+          };
+          extraConfig = ''
+            KVM_IVSHMEM_VM_COUNT ${toString config.ghaf.shm.instancesCount}
+          '';
+        }
+      ];
+    };
     vms_enabled = mkOption {
       type = types.listOf types.str;
       default = [];
@@ -53,7 +68,12 @@ with lib; {
     };
     instancesCount = mkOption {
       type = types.int;
-      default = builtins.length config.ghaf.namespaces.vms;
+      default = builtins.length config.ghaf.shm.vms_enabled;
+    };
+    display = mkOption {
+      type = types.bool;
+      default = false;
+      description = "Display VMs using shared memory";
     };
   };
 
@@ -82,8 +102,7 @@ with lib; {
           echo Erasing ${config.ghaf.shm.hostSocketPath} ${pidFilePath}
           rm -f ${config.ghaf.shm.hostSocketPath}
         fi
-        ${pkgs.sudo}/sbin/sudo -u microvm -g kvm ${pkgs.qemu_kvm}/bin/ivshmem-server -p ${pidFilePath} -n ${vectors} -m /dev/hugepages/ -l ${(toString config.ghaf.profiles.applications.ivShMemServer.memSize) + "M"}
-        sleep 2
+        ${pkgs.sudo}/sbin/sudo -u microvm -g kvm ${pkgs.qemu_kvm}/bin/ivshmem-server -p ${pidFilePath} -n ${vectors} -m /dev/hugepages/ -l ${(toString config.ghaf.shm.memSize) + "M"}        sleep 2
       '';
   in
     lib.mkIf config.ghaf.shm.enable {
@@ -115,6 +134,7 @@ with lib; {
                 ];
               };
             };
+            boot = { kernelPatches = config.ghaf.shm.kernelPatches;};
             services = {
               udev = {
                 extraRules = ''

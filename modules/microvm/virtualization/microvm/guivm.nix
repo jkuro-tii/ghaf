@@ -9,9 +9,9 @@
   vmName = "gui-vm";
   macAddress = "02:00:00:02:02:02";
   inherit (import ../../../../lib/launcher.nix {inherit pkgs lib;}) rmDesktopEntries;
-  shmConfig = config.ghaf.profiles.applications.ivShMemServer;
+  shmConfig = config.ghaf.shm;
   memsocket = pkgs.callPackage ../../../../packages/memsocket {
-    vms = config.ghaf.profiles.applications.ivShMemServer.instancesCount;
+    vms = config.ghaf.shm.instancesCount;
   };
   gRpcDemo = pkgs.callPackage ../../../../packages/grpc-demo {};
   guivmBaseConfiguration = {
@@ -139,10 +139,6 @@
           ../../../desktop
         ];
 
-        services.udev.extraRules = ''
-          SUBSYSTEM=="misc",KERNEL=="ivshmem",GROUP="kvm",MODE="0666"
-        '';
-
         # Waypipe service runs in the GUIVM and listens for incoming connections from AppVMs
         systemd.user.services = {
           waypipe = {
@@ -234,10 +230,6 @@ in {
           imports =
             guivmBaseConfiguration.imports
             ++ cfg.extraModules;
-        }
-        // {
-          boot.kernelPatches =
-            shmConfig.kernelPatches;
         };
     };
 
@@ -278,35 +270,6 @@ in {
         wantedBy = ["multi-user.target"];
       };
 
-      ivshmemsrv = let
-        pidFilePath = "/tmp/ivshmem-server.pid";
-        ivShMemSrv = let
-          vectors = toString (2 * config.ghaf.profiles.applications.ivShMemServer.instancesCount);
-        in
-          pkgs.writeShellScriptBin "ivshmemsrv" ''
-            chown microvm /dev/hugepages
-            chgrp kvm /dev/hugepages
-            if [ -S ${shmConfig.hostSocketPath} ]; then
-              echo Erasing ${shmConfig.hostSocketPath} ${pidFilePath}
-              rm -f ${shmConfig.hostSocketPath}
-            fi
-            ${pkgs.sudo}/sbin/sudo -u microvm -g kvm ${pkgs.qemu_kvm}/bin/ivshmem-server -p ${pidFilePath} -n ${vectors} -m /dev/hugepages/ -l ${(toString config.ghaf.profiles.applications.ivShMemServer.memSize) + "M"}
-            sleep 2
-          '';
-      in
-        lib.mkIf shmConfig.enable {
-          enable = true;
-          description = "Start qemu ivshmem memory server";
-          path = [ivShMemSrv];
-          wantedBy = ["multi-user.target"];
-          serviceConfig = {
-            Type = "oneshot";
-            RemainAfterExit = true;
-            StandardOutput = "journal";
-            StandardError = "journal";
-            ExecStart = "${ivShMemSrv}/bin/ivshmemsrv";
-          };
-        };
     };
   };
 }
