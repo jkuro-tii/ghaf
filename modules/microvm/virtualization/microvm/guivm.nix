@@ -9,11 +9,6 @@
   vmName = "gui-vm";
   macAddress = "02:00:00:02:02:02";
   inherit (import ../../../../lib/launcher.nix {inherit pkgs lib;}) rmDesktopEntries;
-  shmConfig = config.ghaf.shm;
-  memsocket = pkgs.callPackage ../../../../packages/memsocket {
-    vms = config.ghaf.shm.instancesCount;
-  };
-  gRpcDemo = pkgs.callPackage ../../../../packages/grpc-demo {};
   guivmBaseConfiguration = {
     imports = [
       (import ./common/vm-networking.nix {
@@ -81,8 +76,6 @@
             ++ [
               (pkgs.nm-launcher.override {inherit (config.ghaf.users.accounts) uid;})
               pkgs.pamixer
-              memsocket
-              gRpcDemo
             ]
             ++ (lib.optional (config.ghaf.profiles.debug.enable && config.ghaf.virtualization.microvm.idsvm.mitmproxy.enable) pkgs.mitmweb-ui);
         };
@@ -148,8 +141,8 @@
             serviceConfig = {
               Type = "simple";
               ExecStart =
-                if shmConfig.display
-                then "${pkgs.waypipe}/bin/waypipe -s ${shmConfig.clientSocketPath} client"
+                if config.ghaf.shm.display
+                then "${pkgs.waypipe}/bin/waypipe -s ${config.ghaf.shm.clientSocketPath} client"
                 else "${pkgs.waypipe}/bin/waypipe --vsock -s ${toString cfg.waypipePort} client";
               Restart = "always";
               RestartSec = "1";
@@ -158,18 +151,18 @@
             wantedBy = ["ghaf-session.target"];
           };
 
-          memsocket = lib.mkIf shmConfig.enable {
-            enable = false;
-            description = "memsocket";
-            after = ["labwc.service"];
-            serviceConfig = {
-              Type = "simple";
-              ExecStart = "${memsocket}/bin/memsocket -c ${shmConfig.clientSocketPath}";
-              Restart = "always";
-              RestartSec = "1";
-            };
-            wantedBy = ["ghaf-session.target"];
-          };
+          # memsocket = lib.mkIf true {
+          #   enable = false;
+          #   description = "memsocket";
+          #   after = ["labwc.service"];
+          #   serviceConfig = {
+          #     Type = "simple";
+          #     ExecStart = "$ {memsocket}/bin/memsocket -c $ {config.ghaf.shm.clientSocketPath}";
+          #     Restart = "always";
+          #     RestartSec = "1";
+          #   };
+          #   wantedBy = ["ghaf-session.target"];
+          # };
         };
       })
     ];

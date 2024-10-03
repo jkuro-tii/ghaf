@@ -70,6 +70,23 @@ with lib; {
       type = types.int;
       default = builtins.length config.ghaf.shm.vms_enabled;
     };
+    serverSocketPath = mkOption {
+      type = types.path;
+      default = "/run/user/${builtins.toString config.ghaf.users.accounts.uid}/memsocket-server.sock";
+      description = mdDoc ''
+        Defines location of the listening socket.
+        It's used by waypipe as an output socket when running in server mode
+      '';
+    };
+    clientSocketPath = mkOption {
+      type = types.path;
+      default = "/run/user/${builtins.toString config.ghaf.users.accounts.uid}/memsocket-client.sock";
+      description = mdDoc ''
+        Defines location of the output socket. It's fed
+        with data coming from AppVMs.
+        It's used by waypipe as an input socket when running in client mode
+      '';
+    };
     display = mkOption {
       type = types.bool;
       default = false;
@@ -90,6 +107,18 @@ with lib; {
         "hugepagesz=${hugepagesz}"
         "hugepages=${toString hugepages}"
       ]);
+  config.environment.systemPackages =
+    optionals
+    config.ghaf.shm.enable
+    [
+      (pkgs.callPackage
+        ../../../packages/memsocket
+        {
+          vms = config.ghaf.shm.instancesCount;
+        })
+      (pkgs.callPackage ../../../packages/grpc-demo {})
+    ];
+
   config.systemd.services.ivshmemsrv = let
     pidFilePath = "/tmp/ivshmem-server.pid";
     ivShMemSrv = let
@@ -119,6 +148,12 @@ with lib; {
       };
     };
   config.microvm.vms = let
+    memsocket =
+      pkgs.callPackage
+      ../../../packages/memsocket
+      {
+        vms = config.ghaf.shm.instancesCount;
+      };
     vectors = toString (2 * config.ghaf.shm.instancesCount);
     makeAssignment = vmName: {
       ${vmName} = {
@@ -134,13 +169,32 @@ with lib; {
                 ];
               };
             };
-            boot = { kernelPatches = config.ghaf.shm.kernelPatches;};
+            boot = {inherit (config.ghaf.shm) kernelPatches;};
             services = {
               udev = {
                 extraRules = ''
                   SUBSYSTEM=="misc",KERNEL=="ivshmem",GROUP="kvm",MODE="0666"
                 '';
               };
+            };
+            environment.systemPackages =
+              optionals
+              config.ghaf.shm.enable
+              [
+                memsocket
+                (pkgs.callPackage ../../../packages/grpc-demo {})
+              ];
+            systemd.user.services.memsocket = lib.mkIf true {
+              enable = true;
+              description = "memsocket";
+              after = ["labwc.service"];
+              serviceConfig = {
+                Type = "simple";
+                ExecStart = "${memsocket}/bin/memsocket -c ${config.ghaf.shm.clientSocketPath}";
+                Restart = "always";
+                RestartSec = "1";
+              };
+              wantedBy = ["ghaf-session.target"];
             };
           };
         };

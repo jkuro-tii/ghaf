@@ -26,10 +26,6 @@
       then vm.cid
       else cfg.vsockBaseCID + index;
     shmConfig = configHost.ghaf.shm;
-    memsocket = pkgs.callPackage ../../../../packages/memsocket {
-      vms = config.ghaf.shm.instancesCount;
-    };
-    gRpcDemo = pkgs.callPackage ../../../../packages/grpc-demo {};
     appvmConfiguration = {
       imports = [
         (import ./common/vm-networking.nix {
@@ -98,8 +94,6 @@
             runWaypipe
             pkgs.tpm2-tools
             pkgs.opensc
-            memsocket
-            gRpcDemo
           ];
 
           security.tpm2 = {
@@ -153,17 +147,17 @@
             };
           };
 
-          systemd.user.services.memsocket = lib.mkIf shmConfig.enable {
-            enable = false;
-            description = "memsocket";
-            serviceConfig = {
-              Type = "simple";
-              ExecStart = "${memsocket}/bin/memsocket -s ${shmConfig.serverSocketPath} ${builtins.toString index}";
-              Restart = "always";
-              RestartSec = "1";
-            };
-            wantedBy = ["default.target"];
-          };
+          # systemd.user.services.memsocket = lib.mkIf shmConfig.enable {
+          #   enable = false;
+          #   description = "memsocket";
+          #   serviceConfig = {
+          #     Type = "simple";
+          #     ExecStart = "$$ {memsocket}/bin/memsocket -s $$ {shmConfig.serverSocketPath} ${builtins.toString index}";
+          #     Restart = "always";
+          #     RestartSec = "1";
+          #   };
+          #   wantedBy = ["default.target"];
+          # };
 
           fileSystems."${configHost.ghaf.security.sshKeys.waypipeSshPublicKeyDir}".options = ["ro"];
 
