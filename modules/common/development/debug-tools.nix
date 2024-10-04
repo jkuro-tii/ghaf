@@ -52,6 +52,13 @@ in {
           
           speedtest-cli
           iperf
+          # TODO remove
+          
+          gcc
+          gnumake
+          git
+          mc
+          gdb
           ;
       }
       ++
