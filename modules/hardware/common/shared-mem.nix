@@ -13,7 +13,7 @@ with lib; {
   options.ghaf.shm = {
     enable = lib.mkOption {
       type = lib.types.bool;
-      default = true;
+      default = false;
       description = mdDoc ''
         Enables using shared memory between VMs.
       '';
@@ -66,9 +66,23 @@ with lib; {
         specific, in order not to conflict with other memory areas (e.g. PCI).
       '';
     };
+    enable_host = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = mdDoc ''
+        Enables memsocket on host.
+      '';
+      apply = enable:
+        if enable && !config.ghaf.shm.enable
+        then builtins.throw "Enable shared memory in order to use shm on host"
+        else enable;
+    };
     instancesCount = mkOption {
       type = types.int;
-      default = builtins.length config.ghaf.shm.vms_enabled;
+      default =
+        if config.ghaf.shm.enable_host
+        then (builtins.length config.ghaf.shm.vms_enabled) + 1
+        else builtins.length config.ghaf.shm.vms_enabled;
     };
     serverSocketPath = mkOption {
       type = types.path;
@@ -91,6 +105,10 @@ with lib; {
       type = types.bool;
       default = false;
       description = "Display VMs using shared memory";
+      apply = enable:
+        if enable && !config.ghaf.shm.enable
+        then builtins.throw "Enable shared memory in order to use shm display"
+        else enable;
     };
   };
 
@@ -116,7 +134,6 @@ with lib; {
         {
           vms = config.ghaf.shm.instancesCount;
         })
-      (pkgs.callPackage ../../../packages/grpc-demo {})
     ];
 
   config.systemd.services.ivshmemsrv = let
@@ -225,7 +242,7 @@ with lib; {
       };
     };
   in
-    mkIf config.ghaf.shm.enable (foldl' lib.attrsets.recursiveUpdate {} (map makeAssignment config.ghaf.shm.vms_enabled)); #(makeAssignment "chromium-vm");
+    mkIf config.ghaf.shm.enable (foldl' lib.attrsets.recursiveUpdate {} (map makeAssignment config.ghaf.shm.vms_enabled));
 
   config.ghaf.hardware.definition.gpu.kernelConfig.kernelParams =
     builtins.trace (">>>>> instancesCount" + (builtins.toString config.ghaf.shm.instancesCount))

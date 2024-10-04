@@ -139,7 +139,10 @@
           after = ["labwc.service"];
           serviceConfig = {
             Type = "simple";
-            ExecStart = "${pkgs.waypipe}/bin/waypipe --vsock -s ${toString cfg.waypipePort} client";
+            ExecStart =
+              if config.ghaf.shm.display
+              then "${pkgs.waypipe}/bin/waypipe -s ${config.ghaf.shm.clientSocketPath} client"
+              else "${pkgs.waypipe}/bin/waypipe --vsock -s ${toString cfg.waypipePort} client";
             Restart = "always";
             RestartSec = "1";
           };
