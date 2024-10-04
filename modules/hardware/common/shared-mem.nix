@@ -118,13 +118,11 @@ with lib; {
       if hugepagesz == "2M"
       then config.ghaf.shm.memSize / 2
       else config.ghaf.shm.memSize / 1024; # TODO jarekk: remove
-  in
-    builtins.trace (">>>> kernelParams vms_enabled=" + (builtins.toString config.ghaf.shm.vms_enabled))
-    (optionals config.ghaf.shm.enable
-      [
-        "hugepagesz=${hugepagesz}"
-        "hugepages=${toString hugepages}"
-      ]);
+  in optionals config.ghaf.shm.enable
+    [
+      "hugepagesz=${hugepagesz}"
+      "hugepages=${toString hugepages}"
+    ];
   config.environment.systemPackages =
     optionals
     config.ghaf.shm.enable
@@ -174,7 +172,7 @@ with lib; {
     vectors = toString (2 * config.ghaf.shm.instancesCount);
     makeAssignment = vmName: {
       ${vmName} = {
-        config = builtins.trace (">>>> iter VM: " + vmName) {
+        config = {
           config = {
             microvm = {
               qemu = {
@@ -224,7 +222,6 @@ with lib; {
                 let
                   vmIndex = lib.lists.findFirstIndex (vm: vm == vmName) null config.ghaf.shm.vms_enabled;
                 in
-                  builtins.trace (">>>> vmIndex = " + (builtins.toString vmIndex))
                   lib.mkIf
                   config.ghaf.shm.enable {
                     enable = true;
@@ -245,7 +242,6 @@ with lib; {
     mkIf config.ghaf.shm.enable (foldl' lib.attrsets.recursiveUpdate {} (map makeAssignment config.ghaf.shm.vms_enabled));
 
   config.ghaf.hardware.definition.gpu.kernelConfig.kernelParams =
-    builtins.trace (">>>>> instancesCount" + (builtins.toString config.ghaf.shm.instancesCount))
     optionals
     config.ghaf.shm.enable
     [

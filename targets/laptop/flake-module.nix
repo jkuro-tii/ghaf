@@ -27,9 +27,6 @@
         ghaf = {
           hardware.definition.configFile = "/lenovo-x1/definitions/x1-gen11.nix";
           profiles.mvp-user-trial.enable = true;
-          # shm.enable = false;
-          shm.enable = true;
-          shm.display = true;
         };
       }
     ])
