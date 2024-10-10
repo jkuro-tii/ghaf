@@ -200,7 +200,6 @@ with lib; {
               config.ghaf.shm.enable
               [
                 memsocket
-                (pkgs.callPackage ../../../packages/grpc-demo {})
               ];
             systemd.user.services.memsocket =
               if vmName == "gui-vm"
