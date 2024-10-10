@@ -41,6 +41,9 @@ in
         ++ (lib.optionals cfg.comms-vm [ (import ./comms.nix { inherit pkgs lib config; }) ])
         ++ (lib.optionals cfg.business-vm [ (import ./business.nix { inherit pkgs lib config; }) ]);
     };
-    ghaf.shm.vms_enabled = ["chromium-vm" "element-vm"]; # Allow access to VMs shared memory
+    ghaf.shm.vms_enabled = [
+      "chromium-vm"
+      "element-vm"
+    ]; # Allow access to VMs shared memory
   };
 }
