@@ -9,7 +9,8 @@
   pkgs,
   ...
 }:
-with lib; {
+with lib;
+{
   options.ghaf.shm = {
     enable = lib.mkOption {
       type = lib.types.bool;
@@ -42,24 +43,9 @@ with lib; {
         specific, in order not to conflict with other memory areas (e.g. PCI).
       '';
     };
-    kernelPatches = mkOption {
-      type = types.listOf types.attrs;
-      default = [
-        {
-          name = "Shared memory PCI driver";
-          patch = pkgs.fetchpatch {
-            url = "https://raw.githubusercontent.com/tiiuae/shmsockproxy/main/0001-ivshmem-driver.patch";
-            sha256 = "sha256-Nj9U9QRqgMluuF9ui946mqG6RQGxNyDmfcYHqMZlcvc=";
-          };
-          extraConfig = ''
-            KVM_IVSHMEM_VM_COUNT ${toString config.ghaf.shm.instancesCount}
-          '';
-        }
-      ];
-    };
     vms_enabled = mkOption {
       type = types.listOf types.str;
-      default = [];
+      default = [ ];
       description = mdDoc ''
         If set to a non-zero value, it maps the shared memory
         into this physical address. The value is arbitrary chosen, platform
@@ -72,17 +58,20 @@ with lib; {
       description = mdDoc ''
         Enables memsocket on host.
       '';
-      apply = enable:
-        if enable && !config.ghaf.shm.enable
-        then builtins.throw "Enable shared memory in order to use shm on host"
-        else enable;
+      apply =
+        enable:
+        if enable && !config.ghaf.shm.enable then
+          builtins.throw "Enable shared memory in order to use shm on host"
+        else
+          enable;
     };
     instancesCount = mkOption {
       type = types.int;
       default =
-        if config.ghaf.shm.enable_host
-        then (builtins.length config.ghaf.shm.vms_enabled) + 1
-        else builtins.length config.ghaf.shm.vms_enabled;
+        if config.ghaf.shm.enable_host then
+          (builtins.length config.ghaf.shm.vms_enabled) + 1
+        else
+          builtins.length config.ghaf.shm.vms_enabled;
     };
     serverSocketPath = mkOption {
       type = types.path;
@@ -105,55 +94,53 @@ with lib; {
       type = types.bool;
       default = false;
       description = "Display VMs using shared memory";
-      apply = enable:
-        if enable && !config.ghaf.shm.enable
-        then builtins.throw "Enable shared memory in order to use shm display"
-        else enable;
+      apply =
+        enable:
+        if enable && !config.ghaf.shm.enable then
+          builtins.throw "Enable shared memory in order to use shm display"
+        else
+          enable;
     };
   };
 
-  config.boot.kernelParams = let
-    hugepagesz = "2M"; # valid values: "2M" and "1G", as kernel supports these huge pages' size
-    hugepages =
-      if hugepagesz == "2M"
-      then config.ghaf.shm.memSize / 2
-      else config.ghaf.shm.memSize / 1024; # TODO jarekk: remove
-  in optionals config.ghaf.shm.enable
-    [
+  config.boot.kernelParams =
+    let
+      hugepagesz = "2M"; # valid values: "2M" and "1G", as kernel supports these huge pages' size
+      hugepages =
+        if hugepagesz == "2M" then config.ghaf.shm.memSize / 2 else config.ghaf.shm.memSize / 1024;
+    in
+    optionals config.ghaf.shm.enable [
       "hugepagesz=${hugepagesz}"
       "hugepages=${toString hugepages}"
     ];
-  config.environment.systemPackages =
-    optionals
-    config.ghaf.shm.enable
-    [
-      (pkgs.callPackage
-        ../../../packages/memsocket
-        {
-          vms = config.ghaf.shm.instancesCount;
-        })
-    ];
+  config.environment.systemPackages = optionals config.ghaf.shm.enable [
+    (pkgs.callPackage ../../../packages/memsocket { vms = config.ghaf.shm.instancesCount; })
+  ];
 
-  config.systemd.services.ivshmemsrv = let
-    pidFilePath = "/tmp/ivshmem-server.pid";
-    ivShMemSrv = let
-      vectors = toString (2 * config.ghaf.shm.instancesCount);
+  config.systemd.services.ivshmemsrv =
+    let
+      pidFilePath = "/tmp/ivshmem-server.pid";
+      ivShMemSrv =
+        let
+          vectors = toString (2 * config.ghaf.shm.instancesCount);
+        in
+        pkgs.writeShellScriptBin "ivshmemsrv" ''
+          chown microvm /dev/hugepages
+          chgrp kvm /dev/hugepages
+          if [ -S ${config.ghaf.shm.hostSocketPath} ]; then
+            echo Erasing ${config.ghaf.shm.hostSocketPath} ${pidFilePath}
+            rm -f ${config.ghaf.shm.hostSocketPath}
+          fi
+          ${pkgs.sudo}/sbin/sudo -u microvm -g kvm ${pkgs.qemu_kvm}/bin/ivshmem-server -p ${pidFilePath} -n ${vectors} -m /dev/hugepages/ -l ${
+            (toString config.ghaf.shm.memSize) + "M"
+          }
+        '';
     in
-      pkgs.writeShellScriptBin "ivshmemsrv" ''
-        chown microvm /dev/hugepages
-        chgrp kvm /dev/hugepages
-        if [ -S ${config.ghaf.shm.hostSocketPath} ]; then
-          echo Erasing ${config.ghaf.shm.hostSocketPath} ${pidFilePath}
-          rm -f ${config.ghaf.shm.hostSocketPath}
-        fi
-        ${pkgs.sudo}/sbin/sudo -u microvm -g kvm ${pkgs.qemu_kvm}/bin/ivshmem-server -p ${pidFilePath} -n ${vectors} -m /dev/hugepages/ -l ${(toString config.ghaf.shm.memSize) + "M"}        sleep 2
-      '';
-  in
     lib.mkIf config.ghaf.shm.enable {
       enable = true;
       description = "Start qemu ivshmem memory server";
-      path = [ivShMemSrv];
-      wantedBy = ["multi-user.target"];
+      path = [ ivShMemSrv ];
+      wantedBy = [ "multi-user.target" ];
       serviceConfig = {
         Type = "oneshot";
         RemainAfterExit = true;
@@ -162,67 +149,61 @@ with lib; {
         ExecStart = "${ivShMemSrv}/bin/ivshmemsrv";
       };
     };
-  config.microvm.vms = let
-    memsocket =
-      pkgs.callPackage
-      ../../../packages/memsocket
-      {
-        vms = config.ghaf.shm.instancesCount;
-      };
-    vectors = toString (2 * config.ghaf.shm.instancesCount);
-    makeAssignment = vmName: {
-      ${vmName} = {
-        config = {
+  config.microvm.vms =
+    let
+      memsocket = pkgs.callPackage ../../../packages/memsocket { vms = config.ghaf.shm.instancesCount; };
+      vectors = toString (2 * config.ghaf.shm.instancesCount);
+      makeAssignment = vmName: {
+        ${vmName} = {
           config = {
-            microvm = {
-              qemu = {
-                extraArgs = [
-                  "-device"
-                  "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket,flataddr=${config.ghaf.shm.flataddr}"
-                  "-chardev"
-                  "socket,path=${config.ghaf.shm.hostSocketPath},id=ivs_socket"
-                ];
+            config = {
+              microvm = {
+                qemu = {
+                  extraArgs = [
+                    "-device"
+                    "ivshmem-doorbell,vectors=${vectors},chardev=ivs_socket,flataddr=${config.ghaf.shm.flataddr}"
+                    "-chardev"
+                    "socket,path=${config.ghaf.shm.hostSocketPath},id=ivs_socket"
+                  ];
+                };
+                kernelParams = [ "kvm_ivshmem.flataddr=${config.ghaf.shm.flataddr}" ];
               };
-              kernelParams = [
-                "kvm_ivshmem.flataddr=${config.ghaf.shm.flataddr}"
+              boot.extraModulePackages = [
+                (pkgs.linuxPackages.callPackage ../../../packages/memsocket/module.nix {
+                  inherit (config.microvm.vms.${vmName}.config.config.boot.kernelPackages) kernel;
+                  vmCount = config.ghaf.shm.instancesCount;
+                })
               ];
-            };
-            boot = {inherit (config.ghaf.shm) kernelPatches;};
-            services = {
-              udev = {
-                extraRules = ''
-                  SUBSYSTEM=="misc",KERNEL=="ivshmem",GROUP="kvm",MODE="0666"
-                '';
+              services = {
+                udev = {
+                  extraRules = ''
+                    SUBSYSTEM=="misc",KERNEL=="ivshmem",GROUP="kvm",MODE="0666"
+                  '';
+                };
               };
-            };
-            environment.systemPackages =
-              optionals
-              config.ghaf.shm.enable
-              [
+              environment.systemPackages = optionals config.ghaf.shm.enable [
                 memsocket
               ];
-            systemd.user.services.memsocket =
-              if vmName == "gui-vm"
-              then
-                lib.mkIf config.ghaf.shm.enable {
-                  enable = true;
-                  description = "memsocket";
-                  after = ["labwc.service"];
-                  serviceConfig = {
-                    Type = "simple";
-                    ExecStart = "${memsocket}/bin/memsocket -c ${config.ghaf.shm.clientSocketPath}";
-                    Restart = "always";
-                    RestartSec = "1";
-                  };
-                  wantedBy = ["ghaf-session.target"];
-                }
-              else
-                # machines connecting to gui-vm
-                let
-                  vmIndex = lib.lists.findFirstIndex (vm: vm == vmName) null config.ghaf.shm.vms_enabled;
-                in
-                  lib.mkIf
-                  config.ghaf.shm.enable {
+              systemd.user.services.memsocket =
+                if vmName == "gui-vm" then
+                  lib.mkIf config.ghaf.shm.enable {
+                    enable = true;
+                    description = "memsocket";
+                    after = [ "labwc.service" ];
+                    serviceConfig = {
+                      Type = "simple";
+                      ExecStart = "${memsocket}/bin/memsocket -c ${config.ghaf.shm.clientSocketPath}";
+                      Restart = "always";
+                      RestartSec = "1";
+                    };
+                    wantedBy = [ "ghaf-session.target" ];
+                  }
+                else
+                  # machines connecting to gui-vm
+                  let
+                    vmIndex = lib.lists.findFirstIndex (vm: vm == vmName) null config.ghaf.shm.vms_enabled;
+                  in
+                  lib.mkIf config.ghaf.shm.enable {
                     enable = true;
                     description = "memsocket";
                     serviceConfig = {
@@ -231,19 +212,18 @@ with lib; {
                       Restart = "always";
                       RestartSec = "1";
                     };
-                    wantedBy = ["default.target"];
+                    wantedBy = [ "default.target" ];
                   };
+            };
           };
         };
       };
-    };
-  in
-    mkIf config.ghaf.shm.enable (foldl' lib.attrsets.recursiveUpdate {} (map makeAssignment config.ghaf.shm.vms_enabled));
+    in
+    mkIf config.ghaf.shm.enable (
+      foldl' lib.attrsets.recursiveUpdate { } (map makeAssignment config.ghaf.shm.vms_enabled)
+    );
 
-  config.ghaf.hardware.definition.gpu.kernelConfig.kernelParams =
-    optionals
-    config.ghaf.shm.enable
-    [
-      "kvm_ivshmem.flataddr=${config.ghaf.shm.flataddr}"
-    ];
+  config.ghaf.hardware.definition.gpu.kernelConfig.kernelParams = optionals config.ghaf.shm.enable [
+    "kvm_ivshmem.flataddr=${config.ghaf.shm.flataddr}"
+  ];
 }
