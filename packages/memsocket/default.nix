@@ -18,14 +18,7 @@ stdenv.mkDerivation {
     sha256 = "sha256-U865vxhQObGIQwgj5Om6hPYeY5YK7FnBDwbywwc6QEE=";
   };
 
-  CFLAGS =
-    "-O2 -DVM_COUNT="
-    + (toString vms)
-    + (
-      if debug
-      then " -DDEBUG_ON"
-      else ""
-    );
+  CFLAGS = "-O2 -DVM_COUNT=" + (toString vms) + (if debug then " -DDEBUG_ON" else "");
   sourceRoot = "source/app";
 
   installPhase = ''
