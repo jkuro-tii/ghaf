@@ -1,4 +1,4 @@
-# Copyright 2022-2023 TII (SSRC) and the Ghaf contributors
+# Copyright 2022-2024 TII (SSRC) and the Ghaf contributors
 # SPDX-License-Identifier: Apache-2.0
 {
   stdenv,
@@ -32,7 +32,7 @@ stdenv.mkDerivation {
   ];
 
   meta = with lib; {
-    description = "memtest";
+    description = "Shared memory Linux kernel module";
     platforms = [
       "x86_64-linux"
       "aarch64-linux"
