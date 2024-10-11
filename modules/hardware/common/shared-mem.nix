@@ -113,7 +113,7 @@ with lib;
       "hugepagesz=${hugepagesz}"
       "hugepages=${toString hugepages}"
     ];
-  config.environment.systemPackages = optionals config.ghaf.shm.enable [
+  config.environment.systemPackages = optionals config.ghaf.shm.enable_host [
     (pkgs.callPackage ../../../packages/memsocket { vms = config.ghaf.shm.instancesCount; })
   ];
 
