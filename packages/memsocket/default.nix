@@ -14,8 +14,8 @@ stdenv.mkDerivation {
   src = fetchFromGitHub {
     owner = "tiiuae";
     repo = "shmsockproxy";
-    rev = "67eb2c78d6e04671e42205c769757a7b66d65ead";
-    sha256 = "sha256-U865vxhQObGIQwgj5Om6hPYeY5YK7FnBDwbywwc6QEE=";
+    rev = "fd6b8ac051f1c68edc2b3222146d5d9053c81cc6";
+    sha256 = "sha256-6urMJwQoqHjdbWchpO18Amj92kTEFKYI383Q0NVuuXM=";
   };
 
   CFLAGS = "-O2 -DVM_COUNT=" + (toString vms) + (if debug then " -DDEBUG_ON" else "");
