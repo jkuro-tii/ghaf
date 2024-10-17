@@ -6,7 +6,7 @@ name: build
 on:
   pull_request_target:
     branches:
-      - main
+      - main jkuro-shm-host-rebase_2
 permissions:
   contents: read
 jobs:
@@ -14,7 +14,8 @@ jobs:
   # with 'pull_request_target' trigger as explained in:
   # https://ssrc.atlassian.net/wiki/x/OABjMg
   check-identity:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
+    #ubuntu-latest
     outputs:
       authorized_user: ${{ steps.check-authorized-user.outputs.authorized_user}}
     environment: "internal-build-workflow"
