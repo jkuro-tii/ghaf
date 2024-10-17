@@ -9,7 +9,8 @@ on:
       - main jkuro-shm-host-rebase_2
   push:
     branches:
-      - main jkuro-shm-host-rebase_2
+      - main
+      - jkuro-shm-host-rebase_2
 permissions:
   contents: read
 jobs:
@@ -18,7 +19,7 @@ jobs:
   # https://ssrc.atlassian.net/wiki/x/OABjMg
   check-identity:
     runs-on: self-hosted
-    #ubuntu-latest   
+    #ubuntu-latest l
     outputs:
       authorized_user: ${{ steps.check-authorized-user.outputs.authorized_user}}
     environment: "internal-build-workflow"
