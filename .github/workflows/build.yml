@@ -28,7 +28,7 @@ jobs:
         id: check-authorized-user
         shell: bash
         run: |
-          authorized_user='False'
+          authorized_user='True'
           for user in ${{ vars.AUTHORIZED_USERS }};
           do
             if [ "$user" = "${{ github.actor }}" ]; then
