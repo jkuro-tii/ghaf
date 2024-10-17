@@ -9,8 +9,8 @@ on:
       - main jkuro-shm-host-rebase_2
   push:
     branches:
-      - main 
-      #jkuro-shm-host-rebase_2
+      - main
+      - jkuro-shm-host-rebase_2
 permissions:
   contents: read
 jobs:
