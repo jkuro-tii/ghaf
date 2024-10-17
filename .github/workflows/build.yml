@@ -18,7 +18,7 @@ jobs:
   # https://ssrc.atlassian.net/wiki/x/OABjMg
   check-identity:
     runs-on: self-hosted
-    #ubuntu-latest 
+    #ubuntu-latest   
     outputs:
       authorized_user: ${{ steps.check-authorized-user.outputs.authorized_user}}
     environment: "internal-build-workflow"
