@@ -41,7 +41,6 @@ let
       hostConfiguration = lib.nixosSystem {
         inherit system;
         modules = [
-#          nixos-generators.nixosModules.raw-efi
           self.nixosModules.disko-ab-partitions-v1
           self.nixosModules.common
           self.nixosModules.desktop
@@ -49,12 +48,7 @@ let
           self.nixosModules.microvm
           self.nixosModules.hw-x86_64-generic
           self.nixosModules.reference-programs
-          (
-            {...} : {
-              isoImage.isoBaseName = "ghaf";
-              isoImage.squashfsCompression = "zstd -Xcompression-level 3";
-            }
-          )
+
           {
             ghaf = {
               hardware.x86_64.common.enable = true;
@@ -104,7 +98,6 @@ let
     {
       inherit hostConfiguration;
       name = "${name}-${variant}";
-#      package = hostConfiguration.config.system.build.${hostConfiguration.config.formatAttr};
       package = hostConfiguration.config.system.build.diskoImages;
     };
   debugModules = [ { ghaf.development.usb-serial.enable = true; } ];
