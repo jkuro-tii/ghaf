@@ -41,7 +41,8 @@ let
       hostConfiguration = lib.nixosSystem {
         inherit system;
         modules = [
-          nixos-generators.nixosModules.raw-efi
+#          nixos-generators.nixosModules.raw-efi
+          self.nixosModules.disko-ab-partitions-v1
           self.nixosModules.common
           self.nixosModules.desktop
           self.nixosModules.host
@@ -98,7 +99,8 @@ let
     {
       inherit hostConfiguration;
       name = "${name}-${variant}";
-      package = hostConfiguration.config.system.build.${hostConfiguration.config.formatAttr};
+#      package = hostConfiguration.config.system.build.${hostConfiguration.config.formatAttr};
+      package = hostConfiguration.config.system.build.diskoImages;
     };
   debugModules = [ { ghaf.development.usb-serial.enable = true; } ];
   targets = [
