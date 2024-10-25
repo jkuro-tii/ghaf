@@ -49,7 +49,12 @@ let
           self.nixosModules.microvm
           self.nixosModules.hw-x86_64-generic
           self.nixosModules.reference-programs
-
+          (
+            {...} : {
+              isoImage.isoBaseName = "ghaf";
+              isoImage.squashfsCompression = "zstd -Xcompression-level 3";
+            }
+          )
           {
             ghaf = {
               hardware.x86_64.common.enable = true;
