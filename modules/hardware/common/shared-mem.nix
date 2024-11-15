@@ -25,7 +25,7 @@ in
   options.ghaf.shm = {
     enable = mkOption {
       type = types.bool;
-      default = false;
+      default = true;
       description = mdDoc ''
         Enables using shared memory between VMs and the host.
       '';
@@ -70,7 +70,11 @@ in
     };
     vms_enabled = mkOption {
       type = types.listOf types.str;
-      default = [ ];
+      default = [
+        "chromium-vm"
+        "element-vm"
+        "gui-vm"
+      ];
       description = mdDoc ''
         If set to a non-zero value, it maps the shared memory
         into this physical address. The value is arbitrary chosen, platform
@@ -79,7 +83,7 @@ in
     };
     enable_host = mkOption {
       type = types.bool;
-      default = false;
+      default = true;
       description = mdDoc ''
         Enables memsocket on host.
       '';
@@ -111,7 +115,7 @@ in
     };
     display = mkOption {
       type = types.bool;
-      default = false;
+      default = true;
       description = "Display VMs using shared memory";
     };
   };
@@ -139,6 +143,9 @@ in
       (mkIf cfg.enable_host {
         environment.systemPackages = [
           (pkgs.callPackage ../../../packages/memsocket { vms = cfg.instancesCount; })
+          (pkgs.callPackage ../../../packages/memsocket/memtest.nix { })
+          (pkgs.callPackage ../../../packages/memsocket/unsock.nix { })
+          (pkgs.callPackage ../../../packages/vsockproxy { })
         ];
       })
       {
@@ -177,6 +184,8 @@ in
         microvm.vms =
           let
             memsocket = pkgs.callPackage ../../../packages/memsocket { vms = cfg.instancesCount; };
+            memtest = pkgs.callPackage ../../../packages/memsocket/memtest.nix { };
+            unsock = (pkgs.callPackage ../../../packages/memsocket/unsock.nix { });
             vectors = toString (2 * cfg.instancesCount);
             makeAssignment = vmName: {
               ${vmName} = {
@@ -208,6 +217,8 @@ in
                     };
                     environment.systemPackages = [
                       memsocket
+                      memtest
+                      unsock
                     ];
                     systemd.user.services.memsocket =
                       if vmName == "gui-vm" then
