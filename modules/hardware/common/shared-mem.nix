@@ -116,7 +116,7 @@ in
     display = mkOption {
       type = types.bool;
       default = true;
-      description = "Display VMs using shared memory";
+      description = "Display VMs using waypipe utilizing shared memory ";
     };
   };
   config =
@@ -185,7 +185,7 @@ in
           let
             memsocket = pkgs.callPackage ../../../packages/memsocket { vms = cfg.instancesCount; };
             memtest = pkgs.callPackage ../../../packages/memsocket/memtest.nix { };
-            unsock = (pkgs.callPackage ../../../packages/memsocket/unsock.nix { });
+            unsock = pkgs.callPackage ../../../packages/memsocket/unsock.nix { };
             vectors = toString (2 * cfg.instancesCount);
             makeAssignment = vmName: {
               ${vmName} = {
