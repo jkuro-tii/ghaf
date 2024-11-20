@@ -115,7 +115,7 @@ in
     };
     display = mkOption {
       type = types.bool;
-      default = true;
+      default = false;
       description = "Display VMs using waypipe utilizing shared memory ";
     };
   };
