@@ -20,12 +20,56 @@ let
     mdDoc
     types
     ;
+  services = {
+    video = {
+      server = "gui-vm";
+      enabled = true;
+      clients = [
+        "chrome-vm"
+        "chrome-vm-debug"
+        "gala-vm"
+        "gala-vm-debug"
+        "business-vm"
+      ];
+    };
+    audio = {
+      server = "audio-vm";
+      enabled = true;
+      clients = [
+        "chrome-vm"
+        "chrome-vm-debug"
+        "audio-client"
+      ];
+    };
+  };
+  enabledServices = lib.filterAttrs (_name: serverAttrs: serverAttrs.enabled) services;
+  servicesList = lib.mapAttrsToList (name: _value: name) services;
+  serverPerService =
+    service:
+    builtins.toString (
+      lib.mapAttrsToList (name: value: if name == service then value.server else [ ]) enabledServices
+    );
+  clientsPerService =
+    service:
+    lib.flatten (
+      lib.mapAttrsToList (
+        name: value: if (name == service || service == "all") then value.clients else [ ]
+      ) enabledServices
+    );
+  allVMsList = lib.unique (
+    lib.flatten (
+      lib.mapAttrsToList (
+        _serviceName: serviceAttrs: serviceAttrs.clients ++ [ serviceAttrs.server ]
+      ) enabledServices
+    )
+  );
+
 in
 {
   options.ghaf.shm = {
     enable = mkOption {
       type = types.bool;
-      default = false;
+      default = true;
       description = mdDoc ''
         Enables shared memory communication between virtual machines (VMs) and the host
       '';
@@ -69,16 +113,23 @@ in
         conflicts with other memory areas, such as PCI regions.
       '';
     };
-    vms_enabled = mkOption {
-      type = types.listOf types.str;
-      default = [ ];
-      description = mdDoc ''
-        List of vms having access to shared memory
-      '';
-    };
+    vms_enabled =
+      let
+        service = "video";
+      in
+      mkOption {
+        type = builtins.trace (
+          ">>> serverPerService ${service}:${serverPerService service}"
+          + "\n>>> clientsPerService ${service}:${builtins.toString (clientsPerService service)}"
+        ) types.listOf types.str;
+        default = builtins.trace ">>> All allVMsList=${builtins.toString allVMsList} servicesList=${builtins.toString servicesList}" allVMsList;
+        description = mdDoc ''
+          List of vms having access to shared memory
+        '';
+      };
     enable_host = mkOption {
       type = types.bool;
-      default = false;
+      default = true;
       description = mdDoc ''
         Enables the memsocket functionality on the host system
       '';
@@ -86,7 +137,7 @@ in
     shmSlots = mkOption {
       type = types.int;
       default =
-        if cfg.enable_host then (builtins.length cfg.vms_enabled) + 1 else builtins.length cfg.vms_enabled;
+        if cfg.enable_host then (builtins.length allVMsList) + 3 else builtins.length allVMsList;
       description = mdDoc ''
         Number of memory slots allocated in the shared memory region
       '';
@@ -111,7 +162,7 @@ in
     };
     display = mkOption {
       type = types.bool;
-      default = false;
+      default = true;
       description = mdDoc ''
         Enables the use of shared memory with Waypipe for Wayland-enabled 
         applications running on virtual machines (VMs), facilitating 
@@ -182,8 +233,8 @@ in
           let
             memsocket = pkgs.callPackage ../../../packages/memsocket { inherit (cfg) shmSlots; };
             vectors = toString (2 * cfg.shmSlots);
-            makeAssignment = vmName: {
-              ${vmName} = {
+            configCommon = vmName: {
+              ${vmName} = builtins.trace ">>>configCommon: ${vmName}" {
                 config = {
                   config = {
                     microvm = {
@@ -212,6 +263,9 @@ in
                     };
                     environment.systemPackages = [
                       memsocket
+                      pkgs.gnumake
+                      pkgs.gcc
+                      pkgs.git
                     ];
                     systemd.user.services.memsocket =
                       if vmName == "gui-vm" then
@@ -223,7 +277,7 @@ in
                             Type = "simple";
                             # option '-l -1': listen to all slots. If you want to run other servers
                             # for some slots, provide a list of handled slots, e.g.: '-l 1,3,5'
-                            ExecStart = "${memsocket}/bin/memsocket -s ${cfg.serverSocketPath} -l -1";
+                            ExecStart = "${memsocket}/bin/memsocket -s ${cfg.serverSocketPath} -l 0,1";
                             Restart = "always";
                             RestartSec = "1";
                           };
@@ -249,8 +303,34 @@ in
                 };
               };
             };
+            configVideoServer = vmName: {
+              ${vmName} = builtins.trace ">>>configServer: ${vmName}" {
+                config = {
+                  config = {
+                    systemd.user.services.memsocket =
+                      {
+                        enable = true;
+                        description = "memsocket";
+                        after = [ "labwc.service" ];
+                        serviceConfig = {
+                          Type = "simple";
+                          # option '-l -1': listen to all slots. If you want to run other servers
+                          # for some slots, provide a list of handled slots, e.g.: '-l 1,3,5'
+                          ExecStart = "${memsocket}/bin/memsocket -s ${cfg.serverSocketPath} -l 0,1";
+                          Restart = "always";
+                          RestartSec = "1";
+                        };
+                        wantedBy = [ "ghaf-session.target" ];
+                      };
+                  };
+                };
+              };
+            };
           in
-          foldl' lib.attrsets.recursiveUpdate { } (map makeAssignment cfg.vms_enabled);
+          lib.attrsets.recursiveUpdate 
+          (foldl' lib.attrsets.recursiveUpdate { } (map configCommon cfg.vms_enabled))
+          (configVideoServer (serverPerService "video"))
+          ;
       }
       {
         microvm.vms.gui-vm.config.config.boot.kernelParams = [
