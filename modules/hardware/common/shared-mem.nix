@@ -156,7 +156,11 @@ in
     };
     shmSlots = mkOption {
       type = types.int;
-      default = if cfg.enable_host then (builtins.length clientServerWithID) + 1 else builtins.length clientServerWithID;
+      default =
+        if cfg.enable_host then
+          (builtins.length clientServerWithID) + 1
+        else
+          builtins.length clientServerWithID;
       description = mdDoc ''
         Number of memory slots allocated in the shared memory region
       '';
@@ -336,28 +340,19 @@ in
               };
             };
             # Combine "display" client configurations
-            displayClients = foldl' lib.attrsets.recursiveUpdate
-              {}
-              (map configDisplayClient (clientsPerService "display"));
+            displayClients = foldl' lib.attrsets.recursiveUpdate { } (
+              map configDisplayClient (clientsPerService "display")
+            );
 
             # Add the server configuration for "display"
-            displayConfig = lib.attrsets.recursiveUpdate
-              displayClients
-              (configDisplayServer (serviceServer "display"));
+            displayConfig = lib.attrsets.recursiveUpdate displayClients (
+              configDisplayServer (serviceServer "display")
+            );
 
-            # Step 3: Merge with common VM configurations
-            finalConfig = foldl' lib.attrsets.recursiveUpdate
-              displayConfig
-              (map configCommon allVMs);
+            # Merge with common VM configurations
+            finalConfig = foldl' lib.attrsets.recursiveUpdate displayConfig (map configCommon allVMs);
           in
-            finalConfig;
-          # lib.attrsets.recursiveUpdate { } (
-          #   foldl' lib.attrsets.recursiveUpdate (lib.attrsets.recursiveUpdate (foldl'
-          #     lib.attrsets.recursiveUpdate
-          #     { }
-          #     (map configDisplayClient (clientsPerService "display"))
-          #   ) (configDisplayServer (serviceServer "display"))) (map configCommon allVMs)
-          # );
+          finalConfig;
       }
     ]);
 }
