@@ -13,7 +13,6 @@ let
   cfg = config.ghaf.shm;
   inherit (lib)
     foldl'
-    lists
     mkMerge
     mkIf
     mkOption
@@ -21,9 +20,9 @@ let
     types
     ;
   services = {
-    video = {
+    display = {
       server = "gui-vm";
-      enabled = true;
+      enabled = config.ghaf.shm.display;
       clients = [
         "chrome-vm"
         "chrome-vm-debug"
@@ -34,7 +33,7 @@ let
     };
     audio = {
       server = "audio-vm";
-      enabled = true;
+      enabled = false;
       clients = [
         "chrome-vm"
         "chrome-vm-debug"
@@ -43,8 +42,7 @@ let
     };
   };
   enabledServices = lib.filterAttrs (_name: serverAttrs: serverAttrs.enabled) services;
-  servicesList = lib.mapAttrsToList (name: _value: name) services;
-  serverPerService =
+  serviceServer =
     service:
     builtins.toString (
       lib.mapAttrsToList (name: value: if name == service then value.server else [ ]) enabledServices
@@ -56,14 +54,50 @@ let
         name: value: if (name == service || service == "all") then value.clients else [ ]
       ) enabledServices
     );
-  allVMsList = lib.unique (
+  allVMs = lib.unique (
     lib.flatten (
       lib.mapAttrsToList (
         _serviceName: serviceAttrs: serviceAttrs.clients ++ [ serviceAttrs.server ]
       ) enabledServices
     )
   );
-
+  clientServerPairs = lib.flatten (
+    lib.mapAttrsToList (
+      serverName: serverAttrs:
+      lib.map (client: {
+        server = serverName;
+        inherit client;
+      }) serverAttrs.clients
+    ) enabledServices
+  );
+  clientServerWithID = lib.foldl' (
+    acc: pair: acc ++ [ (pair // { id = builtins.length acc; }) ]
+  ) [ ] clientServerPairs;
+  clientID = lib.listToAttrs (
+    map (pair: {
+      name = pair.client;
+      value = builtins.toString pair.id;
+    }) clientServerWithID
+  );
+  clientsArg =
+    lib.foldl'
+      (
+        acc: pair:
+        (
+          acc
+          // {
+            ${pair.server} =
+              acc.${pair.server}
+              + "${if (builtins.stringLength acc.${pair.server}) > 0 then "," else ""}"
+              + (builtins.toString pair.id);
+          }
+        )
+      )
+      {
+        audio = "";
+        display = "";
+      }
+      clientServerWithID;
 in
 {
   options.ghaf.shm = {
@@ -113,20 +147,6 @@ in
         conflicts with other memory areas, such as PCI regions.
       '';
     };
-    vms_enabled =
-      let
-        service = "video";
-      in
-      mkOption {
-        type = builtins.trace (
-          ">>> serverPerService ${service}:${serverPerService service}"
-          + "\n>>> clientsPerService ${service}:${builtins.toString (clientsPerService service)}"
-        ) types.listOf types.str;
-        default = builtins.trace ">>> All allVMsList=${builtins.toString allVMsList} servicesList=${builtins.toString servicesList}" allVMsList;
-        description = mdDoc ''
-          List of vms having access to shared memory
-        '';
-      };
     enable_host = mkOption {
       type = types.bool;
       default = true;
@@ -136,8 +156,7 @@ in
     };
     shmSlots = mkOption {
       type = types.int;
-      default =
-        if cfg.enable_host then (builtins.length allVMsList) + 3 else builtins.length allVMsList;
+      default = if cfg.enable_host then (builtins.length clientServerWithID) + 1 else builtins.length clientServerWithID;
       description = mdDoc ''
         Number of memory slots allocated in the shared memory region
       '';
@@ -263,79 +282,82 @@ in
                     };
                     environment.systemPackages = [
                       memsocket
-                      pkgs.gnumake
+                      pkgs.gnumake # TODO: jarekk: remove
                       pkgs.gcc
                       pkgs.git
                     ];
-                    systemd.user.services.memsocket =
-                      if vmName == "gui-vm" then
-                        {
+                  };
+                };
+              };
+            };
+            configDisplayServer = vmName: {
+              ${vmName} = builtins.trace ">>>configServer: ${vmName}" {
+                config = {
+                  config = {
+                    systemd.user.services.memsocket = {
+                      enable = true;
+                      description = "memsocket";
+                      after = [ "labwc.service" ];
+                      serviceConfig = {
+                        Type = "simple";
+                        # option '-l -1': listen to all slots. If you want to run other servers
+                        # for some slots, provide a list of handled slots, e.g.: '-l 1,3,5'
+                        ExecStart = "${memsocket}/bin/memsocket -s ${cfg.serverSocketPath} -l ${clientsArg.display}";
+                        Restart = "always";
+                        RestartSec = "1";
+                      };
+                      wantedBy = [ "ghaf-session.target" ];
+                    };
+                  };
+                };
+              };
+            };
+            configDisplayClient = vmName: {
+              ${vmName} = {
+                config = builtins.trace "configClient: ${vmName}: id=${clientID.${vmName}}" {
+                  config =
+                    if cfg.display then
+                      {
+                        systemd.user.services.memsocket = {
                           enable = true;
                           description = "memsocket";
-                          after = [ "labwc.service" ];
                           serviceConfig = {
                             Type = "simple";
-                            # option '-l -1': listen to all slots. If you want to run other servers
-                            # for some slots, provide a list of handled slots, e.g.: '-l 1,3,5'
-                            ExecStart = "${memsocket}/bin/memsocket -s ${cfg.serverSocketPath} -l 0,1";
-                            Restart = "always";
-                            RestartSec = "1";
-                          };
-                          wantedBy = [ "ghaf-session.target" ];
-                        }
-                      else
-                        # machines connecting to gui-vm
-                        let
-                          vmIndex = lists.findFirstIndex (vm: vm == vmName) null cfg.vms_enabled;
-                        in
-                        {
-                          enable = true;
-                          description = "memsocket";
-                          serviceConfig = {
-                            Type = "simple";
-                            ExecStart = "${memsocket}/bin/memsocket -c ${cfg.clientSocketPath} ${builtins.toString vmIndex}";
+                            ExecStart = "${memsocket}/bin/memsocket -c ${cfg.clientSocketPath} ${clientID.${vmName}}";
                             Restart = "always";
                             RestartSec = "1";
                           };
                           wantedBy = [ "default.target" ];
                         };
-                  };
+                      }
+                    else
+                      { };
                 };
               };
             };
-            configVideoServer = vmName: {
-              ${vmName} = builtins.trace ">>>configServer: ${vmName}" {
-                config = {
-                  config = {
-                    systemd.user.services.memsocket =
-                      {
-                        enable = true;
-                        description = "memsocket";
-                        after = [ "labwc.service" ];
-                        serviceConfig = {
-                          Type = "simple";
-                          # option '-l -1': listen to all slots. If you want to run other servers
-                          # for some slots, provide a list of handled slots, e.g.: '-l 1,3,5'
-                          ExecStart = "${memsocket}/bin/memsocket -s ${cfg.serverSocketPath} -l 0,1";
-                          Restart = "always";
-                          RestartSec = "1";
-                        };
-                        wantedBy = [ "ghaf-session.target" ];
-                      };
-                  };
-                };
-              };
-            };
+            # Combine "display" client configurations
+            displayClients = foldl' lib.attrsets.recursiveUpdate
+              {}
+              (map configDisplayClient (clientsPerService "display"));
+
+            # Add the server configuration for "display"
+            displayConfig = lib.attrsets.recursiveUpdate
+              displayClients
+              (configDisplayServer (serviceServer "display"));
+
+            # Step 3: Merge with common VM configurations
+            finalConfig = foldl' lib.attrsets.recursiveUpdate
+              displayConfig
+              (map configCommon allVMs);
           in
-          lib.attrsets.recursiveUpdate 
-          (foldl' lib.attrsets.recursiveUpdate { } (map configCommon cfg.vms_enabled))
-          (configVideoServer (serverPerService "video"))
-          ;
-      }
-      {
-        microvm.vms.gui-vm.config.config.boot.kernelParams = [
-          "kvm_ivshmem.flataddr=${cfg.flataddr}"
-        ];
+            finalConfig;
+          # lib.attrsets.recursiveUpdate { } (
+          #   foldl' lib.attrsets.recursiveUpdate (lib.attrsets.recursiveUpdate (foldl'
+          #     lib.attrsets.recursiveUpdate
+          #     { }
+          #     (map configDisplayClient (clientsPerService "display"))
+          #   ) (configDisplayServer (serviceServer "display"))) (map configCommon allVMs)
+          # );
       }
     ]);
 }
