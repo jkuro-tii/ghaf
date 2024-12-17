@@ -33,7 +33,7 @@ let
     };
     audio = {
       server = "audio-vm";
-      enabled = false;
+      enabled = true;
       clients = [
         "chrome-vm"
         "chrome-vm-debug"
@@ -44,9 +44,13 @@ let
   enabledServices = lib.filterAttrs (_name: serverAttrs: serverAttrs.enabled) services;
   serviceServer =
     service:
-    builtins.toString (
-      lib.mapAttrsToList (name: value: if name == service then value.server else [ ]) enabledServices
-    );
+    (
+      (lib.attrsets.concatMapAttrs (
+        name: value: if name == service then { inherit (value) server; } else { }
+      ))
+      enabledServices
+    ).server;
+
   clientsPerService =
     service:
     lib.flatten (
@@ -61,24 +65,24 @@ let
       ) enabledServices
     )
   );
-  clientServerPairs = lib.flatten (
+  clientServicePairs = lib.flatten (
     lib.mapAttrsToList (
       serverName: serverAttrs:
       lib.map (client: {
-        server = serverName;
+        service = serverName;
         inherit client;
       }) serverAttrs.clients
     ) enabledServices
   );
-  clientServerWithID = lib.foldl' (
+  clientServiceWithID = lib.foldl' (
     acc: pair: acc ++ [ (pair // { id = builtins.length acc; }) ]
-  ) [ ] clientServerPairs;
-  clientID = lib.listToAttrs (
-    map (pair: {
-      name = pair.client;
-      value = builtins.toString pair.id;
-    }) clientServerWithID
-  );
+  ) [ ] clientServicePairs;
+  clientID =
+    client: service:
+    let
+      filtered = builtins.filter (x: x.client == client && x.service == service) clientServiceWithID;
+    in
+    if filtered != [ ] then (builtins.head filtered).id else null;
   clientsArg =
     lib.foldl'
       (
@@ -86,9 +90,9 @@ let
         (
           acc
           // {
-            ${pair.server} =
-              acc.${pair.server}
-              + "${if (builtins.stringLength acc.${pair.server}) > 0 then "," else ""}"
+            ${pair.service} =
+              acc.${pair.service}
+              + "${if (builtins.stringLength acc.${pair.service}) > 0 then "," else ""}"
               + (builtins.toString pair.id);
           }
         )
@@ -97,7 +101,7 @@ let
         audio = "";
         display = "";
       }
-      clientServerWithID;
+      clientServiceWithID;
 in
 {
   options.ghaf.shm = {
@@ -158,9 +162,9 @@ in
       type = types.int;
       default =
         if cfg.enable_host then
-          (builtins.length clientServerWithID) + 1
+          (builtins.length clientServiceWithID) + 1
         else
-          builtins.length clientServerWithID;
+          builtins.length clientServiceWithID;
       description = mdDoc ''
         Number of memory slots allocated in the shared memory region
       '';
@@ -257,7 +261,7 @@ in
             memsocket = pkgs.callPackage ../../../packages/memsocket { inherit (cfg) shmSlots; };
             vectors = toString (2 * cfg.shmSlots);
             configCommon = vmName: {
-              ${vmName} = builtins.trace ">>>configCommon: ${vmName}" {
+              ${vmName} = {
                 config = {
                   config = {
                     microvm = {
@@ -295,7 +299,7 @@ in
               };
             };
             configDisplayServer = vmName: {
-              ${vmName} = builtins.trace ">>>configServer: ${vmName}" {
+              ${vmName} = {
                 config = {
                   config = {
                     systemd.user.services.memsocket = {
@@ -318,16 +322,16 @@ in
             };
             configDisplayClient = vmName: {
               ${vmName} = {
-                config = builtins.trace "configClient: ${vmName}: id=${clientID.${vmName}}" {
+                config = {
                   config =
                     if cfg.display then
                       {
-                        systemd.user.services.memsocket = {
+                        systemd.user.services.memsocket-gui = {
                           enable = true;
                           description = "memsocket";
                           serviceConfig = {
                             Type = "simple";
-                            ExecStart = "${memsocket}/bin/memsocket -c ${cfg.clientSocketPath} ${clientID.${vmName}}";
+                            ExecStart = "${memsocket}/bin/memsocket -c ${cfg.clientSocketPath} ${builtins.toString (clientID vmName "display")}";
                             Restart = "always";
                             RestartSec = "1";
                           };
@@ -339,6 +343,51 @@ in
                 };
               };
             };
+            configAudioServer = vmName: {
+              ${vmName} = {
+                config = {
+                  config = {
+                    systemd.user.services.memsocket-audio = {
+                      enable = true;
+                      description = "memsocket";
+                      #after = [ "pipewire.service" "pipewire.socket" ];
+                      # requires = [ "pipewire.service" "pipewire.socket" ];
+                      serviceConfig = {
+                        Type = "simple";
+                        # option '-l -1': listen to all slots. If you want to run other servers
+                        # for some slots, provide a list of handled slots, e.g.: '-l 1,3,5'
+                        ExecStart = "${memsocket}/bin/memsocket -s /tmp/remote.sock -l ${clientsArg.audio}";
+                        Restart = "always";
+                        RestartSec = "1";
+                        ExecStartPre = "/bin/sh -c 'sleep 2'";
+                      };
+                      wantedBy = [ "default.target" ];
+                      requires = [ "pipewire-pulse.socket" ];
+                    };
+                  };
+                };
+              };
+            };
+            configAudioClient = vmName: {
+              ${vmName} = {
+                config = {
+                  config = {
+                    systemd.user.services.memsocket-audio = {
+                      enable = true;
+                      description = "memsocket";
+                      serviceConfig = {
+                        Type = "simple";
+                        ExecStart = "${memsocket}/bin/memsocket -c /tmp/pulseaudio.sock ${builtins.toString (clientID vmName "audio")}";
+                        Restart = "always";
+                        RestartSec = "1";
+                      };
+                      wantedBy = [ "default.target" ];
+                    };
+                  };
+                };
+              };
+            };
+
             # Combine "display" client configurations
             displayClients = foldl' lib.attrsets.recursiveUpdate { } (
               map configDisplayClient (clientsPerService "display")
@@ -349,6 +398,13 @@ in
               configDisplayServer (serviceServer "display")
             );
 
+            # Combine "audio" client configurations
+            audioClients = foldl' lib.attrsets.recursiveUpdate displayConfig (
+              map configAudioClient (clientsPerService "audio")
+            );
+
+            # Add the server configuration for "audio"
+            audioConfig = lib.attrsets.recursiveUpdate audioClients (configAudioServer (serviceServer "audio"));
             # Merge with common VM configurations
             finalConfig = foldl' lib.attrsets.recursiveUpdate displayConfig (map configCommon allVMs);
           in
