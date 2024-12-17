@@ -25,9 +25,6 @@ let
       enabled = config.ghaf.shm.display;
       clients = [
         "chrome-vm"
-        "chrome-vm-debug"
-        "gala-vm"
-        "gala-vm-debug"
         "business-vm"
       ];
     };
