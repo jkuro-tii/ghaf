@@ -36,21 +36,16 @@ let
       enabled = true;
       clients = [
         "chrome-vm"
-        "chrome-vm-debug"
-        "audio-client"
+        "business-vm"
       ];
     };
   };
   enabledServices = lib.filterAttrs (_name: serverAttrs: serverAttrs.enabled) services;
   serviceServer =
     service:
-    (
-      (lib.attrsets.concatMapAttrs (
-        name: value: if name == service then { inherit (value) server; } else { }
-      ))
-      enabledServices
-    ).server;
-
+    builtins.toString (
+      lib.mapAttrsToList (name: value: if name == service then value.server else [ ]) enabledServices
+    );
   clientsPerService =
     service:
     lib.flatten (
