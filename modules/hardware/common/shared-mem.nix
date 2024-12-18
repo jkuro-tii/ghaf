@@ -39,10 +39,7 @@ let
   };
   enabledServices = lib.filterAttrs (_name: serverAttrs: serverAttrs.enabled) services;
   serviceServer =
-    service:
-    builtins.toString (
-      lib.mapAttrsToList (name: value: if name == service then value.server else [ ]) enabledServices
-    );
+    service: ((lib.attrsets.concatMapAttrs (name: value: if name == service then {server = value.server; } else {})) enabledServices).server;
   clientsPerService =
     service:
     lib.flatten (
@@ -282,9 +279,6 @@ in
                     };
                     environment.systemPackages = [
                       memsocket
-                      pkgs.gnumake # TODO: jarekk: remove
-                      pkgs.gcc
-                      pkgs.git
                     ];
                   };
                 };
@@ -294,7 +288,7 @@ in
               ${vmName} = {
                 config = {
                   config = {
-                    systemd.user.services.memsocket = {
+                    systemd.user.services.memsocket-gui = {
                       enable = true;
                       description = "memsocket";
                       after = [ "labwc.service" ];
@@ -398,7 +392,7 @@ in
             # Add the server configuration for "audio"
             audioConfig = lib.attrsets.recursiveUpdate audioClients (configAudioServer (serviceServer "audio"));
             # Merge with common VM configurations
-            finalConfig = foldl' lib.attrsets.recursiveUpdate displayConfig (map configCommon allVMs);
+            finalConfig = foldl' lib.attrsets.recursiveUpdate audioConfig (map configCommon allVMs);
           in
           finalConfig;
       }
