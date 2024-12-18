@@ -39,7 +39,13 @@ let
   };
   enabledServices = lib.filterAttrs (_name: serverAttrs: serverAttrs.enabled) services;
   serviceServer =
-    service: ((lib.attrsets.concatMapAttrs (name: value: if name == service then {server = value.server; } else {})) enabledServices).server;
+    service:
+    (
+      (lib.attrsets.concatMapAttrs (
+        name: value: if name == service then { inherit (value) server; } else { }
+      ))
+      enabledServices
+    ).server;
   clientsPerService =
     service:
     lib.flatten (
