@@ -20,9 +20,9 @@ let
     types
     ;
   services = {
-    display = {
+    gui = {
       server = "gui-vm";
-      enabled = config.ghaf.shm.display;
+      enabled = config.ghaf.shm.gui;
       clients = [
         "chrome-vm"
         "business-vm"
@@ -30,7 +30,7 @@ let
     };
     audio = {
       server = "audio-vm";
-      enabled = true;
+      enabled = config.ghaf.shm.audio;
       clients = [
         "chrome-vm"
         "business-vm"
@@ -42,7 +42,8 @@ let
     service:
     (
       (lib.attrsets.concatMapAttrs (
-        name: value: if name == service then { inherit (value) server; } else { }
+        name: value:
+        if name == service && value.enabled then { inherit (value) server; } else { server = "None"; }
       ))
       enabledServices
     ).server;
@@ -94,7 +95,7 @@ let
       )
       {
         audio = "";
-        display = "";
+        gui = "";
       }
       clientServiceWithID;
 in
@@ -102,7 +103,7 @@ in
   options.ghaf.shm = {
     enable = mkOption {
       type = types.bool;
-      default = true;
+      default = false;
       description = mdDoc ''
         Enables shared memory communication between virtual machines (VMs) and the host
       '';
@@ -164,31 +165,58 @@ in
         Number of memory slots allocated in the shared memory region
       '';
     };
-    clientSocketPath = mkOption {
+    guiClientSocketPath = mkOption {
       type = types.path;
-      default = "/run/user/${builtins.toString config.ghaf.users.loginUser.uid}/memsocket-client.sock";
+      default = "/run/user/${builtins.toString config.ghaf.users.loginUser.uid}/memsocket-gui-client.sock";
       description = mdDoc ''
         Specifies the path of the listening socket, which is used by Waypipe 
         or other server applications as the output socket in its server mode for 
         data transmission
       '';
     };
-    serverSocketPath = mkOption {
+    guiServerSocketPath = mkOption {
       type = types.path;
-      default = "/run/user/${builtins.toString config.ghaf.users.loginUser.uid}/memsocket-server.sock";
+      default = "/run/user/${builtins.toString config.ghaf.users.loginUser.uid}/memsocket-gui-server.sock";
       description = mdDoc ''
         Specifies the location of the output socket, which will connected to
         in order to receive data from AppVMs. This socket must be created by
         another application, such as Waypipe, when operating in client mode
       '';
     };
-    display = mkOption {
+    audioClientSocketPath = mkOption {
+      type = types.path;
+      # default = /tmp/pulseaudio.sock;
+      default = "/run/user/${builtins.toString config.ghaf.users.loginUser.uid}/memsocket-audio-client.sock";
+      description = mdDoc ''
+        Specifies the path of the audio listening socket, which is used by an audio 
+        or other server applications as the output socket in its server mode for 
+        data transmission
+      '';
+    };
+    audioServerSocketPath = mkOption {
+      type = types.path;
+      default = "/run/user/${builtins.toString config.ghaf.users.loginUser.uid}/memsocket-audio-server.sock";
+      # default = /tmp/remote.sock;
+      description = mdDoc ''
+        Specifies the location of the audio output socket, which will connected 
+        to in order to receive data from AppVMs. This socket must be created by
+        another application
+      '';
+    };
+    gui = mkOption {
       type = types.bool;
-      default = true;
+      default = false;
       description = mdDoc ''
         Enables the use of shared memory with Waypipe for Wayland-enabled
         applications running on virtual machines (VMs), facilitating
         efficient inter-VM communication
+      '';
+    };
+    audio = mkOption {
+      type = types.bool;
+      default = false;
+      description = mdDoc ''
+        Enables the use of shared memory for sending audio
       '';
     };
   };
@@ -290,7 +318,7 @@ in
                 };
               };
             };
-            configDisplayServer = vmName: {
+            configGuiServer = vmName: {
               ${vmName} = {
                 config = {
                   config = {
@@ -300,9 +328,7 @@ in
                       after = [ "labwc.service" ];
                       serviceConfig = {
                         Type = "simple";
-                        # option '-l -1': listen to all slots. If you want to run other servers
-                        # for some slots, provide a list of handled slots, e.g.: '-l 1,3,5'
-                        ExecStart = "${memsocket}/bin/memsocket -s ${cfg.serverSocketPath} -l ${clientsArg.display}";
+                        ExecStart = "${memsocket}/bin/memsocket -s ${cfg.guiServerSocketPath} -l ${clientsArg.gui}";
                         Restart = "always";
                         RestartSec = "1";
                       };
@@ -312,18 +338,18 @@ in
                 };
               };
             };
-            configDisplayClient = vmName: {
+            configGuiClient = vmName: {
               ${vmName} = {
                 config = {
                   config =
-                    if cfg.display then
+                    if cfg.gui then
                       {
                         systemd.user.services.memsocket-gui = {
                           enable = true;
                           description = "memsocket";
                           serviceConfig = {
                             Type = "simple";
-                            ExecStart = "${memsocket}/bin/memsocket -c ${cfg.clientSocketPath} ${builtins.toString (clientID vmName "display")}";
+                            ExecStart = "${memsocket}/bin/memsocket -c ${cfg.guiClientSocketPath} ${builtins.toString (clientID vmName "gui")}";
                             Restart = "always";
                             RestartSec = "1";
                           };
@@ -342,13 +368,9 @@ in
                     systemd.user.services.memsocket-audio = {
                       enable = true;
                       description = "memsocket";
-                      #after = [ "pipewire.service" "pipewire.socket" ];
-                      # requires = [ "pipewire.service" "pipewire.socket" ];
                       serviceConfig = {
                         Type = "simple";
-                        # option '-l -1': listen to all slots. If you want to run other servers
-                        # for some slots, provide a list of handled slots, e.g.: '-l 1,3,5'
-                        ExecStart = "${memsocket}/bin/memsocket -s /tmp/remote.sock -l ${clientsArg.audio}";
+                        ExecStart = "${memsocket}/bin/memsocket -s ${cfg.audioServerSocketPath} -l ${clientsArg.audio}";
                         Restart = "always";
                         RestartSec = "1";
                         ExecStartPre = "/bin/sh -c 'sleep 2'";
@@ -369,7 +391,7 @@ in
                       description = "memsocket";
                       serviceConfig = {
                         Type = "simple";
-                        ExecStart = "${memsocket}/bin/memsocket -c /tmp/pulseaudio.sock ${builtins.toString (clientID vmName "audio")}";
+                        ExecStart = "${memsocket}/bin/memsocket -c ${cfg.audioClientSocketPath} ${builtins.toString (clientID vmName "audio")}";
                         Restart = "always";
                         RestartSec = "1";
                       };
@@ -380,23 +402,29 @@ in
               };
             };
 
-            # Combine "display" client configurations
-            displayClients = foldl' lib.attrsets.recursiveUpdate { } (
-              map configDisplayClient (clientsPerService "display")
+            # Combine "gui" client configurations
+            guiClients = foldl' lib.attrsets.recursiveUpdate { } (
+              map configGuiClient (clientsPerService "gui")
             );
 
-            # Add the server configuration for "display"
-            displayConfig = lib.attrsets.recursiveUpdate displayClients (
-              configDisplayServer (serviceServer "display")
-            );
+            # Add the server configuration for "gui"
+            guiConfig =
+              if cfg.gui then
+                lib.attrsets.recursiveUpdate guiClients (configGuiServer (serviceServer "gui"))
+              else
+                { };
 
             # Combine "audio" client configurations
-            audioClients = foldl' lib.attrsets.recursiveUpdate displayConfig (
+            audioClients = foldl' lib.attrsets.recursiveUpdate guiConfig (
               map configAudioClient (clientsPerService "audio")
             );
 
             # Add the server configuration for "audio"
-            audioConfig = lib.attrsets.recursiveUpdate audioClients (configAudioServer (serviceServer "audio"));
+            audioConfig =
+              if cfg.audio then
+                lib.attrsets.recursiveUpdate audioClients (configAudioServer (serviceServer "audio"))
+              else
+                guiConfig;
             # Merge with common VM configurations
             finalConfig = foldl' lib.attrsets.recursiveUpdate audioConfig (map configCommon allVMs);
           in
