@@ -19,19 +19,17 @@ let
   waypipeBorder = lib.optionalString (
     cfg.waypipeBorder && vm.borderColor != null
   ) "--border \"${vm.borderColor}\"";
+  displayOpt =
+    if configHost.ghaf.shm.gui then
+      "-s ${configHost.ghaf.shm.guiClientSocketPath}"
+    else
+      "--vsock -s ${toString waypipePort}";
   runWaypipe =
     let
-      script =
-        if configHost.ghaf.shm.display then
-          ''
-            #!${pkgs.runtimeShell} -e
-            ${pkgs.waypipe}/bin/waypipe -s ${configHost.ghaf.shm.clientSocketPath} server "$@"
-          ''
-        else
-          ''
-            #!${pkgs.runtimeShell} -e
-            ${pkgs.waypipe}/bin/waypipe --vsock -s ${toString waypipePort} server "$@"
-          '';
+      script = ''
+        #!${pkgs.runtimeShell} -e
+        ${pkgs.waypipe}/bin/waypipe ${displayOpt} server "$@"
+      '';
     in
     pkgs.writeScriptBin "run-waypipe" script;
   vsockproxy = pkgs.callPackage ../../../../../packages/vsockproxy { };
@@ -74,11 +72,7 @@ in
           Type = "simple";
           Restart = "always";
           RestartSec = "1";
-          ExecStart =
-            if configHost.ghaf.shm.display then
-              "${pkgs.waypipe}/bin/waypipe --secctx \"${vm.name}\" ${waypipeBorder} -s ${configHost.ghaf.shm.serverSocketPath} client"
-            else
-              "${pkgs.waypipe}/bin/waypipe --vsock --secctx \"${vm.name}\" ${waypipeBorder} -s ${toString waypipePort} client";
+          ExecStart = "${pkgs.waypipe}/bin/waypipe --secctx \"${vm.name}\" ${waypipeBorder} ${displayOpt} client";
         };
         startLimitIntervalSec = 0;
         partOf = [ "ghaf-session.target" ];
