@@ -20,10 +20,13 @@ let
     cfg.waypipeBorder && vm.borderColor != null
   ) "--border \"${vm.borderColor}\"";
   displayOpt =
-    if configHost.ghaf.shm.gui then
-      "-s ${configHost.ghaf.shm.guiClientSocketPath}"
-    else
-      "--vsock -s ${toString waypipePort}";
+    let
+      cfgShm = configHost.ghaf.shm.service;
+    
+      t =
+        if cfgShm.gui.enabled then "-s ${cfgShm.gui.serverSocketPath}" else "--vsock -s ${toString waypipePort}";
+    in
+    builtins.trace "displayOpt: ${t} vm=${vm.name}" t;
   runWaypipe =
     let
       script = ''

@@ -10,8 +10,8 @@ let
   waypipePort = 1100; # TODO: remove hardcoded port number
   idsvmIP = "ids-vm";
   displayOpt =
-    if configHost.ghaf.shm.gui then
-      "-s ${configHost.ghaf.shm.guiClientSocketPath}"
+    if configHost.ghaf.shm.service.gui.enabled then
+      "-s ${configHost.ghaf.shm.service.gui.clientSocketPath}"
     else
       "--vsock -s ${toString waypipePort}";
   mitmwebUI = pkgs.writeShellScript "mitmweb-ui" ''

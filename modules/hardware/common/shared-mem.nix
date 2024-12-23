@@ -19,25 +19,7 @@ let
     mdDoc
     types
     ;
-  services = {
-    gui = {
-      server = "gui-vm";
-      enabled = config.ghaf.shm.gui;
-      clients = [
-        "chrome-vm"
-        "business-vm"
-      ];
-    };
-    audio = {
-      server = "audio-vm";
-      enabled = config.ghaf.shm.audio;
-      clients = [
-        "chrome-vm"
-        "business-vm"
-      ];
-    };
-  };
-  enabledServices = lib.filterAttrs (_name: serverAttrs: serverAttrs.enabled) services;
+  enabledServices = lib.filterAttrs (_name: serverAttrs: serverAttrs.enabled) cfg.service;
   serviceServer =
     service:
     (
@@ -86,24 +68,23 @@ let
         (
           acc
           // {
-            ${pair.service} =
-              acc.${pair.service}
-              + "${if (builtins.stringLength acc.${pair.service}) > 0 then "," else ""}"
-              + (builtins.toString pair.id);
+            "${pair.service}" = 
+              if (builtins.hasAttr "${pair.service}" acc) then
+                acc.${pair.service} +
+                "," + (builtins.toString pair.id)
+              else
+                (builtins.toString pair.id);
           }
         )
       )
-      {
-        audio = "";
-        gui = "";
-      }
+      {}
       clientServiceWithID;
 in
 {
   options.ghaf.shm = {
     enable = mkOption {
       type = types.bool;
-      default = false;
+      default = true;
       description = mdDoc ''
         Enables shared memory communication between virtual machines (VMs) and the host
       '';
@@ -130,6 +111,45 @@ in
         else
           value;
     };
+
+    service = mkOption {
+      type = types.attrsOf types.anything;
+      default =
+        let
+          stdConfig = service: {
+            server = "${service}-vm";
+            clientSocketPath = "/run/user/${builtins.toString config.ghaf.users.accounts.uid}/memsocket-${service}-client.sock";
+            serverSocketPath = "/run/user/${builtins.toString config.ghaf.users.accounts.uid}/memsocket-${service}-server.sock";
+          };
+        in
+        {
+          gui = {
+            serverConfig = { systemdParams = { after=["labwc.service"]; wantedBy = [ "ghaf-session.target" ];}; };
+            clients = [
+              "chrome-vm"
+              # "business-vm"
+              # "comms-vm"
+              # "gala-vm"
+              # "zathura-vm"
+            ];
+            clientConfig = {systemdParams = {wantedBy = [ "default.target" ];}; };
+            enabled = true;
+          } // stdConfig "gui";
+          audio = {
+            serverConfig = {systemdParams = {}; };
+            clients = [
+              "chrome-vm"
+              "business-vm"
+            ];
+            clientConfig = {systemdParams = {wantedBy = [ "default.target" ];}; };
+            enabled = true;
+          } // stdConfig "audio";
+        };
+      description = mdDoc ''
+        Specifies the configuration of shared memory services
+      '';
+    };
+
     hostSocketPath = mkOption {
       type = types.path;
       default = "/tmp/ivshmem_socket"; # The value is hardcoded in the application
@@ -165,60 +185,6 @@ in
         Number of memory slots allocated in the shared memory region
       '';
     };
-    guiClientSocketPath = mkOption {
-      type = types.path;
-      default = "/run/user/${builtins.toString config.ghaf.users.accounts.uid}/memsocket-gui-client.sock";
-      description = mdDoc ''
-        Specifies the path of the listening socket, which is used by Waypipe 
-        or other server applications as the output socket in its server mode for 
-        data transmission
-      '';
-    };
-    guiServerSocketPath = mkOption {
-      type = types.path;
-      default = "/run/user/${builtins.toString config.ghaf.users.accounts.uid}/memsocket-gui-server.sock";
-      description = mdDoc ''
-        Specifies the location of the output socket, which will connected to 
-        in order to receive data from AppVMs. This socket must be created by 
-        another application, such as Waypipe, when operating in client mode
-      '';
-    };
-    audioClientSocketPath = mkOption {
-      type = types.path;
-      # default = /tmp/pulseaudio.sock;
-      default = "/run/user/${builtins.toString config.ghaf.users.accounts.uid}/memsocket-audio-client.sock";
-      description = mdDoc ''
-        Specifies the path of the audio listening socket, which is used by an audio 
-        or other server applications as the output socket in its server mode for 
-        data transmission
-      '';
-    };
-    audioServerSocketPath = mkOption {
-      type = types.path;
-      default = "/run/user/${builtins.toString config.ghaf.users.accounts.uid}/memsocket-audio-server.sock";
-      # default = /tmp/remote.sock;
-      description = mdDoc ''
-        Specifies the location of the audio output socket, which will connected 
-        to in order to receive data from AppVMs. This socket must be created by
-        another application
-      '';
-    };
-    gui = mkOption {
-      type = types.bool;
-      default = false;
-      description = mdDoc ''
-        Enables the use of shared memory with Waypipe for Wayland-enabled 
-        applications running on virtual machines (VMs), facilitating 
-        efficient inter-VM communication
-      '';
-    };
-    audio = mkOption {
-      type = types.bool;
-      default = false;
-      description = mdDoc ''
-        Enables the use of shared memory for sending audio
-      '';
-    };
   };
   config =
     let
@@ -249,7 +215,7 @@ in
       {
         systemd.services.ivshmemsrv =
           let
-            pidFilePath = "/tmp/ivshmem-server.pid";
+            pidFilePath = builtins.trace ">>>> ivshmemsrv service: ${builtins.toString (builtins.attrNames cfg.service)}" "/tmp/ivshmem-server.pid"; # jarekk
             ivShMemSrv =
               let
                 vectors = toString (2 * cfg.shmSlots);
@@ -318,115 +284,168 @@ in
                 };
               };
             };
-            configGuiServer = vmName: {
-              ${vmName} = {
+            # configGuiServer = vmName: {
+            #   ${vmName} = {
+            #     config = {
+            #       config = {
+            #         systemd.user.services.memsocket-gui = {
+            #           enable = true;
+            #           description = "memsocket";
+            #           after = [ "labwc.service" ];
+            #           serviceConfig = {
+            #             Type = "simple";
+            #             ExecStart = "${memsocket}/bin/memsocket -s ${cfg.guiServerSocketPath} -l ${clientsArg.gui}";
+            #             Restart = "always";
+            #             RestartSec = "1";
+            #           };
+            #           wantedBy = [ "ghaf-session.target" ];
+            #         };
+            #       };
+            #     };
+            #   };
+            # };
+            # configGuiClient = vmName: {
+            #   ${vmName} = {
+            #     config = {
+            #       config =
+            #         if cfg.gui then
+            #           {
+            #             systemd.user.services.memsocket-gui = {
+            #               enable = true;
+            #               description = "memsocket";
+            #               serviceConfig = {
+            #                 Type = "simple";
+            #                 ExecStart = "${memsocket}/bin/memsocket -c ${cfg.guiClientSocketPath} ${builtins.toString (clientID vmName "gui")}";
+            #                 Restart = "always";
+            #                 RestartSec = "1";
+            #               };
+            #               wantedBy = [ "default.target" ];
+            #             };
+            #           }
+            #         else
+            #           { };
+            #     };
+            #   };
+            # };
+            # configAudioServer = vmName: {
+            #   ${vmName} = {
+            #     config = {
+            #       config = {
+            #         systemd.user.services.memsocket-audio = {
+            #           enable = true;
+            #           description = "memsocket";
+            #           serviceConfig = {
+            #             Type = "simple";
+            #             ExecStart = "${memsocket}/bin/memsocket -s ${cfg.audioServerSocketPath} -l ${clientsArg.audio}";
+            #             Restart = "always";
+            #             RestartSec = "1";
+            #             ExecStartPre = "/bin/sh -c 'sleep 2'";
+            #           };
+            #           wantedBy = [ "default.target" ];
+            #           requires = [ "pipewire-pulse.socket" ];
+            #         };
+            #       };
+            #     };
+            #   };
+            # };
+            # configAudioClient = vmName: {
+            #   ${vmName} = {
+            #     config = {
+            #       config = {
+            #         systemd.user.services.memsocket-audio = {
+            #           enable = true;
+            #           description = "memsocket";
+            #           serviceConfig = {
+            #             Type = "simple";
+            #             ExecStart = "${memsocket}/bin/memsocket -c ${cfg.audioClientSocketPath} ${builtins.toString (clientID vmName "audio")}";
+            #             Restart = "always";
+            #             RestartSec = "1";
+            #           };
+            #           wantedBy = [ "default.target" ];
+            #         };
+            #       };
+            #     };
+            #   };
+            # };
+
+            # # Combine "gui" client configurations
+            # guiClients = foldl' lib.attrsets.recursiveUpdate { } (
+            #   map configGuiClient (clientsPerService "gui")
+            # );
+
+            # # Add the server configuration for "gui"
+            # guiConfig =
+            #   if cfg.gui then
+            #     lib.attrsets.recursiveUpdate guiClients (configGuiServer (serviceServer "gui"))
+            #   else
+            #     { };
+
+            # # Combine "audio" client configurations
+            # audioClients = foldl' lib.attrsets.recursiveUpdate guiConfig (
+            #   map configAudioClient (clientsPerService "audio")
+            # );
+
+            # # Add the server configuration for "audio"
+            # audioConfig =
+            #   if cfg.audio then
+            #     lib.attrsets.recursiveUpdate audioClients (configAudioServer (serviceServer "audio"))
+            #   else
+            #     guiConfig;
+            # # Merge with common VM configurations
+            # finalConfig = foldl' lib.attrsets.recursiveUpdate audioConfig (map configCommon allVMs);
+          configService = service: 
+            if cfg.service.${service}.enabled == false then {
+            } else { 
+              ${cfg.service.${service}.server} = {
                 config = {
-                  config = {
-                    systemd.user.services.memsocket-gui = {
+                  config = builtins.trace ">>>> configService: service= ${service}" {
+                    systemd.user.services."memsocket-${service}" = lib.attrsets.recursiveUpdate {
                       enable = true;
                       description = "memsocket";
-                      after = [ "labwc.service" ];
                       serviceConfig = {
                         Type = "simple";
-                        ExecStart = "${memsocket}/bin/memsocket -s ${cfg.guiServerSocketPath} -l ${clientsArg.gui}";
+                        ExecStart = "${memsocket}/bin/memsocket -s ${cfg.service.${service}.serverSocketPath} -l ${clientsArg.${service}}";
                         Restart = "always";
                         RestartSec = "1";
-                      };
-                      wantedBy = [ "ghaf-session.target" ];
-                    };
+                      } ;
+                    }  cfg.service.${service}.serverConfig.systemdParams;
                   };
                 };
               };
-            };
-            configGuiClient = vmName: {
-              ${vmName} = {
+          };
+          configClient = data: {
+              ${data.client} = {
                 config = {
                   config =
-                    if cfg.gui then
-                      {
-                        systemd.user.services.memsocket-gui = {
+                    if cfg.service.${data.service}.enabled == false then {
+                    } 
+                    else{
+                        systemd.user.services."memsocket-${data.service}" = lib.attrsets.recursiveUpdate {
                           enable = true;
                           description = "memsocket";
                           serviceConfig = {
                             Type = "simple";
-                            ExecStart = "${memsocket}/bin/memsocket -c ${cfg.guiClientSocketPath} ${builtins.toString (clientID vmName "gui")}";
+                            ExecStart = "${memsocket}/bin/memsocket -c ${cfg.service.${data.service}.clientSocketPath} ${builtins.toString (clientID data.client data.service)}";
                             Restart = "always";
                             RestartSec = "1";
                           };
-                          wantedBy = [ "default.target" ];
-                        };
-                      }
-                    else
-                      { };
-                };
-              };
-            };
-            configAudioServer = vmName: {
-              ${vmName} = {
-                config = {
-                  config = {
-                    systemd.user.services.memsocket-audio = {
-                      enable = true;
-                      description = "memsocket";
-                      serviceConfig = {
-                        Type = "simple";
-                        ExecStart = "${memsocket}/bin/memsocket -s ${cfg.audioServerSocketPath} -l ${clientsArg.audio}";
-                        Restart = "always";
-                        RestartSec = "1";
-                        ExecStartPre = "/bin/sh -c 'sleep 2'";
-                      };
-                      wantedBy = [ "default.target" ];
-                      requires = [ "pipewire-pulse.socket" ];
-                    };
+                        } cfg.service.${data.service}.clientConfig.systemdParams;
                   };
+              
                 };
-              };
             };
-            configAudioClient = vmName: {
-              ${vmName} = {
-                config = {
-                  config = {
-                    systemd.user.services.memsocket-audio = {
-                      enable = true;
-                      description = "memsocket";
-                      serviceConfig = {
-                        Type = "simple";
-                        ExecStart = "${memsocket}/bin/memsocket -c ${cfg.audioClientSocketPath} ${builtins.toString (clientID vmName "audio")}";
-                        Restart = "always";
-                        RestartSec = "1";
-                      };
-                      wantedBy = [ "default.target" ];
-                    };
-                  };
-                };
-              };
-            };
+          };
 
-            # Combine "gui" client configurations
-            guiClients = foldl' lib.attrsets.recursiveUpdate { } (
-              map configGuiClient (clientsPerService "gui")
-            );
-
-            # Add the server configuration for "gui"
-            guiConfig =
-              if cfg.gui then
-                lib.attrsets.recursiveUpdate guiClients (configGuiServer (serviceServer "gui"))
-              else
-                { };
-
-            # Combine "audio" client configurations
-            audioClients = foldl' lib.attrsets.recursiveUpdate guiConfig (
-              map configAudioClient (clientsPerService "audio")
-            );
-
-            # Add the server configuration for "audio"
-            audioConfig =
-              if cfg.audio then
-                lib.attrsets.recursiveUpdate audioClients (configAudioServer (serviceServer "audio"))
-              else
-                guiConfig;
-            # Merge with common VM configurations
-            finalConfig = foldl' lib.attrsets.recursiveUpdate audioConfig (map configCommon allVMs);
+          # clients = foldl' lib.attrsets.recursiveUpdate { } (
+          #   map configClient (builtins.attrNames cfg.service)
+          # );
+          clients = foldl' lib.attrsets.recursiveUpdate {} (
+            map configClient (clientServicePairs))
+          ;
+          clientsAndServers = foldl' lib.attrsets.recursiveUpdate clients (
+            map configService (builtins.attrNames cfg.service)
+          );
+          finalConfig = foldl' lib.attrsets.recursiveUpdate clientsAndServers (map configCommon allVMs);
           in
           finalConfig;
       }
