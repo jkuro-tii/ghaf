@@ -334,9 +334,7 @@ in
                     };
                   };
             };
-
             clientsConfig = foldl' lib.attrsets.recursiveUpdate { } (map configClient clientServicePairs);
-
             clientsAndServers = builtins.trace ">>>clientsAndServers" (
               lib.foldl' lib.attrsets.recursiveUpdate clientsConfig (
                 map (
@@ -353,7 +351,6 @@ in
                           map (client: configServer "-${client}" (clientID client service) service) (
                             clientsPerService service
                           )
-
                         ))
                       else
                         (configServer "" # clientSuffix
@@ -365,7 +362,6 @@ in
                 ) (builtins.attrNames enabledServices)
               )
             );
-
             finalConfig = foldl' lib.attrsets.recursiveUpdate clientsAndServers (map configCommon allVMs);
           in
           finalConfig;
