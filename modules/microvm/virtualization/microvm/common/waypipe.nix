@@ -22,9 +22,12 @@ let
   displayOpt =
     let
       cfgShm = configHost.ghaf.shm.service;
-    
+
       t =
-        if cfgShm.gui.enabled then "-s ${cfgShm.gui.serverSocketPath}" else "--vsock -s ${toString waypipePort}";
+        if cfgShm.gui.enabled then
+          "-s " + cfgShm.gui.serverSocketPath "gui" "-${vm.name}-vm"
+        else
+          "--vsock -s ${toString waypipePort}";
     in
     builtins.trace "displayOpt: ${t} vm=${vm.name}" t;
   runWaypipe =

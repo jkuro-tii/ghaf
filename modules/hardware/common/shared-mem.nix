@@ -20,15 +20,6 @@ let
     types
     ;
   enabledServices = lib.filterAttrs (_name: serverAttrs: serverAttrs.enabled) cfg.service;
-  serviceServer =
-    service:
-    (
-      (lib.attrsets.concatMapAttrs (
-        name: value:
-        if name == service && value.enabled then { inherit (value) server; } else { server = "None"; }
-      ))
-      enabledServices
-    ).server;
   clientsPerService =
     service:
     lib.flatten (
@@ -60,25 +51,20 @@ let
     let
       filtered = builtins.filter (x: x.client == client && x.service == service) clientServiceWithID;
     in
-    if filtered != [ ] then (builtins.head filtered).id else null;
-  clientsArg =
-    lib.foldl'
-      (
-        acc: pair:
-        (
-          acc
-          // {
-            "${pair.service}" = 
-              if (builtins.hasAttr "${pair.service}" acc) then
-                acc.${pair.service} +
-                "," + (builtins.toString pair.id)
-              else
-                (builtins.toString pair.id);
-          }
-        )
-      )
-      {}
-      clientServiceWithID;
+    if filtered != [ ] then (builtins.toString (builtins.head filtered).id) else null;
+  clientsArg = lib.foldl' (
+    acc: pair:
+    (
+      acc
+      // {
+        "${pair.service}" =
+          if (builtins.hasAttr "${pair.service}" acc) then
+            acc.${pair.service} + "," + (builtins.toString pair.id)
+          else
+            (builtins.toString pair.id);
+      }
+    )
+  ) { } clientServiceWithID;
 in
 {
   options.ghaf.shm = {
@@ -119,29 +105,45 @@ in
           stdConfig = service: {
             server = "${service}-vm";
             clientSocketPath = "/run/user/${builtins.toString config.ghaf.users.accounts.uid}/memsocket-${service}-client.sock";
-            serverSocketPath = "/run/user/${builtins.toString config.ghaf.users.accounts.uid}/memsocket-${service}-server.sock";
+            serverSocketPath = (service: suffix: "/run/user/${builtins.toString config.ghaf.users.accounts.uid}/memsocket-${service}${suffix}.sock");
           };
         in
         {
           gui = {
-            serverConfig = { systemdParams = { after=["labwc.service"]; wantedBy = [ "ghaf-session.target" ];}; };
+            serverConfig = {
+              systemdParams = {
+                after = [ "labwc.service" ];
+                wantedBy = [ "ghaf-session.target" ];
+              };
+              multiProcess = true;
+            };
             clients = [
               "chrome-vm"
-              # "business-vm"
-              # "comms-vm"
-              # "gala-vm"
-              # "zathura-vm"
+              "business-vm"
+              "comms-vm"
+              "gala-vm"
+              "zathura-vm"
             ];
-            clientConfig = {systemdParams = {wantedBy = [ "default.target" ];}; };
+            clientConfig = {
+              systemdParams = {
+                wantedBy = [ "default.target" ];
+              };
+            };
             enabled = true;
           } // stdConfig "gui";
           audio = {
-            serverConfig = {systemdParams = {}; };
+            serverConfig = {
+              systemdParams = { };
+            };
             clients = [
               "chrome-vm"
               "business-vm"
             ];
-            clientConfig = {systemdParams = {wantedBy = [ "default.target" ];}; };
+            clientConfig = {
+              systemdParams = {
+                wantedBy = [ "default.target" ];
+              };
+            };
             enabled = true;
           } // stdConfig "audio";
         };
@@ -284,168 +286,81 @@ in
                 };
               };
             };
-            # configGuiServer = vmName: {
-            #   ${vmName} = {
-            #     config = {
-            #       config = {
-            #         systemd.user.services.memsocket-gui = {
-            #           enable = true;
-            #           description = "memsocket";
-            #           after = [ "labwc.service" ];
-            #           serviceConfig = {
-            #             Type = "simple";
-            #             ExecStart = "${memsocket}/bin/memsocket -s ${cfg.guiServerSocketPath} -l ${clientsArg.gui}";
-            #             Restart = "always";
-            #             RestartSec = "1";
-            #           };
-            #           wantedBy = [ "ghaf-session.target" ];
-            #         };
-            #       };
-            #     };
-            #   };
-            # };
-            # configGuiClient = vmName: {
-            #   ${vmName} = {
-            #     config = {
-            #       config =
-            #         if cfg.gui then
-            #           {
-            #             systemd.user.services.memsocket-gui = {
-            #               enable = true;
-            #               description = "memsocket";
-            #               serviceConfig = {
-            #                 Type = "simple";
-            #                 ExecStart = "${memsocket}/bin/memsocket -c ${cfg.guiClientSocketPath} ${builtins.toString (clientID vmName "gui")}";
-            #                 Restart = "always";
-            #                 RestartSec = "1";
-            #               };
-            #               wantedBy = [ "default.target" ];
-            #             };
-            #           }
-            #         else
-            #           { };
-            #     };
-            #   };
-            # };
-            # configAudioServer = vmName: {
-            #   ${vmName} = {
-            #     config = {
-            #       config = {
-            #         systemd.user.services.memsocket-audio = {
-            #           enable = true;
-            #           description = "memsocket";
-            #           serviceConfig = {
-            #             Type = "simple";
-            #             ExecStart = "${memsocket}/bin/memsocket -s ${cfg.audioServerSocketPath} -l ${clientsArg.audio}";
-            #             Restart = "always";
-            #             RestartSec = "1";
-            #             ExecStartPre = "/bin/sh -c 'sleep 2'";
-            #           };
-            #           wantedBy = [ "default.target" ];
-            #           requires = [ "pipewire-pulse.socket" ];
-            #         };
-            #       };
-            #     };
-            #   };
-            # };
-            # configAudioClient = vmName: {
-            #   ${vmName} = {
-            #     config = {
-            #       config = {
-            #         systemd.user.services.memsocket-audio = {
-            #           enable = true;
-            #           description = "memsocket";
-            #           serviceConfig = {
-            #             Type = "simple";
-            #             ExecStart = "${memsocket}/bin/memsocket -c ${cfg.audioClientSocketPath} ${builtins.toString (clientID vmName "audio")}";
-            #             Restart = "always";
-            #             RestartSec = "1";
-            #           };
-            #           wantedBy = [ "default.target" ];
-            #         };
-            #       };
-            #     };
-            #   };
-            # };
-
-            # # Combine "gui" client configurations
-            # guiClients = foldl' lib.attrsets.recursiveUpdate { } (
-            #   map configGuiClient (clientsPerService "gui")
-            # );
-
-            # # Add the server configuration for "gui"
-            # guiConfig =
-            #   if cfg.gui then
-            #     lib.attrsets.recursiveUpdate guiClients (configGuiServer (serviceServer "gui"))
-            #   else
-            #     { };
-
-            # # Combine "audio" client configurations
-            # audioClients = foldl' lib.attrsets.recursiveUpdate guiConfig (
-            #   map configAudioClient (clientsPerService "audio")
-            # );
-
-            # # Add the server configuration for "audio"
-            # audioConfig =
-            #   if cfg.audio then
-            #     lib.attrsets.recursiveUpdate audioClients (configAudioServer (serviceServer "audio"))
-            #   else
-            #     guiConfig;
-            # # Merge with common VM configurations
-            # finalConfig = foldl' lib.attrsets.recursiveUpdate audioConfig (map configCommon allVMs);
-          configService = service: 
-            if cfg.service.${service}.enabled == false then {
-            } else { 
-              ${cfg.service.${service}.server} = {
-                config = {
-                  config = builtins.trace ">>>> configService: service= ${service}" {
-                    systemd.user.services."memsocket-${service}" = lib.attrsets.recursiveUpdate {
-                      enable = true;
-                      description = "memsocket";
-                      serviceConfig = {
-                        Type = "simple";
-                        ExecStart = "${memsocket}/bin/memsocket -s ${cfg.service.${service}.serverSocketPath} -l ${clientsArg.${service}}";
-                        Restart = "always";
-                        RestartSec = "1";
-                      } ;
-                    }  cfg.service.${service}.serverConfig.systemdParams;
-                  };
-                };
-              };
-          };
-          configClient = data: {
+            configClient = data: {
               ${data.client} = {
                 config = {
                   config =
-                    if cfg.service.${data.service}.enabled == false then {
-                    } 
-                    else{
+                    if !cfg.service.${data.service}.enabled then
+                      {
+                      }
+                    else
+                      {
                         systemd.user.services."memsocket-${data.service}" = lib.attrsets.recursiveUpdate {
                           enable = true;
                           description = "memsocket";
                           serviceConfig = {
                             Type = "simple";
-                            ExecStart = "${memsocket}/bin/memsocket -c ${cfg.service.${data.service}.clientSocketPath} ${builtins.toString (clientID data.client data.service)}";
+                            ExecStart = "${memsocket}/bin/memsocket -c ${
+                              cfg.service.${data.service}.clientSocketPath
+                            } ${builtins.toString (clientID data.client data.service)}";
                             Restart = "always";
                             RestartSec = "1";
                           };
                         } cfg.service.${data.service}.clientConfig.systemdParams;
-                  };
-              
+                      };
                 };
+              };
             };
-          };
+            configServer = clientSuffix: clientId: service: {
+              "${cfg.service.${service}.server}" =
+                builtins.trace ">>>configServer client=${clientSuffix} ${clientId} ${service}"
+                  {
+                    config = {
+                      config = {
+                        systemd.user.services."memsocket-${service}${clientSuffix}" = lib.attrsets.recursiveUpdate {
+                          enable = true;
+                          description = "memsocket";
+                          serviceConfig = {
+                            Type = "simple"; # jarekk
+                            ExecStart = "${memsocket}/bin/memsocket -s ${cfg.service.${service}.serverSocketPath service clientSuffix} -l ${clientId}";
+                            Restart = "always";
+                            RestartSec = "1";
+                          };
+                        } cfg.service.${service}.serverConfig.systemdParams; # jarekk
+                      };
+                    };
+                  };
+            };
 
-          # clients = foldl' lib.attrsets.recursiveUpdate { } (
-          #   map configClient (builtins.attrNames cfg.service)
-          # );
-          clients = foldl' lib.attrsets.recursiveUpdate {} (
-            map configClient (clientServicePairs))
-          ;
-          clientsAndServers = foldl' lib.attrsets.recursiveUpdate clients (
-            map configService (builtins.attrNames cfg.service)
-          );
-          finalConfig = foldl' lib.attrsets.recursiveUpdate clientsAndServers (map configCommon allVMs);
+            clientsConfig = foldl' lib.attrsets.recursiveUpdate { } (map configClient clientServicePairs);
+
+            clientsAndServers = builtins.trace ">>>clientsAndServers" (
+              lib.foldl' lib.attrsets.recursiveUpdate clientsConfig (
+                map (
+                  service:
+                  let
+                    multiProcess =
+                      if lib.attrsets.hasAttr "multiProcess" cfg.service.${service}.serverConfig then
+                        cfg.service.${service}.serverConfig.multiProcess
+                      else
+                        false;
+                    result =
+                      if multiProcess then
+                        (lib.foldl' lib.attrsets.recursiveUpdate { } (
+                          map (client: configServer "-${client}" (clientID client service) service) (
+                            clientsPerService service
+                          )
+
+                        ))
+                      else
+                        (configServer "" /*clientSuffix*/ clientsArg.${service} service);
+                  in
+                  result
+                ) (builtins.attrNames enabledServices)
+              )
+            );
+
+            finalConfig = foldl' lib.attrsets.recursiveUpdate clientsAndServers (map configCommon allVMs);
           in
           finalConfig;
       }
