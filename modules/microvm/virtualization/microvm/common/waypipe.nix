@@ -19,7 +19,7 @@ let
   waypipeBorder = lib.optionalString (
     cfg.waypipeBorder && vm.borderColor != null
   ) "--border \"${vm.borderColor}\"";
-  displayOpt =
+  displayOptServer =
     let
       cfgShm = configHost.ghaf.shm.service;
 
@@ -29,12 +29,23 @@ let
         else
           "--vsock -s ${toString waypipePort}";
     in
-    builtins.trace "displayOpt: ${t} vm=${vm.name}" t;
+    builtins.trace "displayOptServer: ${t} vm=${vm.name}" t;
+  displayOptClient =
+    let
+      cfgShm = configHost.ghaf.shm.service;
+
+      t =
+        if cfgShm.gui.enabled then
+          "-s " + cfgShm.gui.clientSocketPath
+        else
+          "--vsock -s ${toString waypipePort}";
+    in
+    builtins.trace "displayOptClient: ${t} vm=${vm.name}" t;
   runWaypipe =
     let
       script = ''
         #!${pkgs.runtimeShell} -e
-        ${pkgs.waypipe}/bin/waypipe ${displayOpt} server "$@"
+        ${pkgs.waypipe}/bin/waypipe ${displayOptClient} server "$@"
       '';
     in
     pkgs.writeScriptBin "run-waypipe" script;
@@ -78,7 +89,7 @@ in
           Type = "simple";
           Restart = "always";
           RestartSec = "1";
-          ExecStart = "${pkgs.waypipe}/bin/waypipe --secctx \"${vm.name}\" ${waypipeBorder} ${displayOpt} client";
+          ExecStart = "${pkgs.waypipe}/bin/waypipe --secctx \"${vm.name}\" ${waypipeBorder} ${displayOptServer} client";
         };
         startLimitIntervalSec = 0;
         partOf = [ "ghaf-session.target" ];

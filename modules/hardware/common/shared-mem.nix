@@ -105,7 +105,8 @@ in
           stdConfig = service: {
             server = "${service}-vm";
             clientSocketPath = "/run/user/${builtins.toString config.ghaf.users.accounts.uid}/memsocket-${service}-client.sock";
-            serverSocketPath = (service: suffix: "/run/user/${builtins.toString config.ghaf.users.accounts.uid}/memsocket-${service}${suffix}.sock");
+            serverSocketPath = service: suffix:
+              "/run/user/${builtins.toString config.ghaf.users.accounts.uid}/memsocket-${service}${suffix}.sock";
           };
         in
         {
@@ -322,7 +323,9 @@ in
                           description = "memsocket";
                           serviceConfig = {
                             Type = "simple"; # jarekk
-                            ExecStart = "${memsocket}/bin/memsocket -s ${cfg.service.${service}.serverSocketPath service clientSuffix} -l ${clientId}";
+                            ExecStart = "${memsocket}/bin/memsocket -s ${
+                              cfg.service.${service}.serverSocketPath service clientSuffix
+                            } -l ${clientId}";
                             Restart = "always";
                             RestartSec = "1";
                           };
@@ -353,7 +356,10 @@ in
 
                         ))
                       else
-                        (configServer "" /*clientSuffix*/ clientsArg.${service} service);
+                        (configServer "" # clientSuffix
+                          clientsArg.${service}
+                          service
+                        );
                   in
                   result
                 ) (builtins.attrNames enabledServices)
