@@ -104,7 +104,8 @@ in
         let
           stdConfig = service: {
             server = "${service}-vm";
-            clientSocketPath = "/run/user/%U/memsocket-${service}-client.sock";
+            cmdClientSocketPath = "/run/user/$UID/memsocket-${service}-client.sock";
+            clientSocketPath = "/run/user/%U/memsocket-${service}-client.sock"; # redundant definition, as systemd does not support $UID
             serverSocketPath = service: suffix: "/run/user/%U/memsocket-${service}${suffix}.sock";
           };
         in
@@ -305,6 +306,7 @@ in
                             } ${builtins.toString (clientID data.client data.service)}";
                             Restart = "always";
                             RestartSec = "1";
+                            Conflicts = [ "memsocket-${data.service}*" ];
                           };
                         } cfg.service.${data.service}.clientConfig.systemdParams;
                       };
