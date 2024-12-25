@@ -104,10 +104,8 @@ in
         let
           stdConfig = service: {
             server = "${service}-vm";
-            clientSocketPath = "/run/user/${builtins.toString config.ghaf.users.accounts.uid}/memsocket-${service}-client.sock";
-            serverSocketPath =
-              service: suffix:
-              "/run/user/${builtins.toString config.ghaf.users.accounts.uid}/memsocket-${service}${suffix}.sock";
+            clientSocketPath = "/run/user/%U/memsocket-${service}-client.sock";
+            serverSocketPath = service: suffix: "/run/user/%U/memsocket-${service}${suffix}.sock";
           };
         in
         {
@@ -335,30 +333,30 @@ in
             };
             clientsConfig = foldl' lib.attrsets.recursiveUpdate { } (map configClient clientServicePairs);
             clientsAndServers = lib.foldl' lib.attrsets.recursiveUpdate clientsConfig (
-                map (
-                  service:
-                  let
-                    multiProcess =
-                      if lib.attrsets.hasAttr "multiProcess" cfg.service.${service}.serverConfig then
-                        cfg.service.${service}.serverConfig.multiProcess
-                      else
-                        false;
-                    result =
-                      if multiProcess then
-                        (lib.foldl' lib.attrsets.recursiveUpdate { } (
-                          map (client: configServer "-${client}" (clientID client service) service) (
-                            clientsPerService service
-                          )
-                        ))
-                      else
-                        (configServer "" # clientSuffix
-                          clientsArg.${service}
-                          service
-                        );
-                  in
-                  result
-                ) (builtins.attrNames enabledServices)
-              );
+              map (
+                service:
+                let
+                  multiProcess =
+                    if lib.attrsets.hasAttr "multiProcess" cfg.service.${service}.serverConfig then
+                      cfg.service.${service}.serverConfig.multiProcess
+                    else
+                      false;
+                  result =
+                    if multiProcess then
+                      (lib.foldl' lib.attrsets.recursiveUpdate { } (
+                        map (client: configServer "-${client}" (clientID client service) service) (
+                          clientsPerService service
+                        )
+                      ))
+                    else
+                      (configServer "" # clientSuffix
+                        clientsArg.${service}
+                        service
+                      );
+                in
+                result
+              ) (builtins.attrNames enabledServices)
+            );
             finalConfig = foldl' lib.attrsets.recursiveUpdate clientsAndServers (map configCommon allVMs);
           in
           finalConfig;
