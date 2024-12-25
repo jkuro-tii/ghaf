@@ -15,32 +15,21 @@
 }:
 let
   cfg = config.ghaf.waypipe;
+  cfgShm = configHost.ghaf.shm.service;
   waypipePort = configHost.ghaf.virtualization.microvm.appvm.waypipeBasePort + vmIndex;
   waypipeBorder = lib.optionalString (
     cfg.waypipeBorder && vm.borderColor != null
   ) "--border \"${vm.borderColor}\"";
   displayOptServer =
-    let
-      cfgShm = configHost.ghaf.shm.service;
-
-      t =
-        if cfgShm.gui.enabled then
-          "-s " + cfgShm.gui.serverSocketPath "gui" "-${vm.name}-vm"
-        else
-          "--vsock -s ${toString waypipePort}";
-    in
-    builtins.trace "displayOptServer: ${t} vm=${vm.name}" t;
+    if cfgShm.gui.enabled then
+      "-s " + cfgShm.gui.serverSocketPath "gui" "-${vm.name}-vm"
+    else
+      "--vsock -s ${toString waypipePort}";
   displayOptClient =
-    let
-      cfgShm = configHost.ghaf.shm.service;
-
-      t =
-        if cfgShm.gui.enabled then
-          "-s " + cfgShm.gui.clientSocketPath
-        else
-          "--vsock -s ${toString waypipePort}";
-    in
-    builtins.trace "displayOptClient: ${t} vm=${vm.name}" t;
+    if cfgShm.gui.enabled && lib.lists.elem "${vm.name}-vm" cfgShm.gui.clients then
+      "-s " + cfgShm.gui.clientSocketPath
+    else
+      "--vsock -s ${toString waypipePort}";
   runWaypipe =
     let
       script = ''

@@ -105,7 +105,8 @@ in
           stdConfig = service: {
             server = "${service}-vm";
             clientSocketPath = "/run/user/${builtins.toString config.ghaf.users.accounts.uid}/memsocket-${service}-client.sock";
-            serverSocketPath = service: suffix:
+            serverSocketPath =
+              service: suffix:
               "/run/user/${builtins.toString config.ghaf.users.accounts.uid}/memsocket-${service}${suffix}.sock";
           };
         in
@@ -145,7 +146,7 @@ in
                 wantedBy = [ "default.target" ];
               };
             };
-            enabled = true;
+            enabled = false;
           } // stdConfig "audio";
         };
       description = mdDoc ''
@@ -218,7 +219,7 @@ in
       {
         systemd.services.ivshmemsrv =
           let
-            pidFilePath = builtins.trace ">>>> ivshmemsrv service: ${builtins.toString (builtins.attrNames cfg.service)}" "/tmp/ivshmem-server.pid"; # jarekk
+            pidFilePath = "/tmp/ivshmem-server.pid";
             ivShMemSrv =
               let
                 vectors = toString (2 * cfg.shmSlots);
@@ -313,30 +314,27 @@ in
               };
             };
             configServer = clientSuffix: clientId: service: {
-              "${cfg.service.${service}.server}" =
-                builtins.trace ">>>configServer client=${clientSuffix} ${clientId} ${service}"
-                  {
-                    config = {
-                      config = {
-                        systemd.user.services."memsocket-${service}${clientSuffix}" = lib.attrsets.recursiveUpdate {
-                          enable = true;
-                          description = "memsocket";
-                          serviceConfig = {
-                            Type = "simple"; # jarekk
-                            ExecStart = "${memsocket}/bin/memsocket -s ${
-                              cfg.service.${service}.serverSocketPath service clientSuffix
-                            } -l ${clientId}";
-                            Restart = "always";
-                            RestartSec = "1";
-                          };
-                        } cfg.service.${service}.serverConfig.systemdParams; # jarekk
+              "${cfg.service.${service}.server}" = {
+                config = {
+                  config = {
+                    systemd.user.services."memsocket-${service}${clientSuffix}" = lib.attrsets.recursiveUpdate {
+                      enable = true;
+                      description = "memsocket";
+                      serviceConfig = {
+                        Type = "simple";
+                        ExecStart = "${memsocket}/bin/memsocket -s ${
+                          cfg.service.${service}.serverSocketPath service clientSuffix
+                        } -l ${clientId}";
+                        Restart = "always";
+                        RestartSec = "1";
                       };
-                    };
+                    } cfg.service.${service}.serverConfig.systemdParams;
                   };
+                };
+              };
             };
             clientsConfig = foldl' lib.attrsets.recursiveUpdate { } (map configClient clientServicePairs);
-            clientsAndServers = builtins.trace ">>>clientsAndServers" (
-              lib.foldl' lib.attrsets.recursiveUpdate clientsConfig (
+            clientsAndServers = lib.foldl' lib.attrsets.recursiveUpdate clientsConfig (
                 map (
                   service:
                   let
@@ -360,8 +358,7 @@ in
                   in
                   result
                 ) (builtins.attrNames enabledServices)
-              )
-            );
+              );
             finalConfig = foldl' lib.attrsets.recursiveUpdate clientsAndServers (map configCommon allVMs);
           in
           finalConfig;
