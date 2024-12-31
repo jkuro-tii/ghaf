@@ -27,7 +27,7 @@ let
       "--vsock -s ${toString waypipePort}";
   displayOptClient =
     if cfgShm.gui.enabled && (lib.lists.elem "${vm.name}-vm" cfgShm.gui.clients) then
-      "-s " + cfgShm.gui.cmdClientSocketPath
+      "-s " + cfgShm.gui.clientSocketPath
     else
       "--vsock -s ${toString waypipePort}";
   runWaypipe =

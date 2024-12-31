@@ -104,17 +104,15 @@ in
         let
           stdConfig = service: {
             server = "${service}-vm";
-            cmdClientSocketPath = "/run/user/$UID/memsocket-${service}-client.sock";
-            clientSocketPath = "/run/user/%U/memsocket-${service}-client.sock"; # redundant definition, as systemd does not support $UID
-            serverSocketPath = service: suffix: "/run/user/%U/memsocket-${service}${suffix}.sock";
+            clientSocketPath = "/run/memsocket/${service}-client.sock";
+            serverSocketPath = service: suffix: "/run/memsocket/${service}${suffix}.sock";
           };
         in
         {
           gui = {
             serverConfig = {
               systemdParams = {
-                after = [ "labwc.service" ];
-                wantedBy = [ "ghaf-session.target" ];
+                wantedBy = [ "default.target" ];
               };
               multiProcess = true;
             };
@@ -296,7 +294,7 @@ in
                       }
                     else
                       {
-                        systemd.user.services."memsocket-${data.service}" = lib.attrsets.recursiveUpdate {
+                        systemd.services."memsocket-${data.service}" = lib.attrsets.recursiveUpdate {
                           enable = true;
                           description = "memsocket";
                           serviceConfig = {
@@ -306,7 +304,11 @@ in
                             } ${builtins.toString (clientID data.client data.service)}";
                             Restart = "always";
                             RestartSec = "1";
-                            Conflicts = [ "memsocket-${data.service}*" ];
+                            # Conflicts = [ "memsocket-${data.service}*" ]; # jarekk unknown key
+                            RuntimeDirectory = "memsocket";
+                            RuntimeDirectoryMode = "0750";
+                            User = "ghaf";
+                            Group = "ghaf";
                           };
                         } cfg.service.${data.service}.clientConfig.systemdParams;
                       };
@@ -317,7 +319,7 @@ in
               "${cfg.service.${service}.server}" = {
                 config = {
                   config = {
-                    systemd.user.services."memsocket-${service}${clientSuffix}" = lib.attrsets.recursiveUpdate {
+                    systemd.services."memsocket-${service}${clientSuffix}" = lib.attrsets.recursiveUpdate {
                       enable = true;
                       description = "memsocket";
                       serviceConfig = {
@@ -327,6 +329,10 @@ in
                         } -l ${clientId}";
                         Restart = "always";
                         RestartSec = "1";
+                        RuntimeDirectory = "memsocket";
+                        RuntimeDirectoryMode = "0750";
+                        User = "ghaf";
+                        Group = "ghaf";
                       };
                     } cfg.service.${service}.serverConfig.systemdParams;
                   };
