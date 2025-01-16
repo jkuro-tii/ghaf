@@ -30,7 +30,8 @@ let
   allVMs = lib.unique (
     lib.flatten (
       lib.mapAttrsToList (
-        _serviceName: serviceAttrs: serviceAttrs.clients ++ [ serviceAttrs.server ]
+        _serviceName: serviceAttrs: if serviceAttrs.runsOnVm then serviceAttrs.clients ++ [ serviceAttrs.server ]
+        else [ ]
       ) enabledServices
     )
   );
@@ -107,6 +108,7 @@ in
             clientSocketPath = "/run/memsocket/${service}-client.sock";
             serverSocketPath = service: suffix: "/run/memsocket/${service}${suffix}.sock";
             userService = false;
+            runsOnVm = true;
           };
         in
         {
@@ -139,8 +141,8 @@ in
             };
           };
           audio = stdConfig "audio" // {
-            enabled = config.ghaf.services.audio.pulseaudioUseShmem;
-            serverSocketPath = _service: _suffix: config.ghaf.services.audio.pulseaudioUnixSocketPath;
+            enabled = true;# config.ghaf.services.audio.pulseaudioUseShmem; # jarekk: fixme
+            #serverSocketPath = _service: _suffix: config.ghaf.services.audio.pulseaudioUnixSocketPath;
             serverConfig = {
               userService = false;
               systemdParams = {
@@ -165,6 +167,34 @@ in
                 serviceConfig = {
                   User = "appuser";
                   Group = "users";
+                };
+              };
+            };
+          };
+          hostAdmin = stdConfig "hostAdmin" // {
+            enabled = true;
+            runsOnVm = false;
+            serverConfig = {
+              userService = false;
+              systemdParams = {
+                wantedBy = [ "default.target" ];
+                after = [ "pipewire.service" ];
+                # serviceConfig = { # jarekk: fixme
+                #   User = "pipewire";
+                #   Group = "pipewire";
+                # };
+              };
+            };
+            clients = [
+              "host"
+            ];
+            clientConfig = {
+              userService = false;
+              systemdParams = {
+                wantedBy = [ "default.target" ];
+                serviceConfig = {
+                  # User = "appuser"; # jarekk: fixme
+                  # Group = "users";
                 };
               };
             };
@@ -217,6 +247,92 @@ in
     let
       user = "microvm";
       group = "kvm";
+      memsocket = pkgs.callPackage ../../../packages/memsocket { inherit (cfg) shmSlots; };
+      vectors = toString (2 * cfg.shmSlots);
+      defaultClientConfig = data: lib.attrsets.recursiveUpdate {
+        enable = true;
+        description = "memsocket";
+        serviceConfig = {
+          Type = "simple";
+          ExecStart = "${memsocket}/bin/memsocket -c ${
+            cfg.service.${data.service}.clientSocketPath
+          } ${builtins.toString (clientID data.client data.service)}";
+          Restart = "always";
+          RestartSec = "1";
+          RuntimeDirectory = "memsocket";
+          RuntimeDirectoryMode = "0750";
+        };
+      } cfg.service.${data.service}.clientConfig.systemdParams;
+      clientConfigTemplate =
+        data:
+          {
+            "${data.client}" =
+              {
+                config = {
+                  config =
+                    if cfg.service.${data.service}.clientConfig.userService then
+                      {
+                        systemd.user.services."memsocket-${data.service}" = defaultClientConfig data;
+                      }
+                    else
+                      {
+                        systemd.services."memsocket-${data.service}" = defaultClientConfig data;
+                      };
+                };
+              };
+          };
+      defaultServerConfig = clientSuffix: clientId: service: lib.attrsets.recursiveUpdate {
+        enable = true;
+        description = "memsocket";
+        serviceConfig = {
+          Type = "simple";
+          ExecStart = "${memsocket}/bin/memsocket -s ${
+            cfg.service.${service}.serverSocketPath service clientSuffix
+          } -l ${clientId}";
+          Restart = "always";
+          RestartSec = "1";
+          RuntimeDirectory = "memsocket";
+          RuntimeDirectoryMode = "0750";
+        };
+      } cfg.service.${service}.serverConfig.systemdParams;
+      serverConfigTemplate = clientSuffix: clientId: service: {
+        "${cfg.service.${service}.server}" =
+          {
+            config = {
+              config =
+                if cfg.service.${service}.serverConfig.userService then
+                  {
+                    systemd.user.services."memsocket-${service}${clientSuffix}" = defaultServerConfig clientSuffix clientId service;
+                  }
+                else
+                  {
+                    systemd.services."memsocket-${service}${clientSuffix}" = defaultServerConfig clientSuffix clientId service;
+                  };
+            };
+          };
+      };
+      serverConfig = service:
+        let
+          multiProcess =
+            if lib.attrsets.hasAttr "multiProcess" cfg.service.${service}.serverConfig then
+              cfg.service.${service}.serverConfig.multiProcess
+            else
+              false;
+          result =
+            if multiProcess then
+              (lib.foldl' lib.attrsets.recursiveUpdate { } (
+                map (client: serverConfigTemplate "-${client}" (clientID client service) service) (
+                  clientsPerService service
+                )
+              ))
+            else
+              (serverConfigTemplate "" # clientSuffix
+                clientsArg.${service}
+                service
+              );
+        in
+        result;
+
     in
     mkIf cfg.enable (mkMerge [
       {
@@ -274,8 +390,6 @@ in
       {
         microvm.vms =
           let
-            memsocket = pkgs.callPackage ../../../packages/memsocket { inherit (cfg) shmSlots; };
-            vectors = toString (2 * cfg.shmSlots);
             configCommon = vmName: {
               ${vmName} = {
                 config = {
@@ -311,99 +425,13 @@ in
                 };
               };
             };
-            configClient = data: {
-              "${data.client}" =
-                let
-                  baseConfig = lib.attrsets.recursiveUpdate {
-                    enable = true;
-                    description = "memsocket";
-                    serviceConfig = {
-                      Type = "simple";
-                      ExecStart = "${memsocket}/bin/memsocket -c ${
-                        cfg.service.${data.service}.clientSocketPath
-                      } ${builtins.toString (clientID data.client data.service)}";
-                      Restart = "always";
-                      RestartSec = "1";
-                      RuntimeDirectory = "memsocket";
-                      RuntimeDirectoryMode = "0750";
-                    };
-                  } cfg.service.${data.service}.clientConfig.systemdParams;
-                in
-                {
-                  config = {
-                    config =
-                      if cfg.service.${data.service}.clientConfig.userService then
-                        {
-                          systemd.user.services."memsocket-${data.service}" = baseConfig;
-                        }
-                      else
-                        {
-                          systemd.services."memsocket-${data.service}" = baseConfig;
-                        };
-                  };
-                };
-            };
-            configServer = clientSuffix: clientId: service: {
-              "${cfg.service.${service}.server}" =
-                let
-                  baseConfig = lib.attrsets.recursiveUpdate {
-                    enable = true;
-                    description = "memsocket";
-                    serviceConfig = {
-                      Type = "simple";
-                      ExecStart = "${memsocket}/bin/memsocket -s ${
-                        cfg.service.${service}.serverSocketPath service clientSuffix
-                      } -l ${clientId}";
-                      Restart = "always";
-                      RestartSec = "1";
-                      RuntimeDirectory = "memsocket";
-                      RuntimeDirectoryMode = "0750";
-                    };
-                  } cfg.service.${service}.serverConfig.systemdParams;
-                in
-                {
-                  config = {
-                    config =
-                      if cfg.service.${service}.serverConfig.userService then
-                        {
-                          systemd.user.services."memsocket-${service}${clientSuffix}" = baseConfig;
-                        }
-                      else
-                        {
-                          systemd.services."memsocket-${service}${clientSuffix}" = baseConfig;
-                        };
-                  };
-                };
-            };
-            clientsConfig = foldl' lib.attrsets.recursiveUpdate { } (map configClient clientServicePairs);
+            clientsConfig = foldl' lib.attrsets.recursiveUpdate { } (map clientConfigTemplate clientServicePairs);
             clientsAndServers = lib.foldl' lib.attrsets.recursiveUpdate clientsConfig (
-              map (
-                service:
-                let
-                  multiProcess =
-                    if lib.attrsets.hasAttr "multiProcess" cfg.service.${service}.serverConfig then
-                      cfg.service.${service}.serverConfig.multiProcess
-                    else
-                      false;
-                  result =
-                    if multiProcess then
-                      (lib.foldl' lib.attrsets.recursiveUpdate { } (
-                        map (client: configServer "-${client}" (clientID client service) service) (
-                          clientsPerService service
-                        )
-                      ))
-                    else
-                      (configServer "" # clientSuffix
-                        clientsArg.${service}
-                        service
-                      );
-                in
-                result
-              ) (builtins.attrNames enabledServices)
+              map serverConfig (builtins.attrNames enabledServices)
             );
-            finalConfig = foldl' lib.attrsets.recursiveUpdate clientsAndServers (map configCommon allVMs);
+            finalMicroVmsConfig = foldl' lib.attrsets.recursiveUpdate clientsAndServers (map configCommon allVMs);
           in
-          finalConfig;
+          finalMicroVmsConfig;
       }
     ]);
 }
