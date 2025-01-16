@@ -19,6 +19,7 @@ let
     types
     ;
   enabledServices = lib.filterAttrs (_name: serverAttrs: serverAttrs.enabled) cfg.service;
+  enabledVmServices = isVM: lib.filterAttrs (_name: serverAttrs: serverAttrs.serverConfig == isVM) cfg.service;
   clientsPerService =
     service:
     lib.flatten (
@@ -29,7 +30,7 @@ let
   allVMs = lib.unique (
     lib.flatten (
       lib.mapAttrsToList (
-        _serviceName: serviceAttrs: if serviceAttrs.runsOnVm then serviceAttrs.clients ++ [ serviceAttrs.server ]
+        _serviceName: serviceAttrs: if serviceAttrs.serverConfig.runsOnVm then serviceAttrs.clients ++ [ serviceAttrs.server ]
         else [ ]
       ) enabledServices
     )
@@ -107,11 +108,14 @@ in
             clientSocketPath = "/run/memsocket-${service}/${service}-client.sock";
             serverSocketPath = service: suffix: "/run/memsocket-${service}/${service}${suffix}.sock";
             userService = false;
-            runsOnVm = true;
+            serverConfig = {
+              runsOnVm = true;
+            };
+            # serverConfig = true;
           };
         in
         {
-          gui = stdConfig "gui" // {
+          gui = lib.attrsets.recursiveUpdate (stdConfig "gui") {
             enabled = true;
             serverSocketPath = service: suffix: "/tmp/${service}${suffix}.sock";
             serverConfig = {
@@ -139,7 +143,7 @@ in
               };
             };
           };
-          audio = stdConfig "audio" // {
+          audio = lib.attrsets.recursiveUpdate (stdConfig "audio") {
             enabled = true;# config.ghaf.services.audio.pulseaudioUseShmem; # jarekk: fixme
             #serverSocketPath = _service: _suffix: config.ghaf.services.audio.pulseaudioUnixSocketPath;
             serverConfig = {
@@ -170,10 +174,10 @@ in
               };
             };
           };
-          hostAdmin = stdConfig "hostAdmin" // {
+          admin = lib.attrsets.recursiveUpdate (stdConfig "admin") {
             enabled = true;
-            runsOnVm = false;
             serverConfig = {
+              runsOnVm = true;
               userService = false;
               systemdParams = {
                 wantedBy = [ "default.target" ];
@@ -189,6 +193,7 @@ in
             ];
             clientConfig = {
               userService = false;
+              runsOnVm = false;
               systemdParams = {
                 wantedBy = [ "default.target" ];
                 serviceConfig = {
@@ -426,7 +431,7 @@ in
             };
             clientsConfig = foldl' lib.attrsets.recursiveUpdate { } (map clientConfigTemplate clientServicePairs);
             clientsAndServers = lib.foldl' lib.attrsets.recursiveUpdate clientsConfig (
-              map serverConfig (builtins.attrNames enabledServices)
+              map serverConfig (builtins.attrNames (enabledVmServices true))
             );
             finalMicroVmsConfig = foldl' lib.attrsets.recursiveUpdate clientsAndServers (map configCommon allVMs);
           in
