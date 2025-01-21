@@ -79,7 +79,7 @@ in
       type = types.int;
       default = 16;
       description = mdDoc ''
-        Specifies the size of the shared memory region, measured in 
+        Specifies the size of the shared memory region, measured in
         megabytes (MB)
       '';
     };
@@ -87,7 +87,7 @@ in
       type = types.str;
       default = "2M";
       description = mdDoc ''
-        Specifies the size of the large memory page area. Supported kernel 
+        Specifies the size of the large memory page area. Supported kernel
         values are 2 MB and 1 GB
       '';
       apply =
@@ -104,15 +104,19 @@ in
         let
           stdConfig = service: {
             server = "${service}-vm";
-            clientSocketPath = "/run/memsocket/${service}-client.sock";
-            serverSocketPath = service: suffix: "/run/memsocket/${service}${suffix}.sock";
+            clientSocketPath = "/run/memsocket-${service}/${service}-client.sock";
+            serverSocketPath = service: suffix: "/run/memsocket-${service}/${service}${suffix}.sock";
+            userService = false;
           };
         in
         {
-          gui = {
+          gui = stdConfig "gui" // {
+            enabled = true;
+            serverSocketPath = service: suffix: "/tmp/${service}${suffix}.sock";
             serverConfig = {
+              userService = true;
               systemdParams = {
-                wantedBy = [ "default.target" ];
+                wantedBy = [ "ghaf-session.target" ];
               };
               multiProcess = true;
             };
@@ -124,30 +128,52 @@ in
               "zathura-vm"
             ];
             clientConfig = {
+              userService = false;
               systemdParams = {
                 wantedBy = [ "default.target" ];
+                serviceConfig = {
+                  User = "appuser";
+                  Group = "users";
+                };
               };
             };
-            enabled = true;
-          } // stdConfig "gui";
-          audio = {
+          };
+          audio = stdConfig "audio" // {
+            enabled = config.ghaf.services.audio.pulseaudioUseShmem;
+            serverSocketPath = _service: _suffix: config.ghaf.services.audio.pulseaudioUnixSocketPath;
             serverConfig = {
-              systemdParams = { };
+              userService = false;
+              systemdParams = {
+                wantedBy = [ "default.target" ];
+                after = [ "pipewire.service" ];
+                serviceConfig = {
+                  User = "pipewire";
+                  Group = "pipewire";
+                };
+              };
             };
             clients = [
               "chrome-vm"
               "business-vm"
+              "comms-vm"
+              "gala-vm"
             ];
             clientConfig = {
+              userService = false;
               systemdParams = {
                 wantedBy = [ "default.target" ];
+                serviceConfig = {
+                  User = "appuser";
+                  Group = "users";
+                };
               };
             };
-            enabled = false;
-          } // stdConfig "audio";
+          };
         };
       description = mdDoc ''
-        Specifies the configuration of shared memory services
+        Specifies the configuration of shared memory services:
+        server and client VMs. The server VMs are named after the 
+        service name.
       '';
     };
 
@@ -155,7 +181,7 @@ in
       type = types.path;
       default = "/tmp/ivshmem_socket"; # The value is hardcoded in the application
       description = mdDoc ''
-        Specifies the path to the shared memory socket, used by QEMU 
+        Specifies the path to the shared memory socket, used by QEMU
         instances for inter-VM memory sharing and interrupt signaling
       '';
     };
@@ -164,7 +190,7 @@ in
       default = "0x920000000";
       description = mdDoc ''
         Maps the shared memory to a physical address if set to a non-zero value.
-        The address must be platform-specific and arbitrarily chosen to avoid 
+        The address must be platform-specific and arbitrarily chosen to avoid
         conflicts with other memory areas, such as PCI regions.
       '';
     };
@@ -286,58 +312,68 @@ in
               };
             };
             configClient = data: {
-              ${data.client} = {
-                config = {
-                  config =
-                    if !cfg.service.${data.service}.enabled then
-                      {
-                      }
-                    else
-                      {
-                        systemd.services."memsocket-${data.service}" = lib.attrsets.recursiveUpdate {
-                          enable = true;
-                          description = "memsocket";
-                          serviceConfig = {
-                            Type = "simple";
-                            ExecStart = "${memsocket}/bin/memsocket -c ${
-                              cfg.service.${data.service}.clientSocketPath
-                            } ${builtins.toString (clientID data.client data.service)}";
-                            Restart = "always";
-                            RestartSec = "1";
-                            # Conflicts = [ "memsocket-${data.service}*" ]; # jarekk unknown key
-                            RuntimeDirectory = "memsocket";
-                            RuntimeDirectoryMode = "0750";
-                            User = "ghaf";
-                            Group = "ghaf";
-                          };
-                        } cfg.service.${data.service}.clientConfig.systemdParams;
-                      };
-                };
-              };
-            };
-            configServer = clientSuffix: clientId: service: {
-              "${cfg.service.${service}.server}" = {
-                config = {
+              "${data.client}" =
+                let
+                  baseConfig = lib.attrsets.recursiveUpdate {
+                    enable = true;
+                    description = "memsocket";
+                    serviceConfig = {
+                      Type = "simple";
+                      ExecStart = "${memsocket}/bin/memsocket -c ${
+                        cfg.service.${data.service}.clientSocketPath
+                      } ${builtins.toString (clientID data.client data.service)}";
+                      Restart = "always";
+                      RestartSec = "1";
+                      RuntimeDirectory = "memsocket-${data.service}";
+                      RuntimeDirectoryMode = "0750";
+                    };
+                  } cfg.service.${data.service}.clientConfig.systemdParams;
+                in
+                {
                   config = {
-                    systemd.services."memsocket-${service}${clientSuffix}" = lib.attrsets.recursiveUpdate {
-                      enable = true;
-                      description = "memsocket";
-                      serviceConfig = {
-                        Type = "simple";
-                        ExecStart = "${memsocket}/bin/memsocket -s ${
-                          cfg.service.${service}.serverSocketPath service clientSuffix
-                        } -l ${clientId}";
-                        Restart = "always";
-                        RestartSec = "1";
-                        RuntimeDirectory = "memsocket";
-                        RuntimeDirectoryMode = "0750";
-                        User = "ghaf";
-                        Group = "ghaf";
-                      };
-                    } cfg.service.${service}.serverConfig.systemdParams;
+                    config =
+                      if cfg.service.${data.service}.clientConfig.userService then
+                        {
+                          systemd.user.services."memsocket-${data.service}" = baseConfig;
+                        }
+                      else
+                        {
+                          systemd.services."memsocket-${data.service}" = baseConfig;
+                        };
                   };
                 };
-              };
+            };
+            configServer = clientSuffix: clientId: service: {
+              "${cfg.service.${service}.server}" =
+                let
+                  baseConfig = lib.attrsets.recursiveUpdate {
+                    enable = true;
+                    description = "memsocket";
+                    serviceConfig = {
+                      Type = "simple";
+                      ExecStart = "${memsocket}/bin/memsocket -s ${
+                        cfg.service.${service}.serverSocketPath service clientSuffix
+                      } -l ${clientId}";
+                      Restart = "always";
+                      RestartSec = "1";
+                      RuntimeDirectory = "memsocket-${service}";
+                      RuntimeDirectoryMode = "0750";
+                    };
+                  } cfg.service.${service}.serverConfig.systemdParams;
+                in
+                {
+                  config = {
+                    config =
+                      if cfg.service.${service}.serverConfig.userService then
+                        {
+                          systemd.user.services."memsocket-${service}${clientSuffix}" = baseConfig;
+                        }
+                      else
+                        {
+                          systemd.services."memsocket-${service}${clientSuffix}" = baseConfig;
+                        };
+                  };
+                };
             };
             clientsConfig = foldl' lib.attrsets.recursiveUpdate { } (map configClient clientServicePairs);
             clientsAndServers = lib.foldl' lib.attrsets.recursiveUpdate clientsConfig (

@@ -79,6 +79,9 @@ in
           Restart = "always";
           RestartSec = "1";
           ExecStart = "${pkgs.waypipe}/bin/waypipe --secctx \"${vm.name}\" ${waypipeBorder} ${displayOptServer} client";
+          # Waypipe does not handle the SIGTERM signal properly, which is the default signal sent 
+          # by systemd when stopping a service
+          KillSignal = "SIGINT";
         };
         startLimitIntervalSec = 0;
         partOf = [ "ghaf-session.target" ];

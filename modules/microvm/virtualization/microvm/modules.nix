@@ -65,11 +65,6 @@ let
     # Fprint module
     fprint = optionalAttrs cfg.guivm.fprint { config.ghaf.services.fprint.enable = true; };
 
-    # Desktop module
-    desktop = {
-      config.ghaf.services.desktop.enable = true;
-    };
-
     # XDG opener
     xdgOpener = {
       config.ghaf.services.xdgopener.enable = true;
@@ -82,6 +77,12 @@ let
     commonNamespace = {
       config.ghaf.namespaces = config.ghaf.namespaces;
     };
+  };
+
+  # User account settings
+  managedUserAccounts = {
+    config.ghaf.users.admin = config.ghaf.users.admin;
+    config.ghaf.users.managed = config.ghaf.users.managed;
   };
 
   # Reference services module
@@ -144,6 +145,7 @@ in
         serviceModules.wifi
         serviceModules.givc
         referenceServiceModule
+        managedUserAccounts
       ];
       # Audiovm modules
       audiovm.extraModules = optionals cfg.audiovm.enable [
@@ -154,6 +156,7 @@ in
         serviceModules.audio
         serviceModules.givc
         serviceModules.bluetooth
+        managedUserAccounts
       ];
       # Guivm modules
       guivm.extraModules = optionals cfg.guivm.enable [
@@ -162,16 +165,22 @@ in
         kernelConfigs.guivm
         firmwareModule
         qemuModules.guivm
-        serviceModules.desktop
         serviceModules.fprint
         serviceModules.yubikey
         serviceModules.xdgOpener
         serviceModules.commonNamespace
         serviceModules.givc
         referenceProgramsModule
+        managedUserAccounts
       ];
-      adminvm.extraModules = optionals cfg.adminvm.enable [ serviceModules.givc ];
-      appvm.extraModules = optionals cfg.appvm.enable [ serviceModules.givc ];
+      adminvm.extraModules = optionals cfg.adminvm.enable [
+        serviceModules.givc
+        managedUserAccounts
+      ];
+      appvm.extraModules = optionals cfg.appvm.enable [
+        serviceModules.givc
+        managedUserAccounts
+      ];
     };
   };
 }

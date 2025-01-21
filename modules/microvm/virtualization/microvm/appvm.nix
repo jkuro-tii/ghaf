@@ -13,27 +13,44 @@ let
   configHost = config;
   cfg = config.ghaf.virtualization.microvm.appvm;
 
-  sshKeysHelper = pkgs.callPackage ../../../../packages/ssh-keys-helper {
-    inherit pkgs;
-    config = configHost;
-  };
-
   makeVm =
     { vm, vmIndex }:
     let
       vmName = "${vm.name}-vm";
       cid = if vm.cid > 0 then vm.cid else cfg.vsockBaseCID + vmIndex;
+      # A list of applications for the GIVC service
+      givcApplications = map (app: {
+        name = app.givcName;
+        command = "${config.ghaf.givc.appPrefix}/run-waypipe ${config.ghaf.givc.appPrefix}/${app.command}";
+        args = app.givcArgs;
+      }) vm.applications;
+      # Packages and extra modules from all applications defined in the appvm
+      appPackages = builtins.concatLists (map (app: app.packages) vm.applications);
+      appExtraModules = builtins.concatLists (map (app: app.extraModules) vm.applications);
+      sshKeysHelper = pkgs.callPackage ../../../../packages/ssh-keys-helper {
+        inherit pkgs;
+        config = configHost;
+      };
       appvmConfiguration = {
         imports = [
           inputs.impermanence.nixosModules.impermanence
           inputs.self.nixosModules.givc-appvm
+          {
+            ghaf.givc.appvm = {
+              enable = true;
+              name = lib.mkForce vmName;
+              applications = givcApplications;
+            };
+          }
           (import ./common/vm-networking.nix {
             inherit config lib vmName;
             inherit (vm) macAddress;
             internalIP = vmIndex + 100;
           })
 
-          ./common/ghaf-audio.nix
+          (import (./common/ghaf-audio.nix) {
+            inherit configHost;
+          })
           ./common/storagevm.nix
           (
             with configHost.ghaf.virtualization.microvm-host;
@@ -62,14 +79,24 @@ let
             }:
             {
               ghaf = {
-                users.accounts.enable = lib.mkDefault configHost.ghaf.users.accounts.enable;
-                profiles.debug.enable = lib.mkDefault configHost.ghaf.profiles.debug.enable;
+                # Profiles
+                users.appUser = {
+                  enable = true;
+                  extraGroups = [
+                    "audio"
+                    "video"
+                    "users"
+                  ];
+                };
 
+                profiles.debug.enable = lib.mkDefault configHost.ghaf.profiles.debug.enable;
                 development = {
                   ssh.daemon.enable = lib.mkDefault configHost.ghaf.development.ssh.daemon.enable;
                   debug.tools.enable = lib.mkDefault configHost.ghaf.development.debug.tools.enable;
                   nix-setup.enable = lib.mkDefault configHost.ghaf.development.nix-setup.enable;
                 };
+
+                # Systemd
                 systemd = {
                   enable = true;
                   withName = "appvm-systemd";
@@ -91,8 +118,8 @@ let
 
                 storagevm = {
                   enable = true;
-                  name = "${vm.name}";
-                  users.${config.ghaf.users.accounts.user}.directories = [
+                  name = vmName;
+                  users.${config.ghaf.users.appUser.name}.directories = [
                     ".config/"
                     "Downloads"
                     "Music"
@@ -115,7 +142,9 @@ let
               # setting mode), instead of symlinking it.
               environment.etc.${configHost.ghaf.security.sshKeys.getAuthKeysFilePathInEtc} =
                 sshKeysHelper.getAuthKeysSource;
-              services.openssh = configHost.ghaf.security.sshKeys.sshAuthorizedKeysCommand;
+              services.openssh = configHost.ghaf.security.sshKeys.sshAuthorizedKeysCommand // {
+                authorizedKeysCommandUser = config.ghaf.users.appUser.name;
+              };
 
               system.stateVersion = lib.trivial.release;
 
@@ -126,7 +155,7 @@ let
                 pkgs.tpm2-tools
                 pkgs.opensc
                 pkgs.givc-cli
-              ];
+              ] ++ vm.packages ++ appPackages;
 
               security.tpm2 = {
                 enable = true;
@@ -136,6 +165,8 @@ let
               security.pki.certificateFiles =
                 lib.mkIf configHost.ghaf.virtualization.microvm.idsvm.mitmproxy.enable
                   [ ./idsvm/mitmproxy/mitmproxy-ca/mitmproxy-ca-cert.pem ];
+
+              time.timeZone = configHost.time.timeZone;
 
               microvm = {
                 optimize.enable = false;
@@ -197,19 +228,9 @@ let
     {
       autostart = true;
       config = appvmConfiguration // {
-        imports =
-          appvmConfiguration.imports
-          ++ cfg.extraModules
-          ++ vm.extraModules
-          ++ [ { environment.systemPackages = vm.packages; } ];
+        imports = appvmConfiguration.imports ++ cfg.extraModules ++ vm.extraModules ++ appExtraModules;
       };
     };
-
-  # Host service dependencies
-  after = optional config.ghaf.services.audio.enable "pulseaudio.service";
-  requires = after;
-  # Sleep appvms to give gui-vm time to start
-  serviceConfig.ExecStartPre = "/bin/sh -c 'sleep 8'";
 in
 {
   options.ghaf.virtualization.microvm.appvm = {
@@ -218,7 +239,7 @@ in
       description = ''
         List of AppVMs to be created
       '';
-      type = lib.types.listOf (
+      type = types.listOf (
         types.submodule {
           options = {
             name = mkOption {
@@ -226,6 +247,62 @@ in
                 Name of the AppVM
               '';
               type = types.str;
+            };
+            applications = mkOption {
+              description = ''
+                Applications to include in the AppVM
+              '';
+              type = types.listOf (
+                types.submodule (
+                  { config, lib, ... }:
+                  {
+                    options = rec {
+                      name = mkOption {
+                        type = types.str;
+                        description = "The name of the application";
+                      };
+                      description = mkOption {
+                        type = types.str;
+                        description = "A brief description of the application";
+                      };
+                      packages = mkOption {
+                        type = types.listOf types.package;
+                        description = "A list of packages required for the application";
+                        default = [ ];
+                      };
+                      icon = mkOption {
+                        type = types.str;
+                        description = "Application icon";
+                        default = null;
+                      };
+                      command = mkOption {
+                        type = types.str;
+                        description = "The command to run the application";
+                        default = null;
+                      };
+                      extraModules = mkOption {
+                        description = "Additional modules required for the application";
+                        type = types.listOf types.attrs;
+                        default = [ ];
+                      };
+                      givcName = mkOption {
+                        description = "GIVC name for the application";
+                        type = types.str;
+                      };
+                      givcArgs = mkOption {
+                        description = "A list of GIVC arguments for the application";
+                        type = types.listOf types.str;
+                        default = [ ];
+                      };
+                    };
+                    config = {
+                      # Create a default GIVC name for the application
+                      givcName = lib.mkDefault (lib.strings.toLower (lib.replaceStrings [ " " ] [ "-" ] config.name));
+                    };
+                  }
+                )
+              );
+              default = [ ];
             };
             packages = mkOption {
               description = ''
@@ -356,6 +433,7 @@ in
       ) cfg.vms;
     in
     lib.mkIf cfg.enable {
+      # Define microvms for each AppVM configuration
       microvm.vms =
         let
           vms = lib.imap0 (vmIndex: vm: { "${vm.name}-vm" = makeVm { inherit vmIndex vm; }; }) cfg.vms;
@@ -367,7 +445,11 @@ in
         let
           serviceDependencies = map (vm: {
             "microvm@${vm.name}-vm" = {
-              inherit after requires serviceConfig;
+              # Host service dependencies
+              after = optional config.ghaf.services.audio.enable "pulseaudio.service";
+              requires = optional config.ghaf.services.audio.enable "pulseaudio.service";
+              # Sleep appvms to give gui-vm time to start
+              serviceConfig.ExecStartPre = "/bin/sh -c 'sleep 8'";
             };
             "${vm.name}-swtpm" = makeSwtpmService { inherit vm; };
           }) cfg.vms;

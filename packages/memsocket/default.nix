@@ -5,6 +5,7 @@
   lib,
   debug ? false,
   shmSlots,
+  shmSlots,
   fetchFromGitHub,
   ...
 }:
@@ -18,6 +19,7 @@ stdenv.mkDerivation {
     sha256 = "sha256-GkT3yolYrIf3oZosVgTShasG+98CkVoV/QJ/7bvQ+t0=";
   };
 
+  CFLAGS = "-O2 -DSHM_SLOTS=" + (toString shmSlots) + (if debug then " -DDEBUG_ON" else "");
   CFLAGS = "-O2 -DSHM_SLOTS=" + (toString shmSlots) + (if debug then " -DDEBUG_ON" else "");
   sourceRoot = "source/app";
 
