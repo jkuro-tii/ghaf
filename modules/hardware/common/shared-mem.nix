@@ -22,10 +22,15 @@ let
   enabledServices = lib.filterAttrs (_name: serverAttrs: serverAttrs.enabled) cfg.service;
   enabledVmServices = isVM: lib.filterAttrs (_name: serverAttrs: serverAttrs.serverConfig == isVM) cfg.service;
   clientsPerService =
-    service:
+    {vmScoped ? true}: service:
     lib.flatten (
       lib.mapAttrsToList (
-        name: value: if (name == service || service == "all") then value.clients else [ ]
+        name: value: 
+          if (name == service || service == "all")
+            then 
+            # Filter the clients based on the value of vmScoped
+              lib.filter (client: (vmScoped || client != "host")) value.clients
+            else [ ]
       ) enabledServices
     );
   allVMs = lib.unique (
@@ -106,8 +111,8 @@ in
         let
           stdConfig = service: {
             server = "${service}-vm";
-            clientSocketPath = "/run/memsocket/${service}-client.sock";
-            serverSocketPath = service: suffix: "/run/memsocket/${service}${suffix}.sock";
+            clientSocketPath = "/run/memsocket-${service}/${service}-client.sock";
+            serverSocketPath = service: suffix: "/run/memsocket-${service}/${service}${suffix}.sock";
             userService = false;
             serverConfig = {
               runsOnVm = true;
@@ -316,7 +321,7 @@ in
             };
           };
       };
-      serverConfig = service:
+      serverConfig = {vmScoped ? true}: service:
         let
           multiProcess =
             if lib.attrsets.hasAttr "multiProcess" cfg.service.${service}.serverConfig then
@@ -327,7 +332,7 @@ in
             if multiProcess then
               (lib.foldl' lib.attrsets.recursiveUpdate { } (
                 map (client: serverConfigTemplate "-${client}" (clientID client service) service) (
-                  clientsPerService service
+                  clientsPerService vmScoped service
                 )
               ))
             else
@@ -391,6 +396,20 @@ in
               Group = group;
             };
           };
+      }
+      /* host configuration for services */
+      {
+          systemd.services = let 
+            clientsConfig = foldl' lib.attrsets.recursiveUpdate { } (map clientConfigTemplate clientServicePairs);
+          in {};
+          /*
+            clientsConfig = foldl' lib.attrsets.recursiveUpdate { } (map clientConfigTemplate clientServicePairs);
+            clientsAndServers = lib.foldl' lib.attrsets.recursiveUpdate clientsConfig (
+              map serverConfig (builtins.attrNames (enabledVmServices true))
+            );
+            finalMicroVmsConfig = foldl' lib.attrsets.recursiveUpdate clientsAndServers (map configCommon allVMs);
+          */
+        
       }
       {
         microvm.vms =
