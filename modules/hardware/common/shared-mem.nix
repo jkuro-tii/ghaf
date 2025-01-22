@@ -20,7 +20,7 @@ let
     ;
   enabledServices = lib.filterAttrs (_name: serverAttrs: serverAttrs.enabled) cfg.service;
   enabledVmServices = isVM: lib.filterAttrs (_name: serverAttrs: serverAttrs.serverConfig == isVM) cfg.service;
-  clientsPerService =
+  clientsPerService = # jarekk: maybe not needed?
     {vmScoped ? true}: service:
     lib.flatten (
       lib.mapAttrsToList (
@@ -28,7 +28,7 @@ let
           if (name == service || service == "all")
             then 
             # Filter the clients based on the value of vmScoped
-              lib.filter (client: (vmScoped || client != "host")) value.clients
+              lib.filter (client: (if vmScoped then client != "host" else client == "host")) value.clients
             else [ ]
       ) enabledServices
     );
@@ -272,7 +272,7 @@ in
           RuntimeDirectoryMode = "0750";
         };
       } cfg.service.${data.service}.clientConfig.systemdParams;
-      clientConfigTemplate =
+      vmClientConfigTemplate =
         data:
           {
             "${data.client}" =
@@ -396,19 +396,18 @@ in
             };
           };
       }
-      /* host configuration for services */
+      /* add host systemd client services */
       {
-          systemd.services = let 
-            clientsConfig = foldl' lib.attrsets.recursiveUpdate { } (map clientConfigTemplate clientServicePairs);
-          in {};
-          /*
-            clientsConfig = foldl' lib.attrsets.recursiveUpdate { } (map clientConfigTemplate clientServicePairs);
-            clientsAndServers = lib.foldl' lib.attrsets.recursiveUpdate clientsConfig (
-              map serverConfig (builtins.attrNames (enabledVmServices true))
-            );
-            finalMicroVmsConfig = foldl' lib.attrsets.recursiveUpdate clientsAndServers (map configCommon allVMs);
-          */
-        
+          systemd = let 
+            clientsConfig = foldl' lib.attrsets.recursiveUpdate { } (map (
+              data: 
+              if enabledServices.${data.service}.userService then
+                {user = {services = {"${data.service}" = defaultClientConfig data;};};}
+              else
+                {services = {"${data.service}" = defaultClientConfig data;};}           
+              ) 
+              (lib.filter (data: data.client == "host") clientServicePairs));
+          in clientsConfig;        
       }
       {
         microvm.vms =
@@ -448,11 +447,13 @@ in
                 };
               };
             };
-            clientsConfig = foldl' lib.attrsets.recursiveUpdate { } (map clientConfigTemplate clientServicePairs);
+            clientsConfig = let tmp = foldl' lib.attrsets.recursiveUpdate { } (map vmClientConfigTemplate clientServicePairs);
+            in builtins.trace "" tmp;
             clientsAndServers = lib.foldl' lib.attrsets.recursiveUpdate clientsConfig (
               map serverConfig (builtins.attrNames (enabledVmServices true))
             );
-            finalMicroVmsConfig = foldl' lib.attrsets.recursiveUpdate clientsAndServers (map configCommon allVMs);
+            finalMicroVmsConfig = let tmp = foldl' lib.attrsets.recursiveUpdate clientsAndServers (map configCommon allVMs);
+            in builtins.trace "" tmp;
           in
           finalMicroVmsConfig;
       }
