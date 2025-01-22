@@ -19,24 +19,20 @@ let
     types
     ;
   enabledServices = lib.filterAttrs (_name: serverAttrs: serverAttrs.enabled) cfg.service;
-  enabledVmServices = isVM: lib.filterAttrs (_name: serverAttrs: serverAttrs.serverConfig == isVM) cfg.service;
-  clientsPerService = # jarekk: maybe not needed?
-    {vmScoped ? true}: service:
+  enabledVmServices = # jarekk fix the below?
+    isVM: lib.filterAttrs (_name: serverAttrs: serverAttrs.serverConfig == isVM) cfg.service;
+  clientsPerService =
+    service:
     lib.flatten (
       lib.mapAttrsToList (
-        name: value: 
-          if (name == service || service == "all")
-            then 
-            # Filter the clients based on the value of vmScoped
-              lib.filter (client: (if vmScoped then client != "host" else client == "host")) value.clients
-            else [ ]
+        name: value: if (name == service || service == "all") then value.clients else [ ]
       ) enabledServices
     );
   allVMs = lib.unique (
     lib.flatten (
       lib.mapAttrsToList (
-        _serviceName: serviceAttrs: if serviceAttrs.serverConfig.runsOnVm then serviceAttrs.clients ++ [ serviceAttrs.server ]
-        else [ ]
+        _serviceName: serviceAttrs:
+        if serviceAttrs.serverConfig.runsOnVm then serviceAttrs.clients ++ [ serviceAttrs.server ] else [ ]
       ) enabledServices
     )
   );
@@ -149,7 +145,7 @@ in
             };
           };
           audio = lib.attrsets.recursiveUpdate (stdConfig "audio") {
-            enabled = true;# config.ghaf.services.audio.pulseaudioUseShmem; # jarekk: fixme
+            enabled = true; # config.ghaf.services.audio.pulseaudioUseShmem; # jarekk: fixme
             #serverSocketPath = _service: _suffix: config.ghaf.services.audio.pulseaudioUnixSocketPath;
             serverConfig = {
               userService = false;
@@ -258,69 +254,74 @@ in
       group = "kvm";
       memsocket = pkgs.callPackage ../../../packages/memsocket { inherit (cfg) shmSlots; };
       vectors = toString (2 * cfg.shmSlots);
-      defaultClientConfig = data: lib.attrsets.recursiveUpdate {
-        enable = true;
-        description = "memsocket";
-        serviceConfig = {
-          Type = "simple";
-          ExecStart = "${memsocket}/bin/memsocket -c ${
-            cfg.service.${data.service}.clientSocketPath
-          } ${builtins.toString (clientID data.client data.service)}";
-          Restart = "always";
-          RestartSec = "1";
-          RuntimeDirectory = "memsocket";
-          RuntimeDirectoryMode = "0750";
-        };
-      } cfg.service.${data.service}.clientConfig.systemdParams;
-      vmClientConfigTemplate =
+      defaultClientConfig =
         data:
-          {
-            "${data.client}" =
-              {
-                config = {
-                  config =
-                    if cfg.service.${data.service}.clientConfig.userService then
-                      {
-                        systemd.user.services."memsocket-${data.service}" = defaultClientConfig data;
-                      }
-                    else
-                      {
-                        systemd.services."memsocket-${data.service}" = defaultClientConfig data;
-                      };
+        lib.attrsets.recursiveUpdate {
+          enable = true;
+          description = "memsocket";
+          serviceConfig = {
+            Type = "simple";
+            ExecStart = "${memsocket}/bin/memsocket -c ${
+              cfg.service.${data.service}.clientSocketPath
+            } ${builtins.toString (clientID data.client data.service)}";
+            Restart = "always";
+            RestartSec = "1";
+            RuntimeDirectory = "memsocket";
+            RuntimeDirectoryMode = "0750";
+          };
+        } cfg.service.${data.service}.clientConfig.systemdParams;
+      vmClientConfigTemplate = data: {
+        "${data.client}" = {
+          config = {
+            config =
+              if cfg.service.${data.service}.clientConfig.userService then
+                {
+                  systemd.user.services."memsocket-${data.service}" = defaultClientConfig data;
+                }
+              else
+                {
+                  systemd.services."memsocket-${data.service}" = defaultClientConfig data;
                 };
-              };
           };
-      defaultServerConfig = clientSuffix: clientId: service: lib.attrsets.recursiveUpdate {
-        enable = true;
-        description = "memsocket";
-        serviceConfig = {
-          Type = "simple";
-          ExecStart = "${memsocket}/bin/memsocket -s ${
-            cfg.service.${service}.serverSocketPath service clientSuffix
-          } -l ${clientId}";
-          Restart = "always";
-          RestartSec = "1";
-          RuntimeDirectory = "memsocket";
-          RuntimeDirectoryMode = "0750";
         };
-      } cfg.service.${service}.serverConfig.systemdParams;
-      serverConfigTemplate = clientSuffix: clientId: service: {
-        "${cfg.service.${service}.server}" =
-          {
-            config = {
-              config =
-                if cfg.service.${service}.serverConfig.userService then
-                  {
-                    systemd.user.services."memsocket-${service}${clientSuffix}" = defaultServerConfig clientSuffix clientId service;
-                  }
-                else
-                  {
-                    systemd.services."memsocket-${service}${clientSuffix}" = defaultServerConfig clientSuffix clientId service;
-                  };
-            };
-          };
       };
-      serverConfig = {vmScoped ? true}: service:
+      defaultServerConfig =
+        clientSuffix: clientId: service:
+        lib.attrsets.recursiveUpdate {
+          enable = true;
+          description = "memsocket";
+          serviceConfig = {
+            Type = "simple";
+            ExecStart = "${memsocket}/bin/memsocket -s ${
+              cfg.service.${service}.serverSocketPath service clientSuffix
+            } -l ${clientId}";
+            Restart = "always";
+            RestartSec = "1";
+            RuntimeDirectory = "memsocket";
+            RuntimeDirectoryMode = "0750";
+          };
+        } cfg.service.${service}.serverConfig.systemdParams;
+      serverConfigTemplate = clientSuffix: clientId: service: {
+        "${cfg.service.${service}.server}" = {
+          config = {
+            config =
+              if cfg.service.${service}.serverConfig.userService then
+                {
+                  systemd.user.services."memsocket-${service}${clientSuffix}" =
+                    defaultServerConfig clientSuffix clientId
+                      service;
+                }
+              else
+                {
+                  systemd.services."memsocket-${service}${clientSuffix}" =
+                    defaultServerConfig clientSuffix clientId
+                      service;
+                };
+          };
+        };
+      };
+      serverConfig =
+        service:
         let
           multiProcess =
             if lib.attrsets.hasAttr "multiProcess" cfg.service.${service}.serverConfig then
@@ -331,7 +332,7 @@ in
             if multiProcess then
               (lib.foldl' lib.attrsets.recursiveUpdate { } (
                 map (client: serverConfigTemplate "-${client}" (clientID client service) service) (
-                  clientsPerService vmScoped service
+                  clientsPerService service
                 )
               ))
             else
@@ -396,18 +397,21 @@ in
             };
           };
       }
-      /* add host systemd client services */
+      # add host systemd client services
       {
-          systemd = let 
-            clientsConfig = foldl' lib.attrsets.recursiveUpdate { } (map (
-              data: 
-              if enabledServices.${data.service}.userService then
-                {user = {services = {"${data.service}" = defaultClientConfig data;};};}
-              else
-                {services = {"${data.service}" = defaultClientConfig data;};}           
-              ) 
-              (lib.filter (data: data.client == "host") clientServicePairs));
-          in clientsConfig;        
+        systemd = foldl' lib.attrsets.recursiveUpdate { } (
+          map (
+            data:
+            if enabledServices.${data.service}.userService then
+              {
+                user.services."${data.service}" = defaultClientConfig data;
+              }
+            else
+              {
+                services."${data.service}" = defaultClientConfig data;
+              }
+          ) (lib.filter (data: data.client == "host") clientServicePairs)
+        );
       }
       {
         microvm.vms =
@@ -447,13 +451,15 @@ in
                 };
               };
             };
-            clientsConfig = let tmp = foldl' lib.attrsets.recursiveUpdate { } (map vmClientConfigTemplate clientServicePairs);
-            in builtins.trace "" tmp;
+            clientsConfig = foldl' lib.attrsets.recursiveUpdate { } (
+              map vmClientConfigTemplate clientServicePairs
+            );
             clientsAndServers = lib.foldl' lib.attrsets.recursiveUpdate clientsConfig (
               map serverConfig (builtins.attrNames (enabledVmServices true))
             );
-            finalMicroVmsConfig = let tmp = foldl' lib.attrsets.recursiveUpdate clientsAndServers (map configCommon allVMs);
-            in builtins.trace "" tmp;
+            finalMicroVmsConfig = foldl' lib.attrsets.recursiveUpdate clientsAndServers (
+              map configCommon allVMs
+            );
           in
           finalMicroVmsConfig;
       }
