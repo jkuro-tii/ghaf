@@ -16,7 +16,6 @@ let
     mkMerge
     mkIf
     mkOption
-    mdDoc
     types
     ;
   enabledServices = lib.filterAttrs (_name: serverAttrs: serverAttrs.enabled) cfg.service;
@@ -79,14 +78,14 @@ in
     enable = mkOption {
       type = types.bool;
       default = true;
-      description = mdDoc ''
+      description = ''
         Enables shared memory communication between virtual machines (VMs) and the host
       '';
     };
     memSize = mkOption {
       type = types.int;
       default = 32;
-      description = mdDoc ''
+      description = ''
         Specifies the size of the shared memory region, measured in
         megabytes (MB)
       '';
@@ -94,7 +93,7 @@ in
     hugePageSz = mkOption {
       type = types.str;
       default = "2M";
-      description = mdDoc ''
+      description = ''
         Specifies the size of the large memory page area. Supported kernel
         values are 2 MB and 1 GB
       '';
@@ -210,7 +209,7 @@ in
             };
           };
         };
-      description = mdDoc ''
+      description = ''
         Specifies the configuration of shared memory services:
         server and client VMs. The server VMs are named after the 
         service name.
@@ -220,7 +219,7 @@ in
     hostSocketPath = mkOption {
       type = types.path;
       default = "/tmp/ivshmem_socket"; # The value is hardcoded in the application
-      description = mdDoc ''
+      description = ''
         Specifies the path to the shared memory socket, used by QEMU
         instances for inter-VM memory sharing and interrupt signaling
       '';
@@ -228,7 +227,7 @@ in
     flataddr = mkOption {
       type = types.str;
       default = "0x920000000";
-      description = mdDoc ''
+      description = ''
         Maps the shared memory to a physical address if set to a non-zero value.
         The address must be platform-specific and arbitrarily chosen to avoid
         conflicts with other memory areas, such as PCI regions.
@@ -237,7 +236,7 @@ in
     shmSlots = mkOption {
       type = types.int;
       default = builtins.length clientServiceWithID;
-      description = mdDoc ''
+      description = ''
         Number of memory slots allocated in the shared memory region
       '';
     };
