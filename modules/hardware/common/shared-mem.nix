@@ -301,25 +301,37 @@ in
             RuntimeDirectoryMode = "0750";
           };
         } cfg.service.${service}.serverConfig.systemdParams;
-      serverConfigTemplate = clientSuffix: clientId: service: {
-        "${cfg.service.${service}.server}" = {
-          config = {
-            config =
-              if cfg.service.${service}.serverConfig.userService then
-                {
-                  systemd.user.services."memsocket-${service}${clientSuffix}" =
-                    defaultServerConfig clientSuffix clientId
-                      service;
-                }
-              else
-                {
-                  systemd.services."memsocket-${service}${clientSuffix}" =
-                    defaultServerConfig clientSuffix clientId
-                      service;
-                };
-          };
-        };
-      };
+      serverConfigTemplate = clientSuffix: clientId: service: 
+        let base = 
+          if cfg.service.${service}.serverConfig.userService then
+            {
+              systemd.user.services."memsocket-${service}${clientSuffix}" =
+                defaultServerConfig clientSuffix clientId service;
+            }
+          else
+            {
+              systemd.services."memsocket-${service}${clientSuffix}" =
+                defaultServerConfig clientSuffix clientId
+                  service;
+            }; 
+        # result = if cfg.service.${service}.serverConfig.multiProcess then
+        #   (lib.foldl' lib.attrsets.recursiveUpdate { } (
+        #     map (client: serverConfigTemplate "-${client}" (clientID client service) service) (
+        #       clientsPerService service
+        #     )
+        #   ))
+        # else
+        #   base;
+        result = if cfg.service.${service}.serverConfig.runsOnVm then
+          {
+            "${cfg.service.${service}.server}" = {
+              config = {
+                config = base;
+              };
+            };
+          } else
+            base;
+       in result;
       serverConfig =
         service:
         let
@@ -409,6 +421,36 @@ in
             else
               {
                 services."${data.service}" = defaultClientConfig data;
+              }
+          ) (lib.filter (data: data.client == "host") clientServicePairs)
+        );
+      }
+      # add host systemd server services
+      {
+        # systemd = foldl' lib.attrsets.recursiveUpdate { } (
+        #   map (
+        #     data:
+        #     if enabledServices.${data.service}.serverConfig.userService then
+        #       {
+        #         # user.services."${data.service}" = defaultServerConfig "" 0 data.service;
+        #       }
+        #     else
+        #       {
+        #         # services."${data.service}" = defaultServerConfig "" 0 data.service;
+        #       }
+        # );
+      }
+      {
+        systemd = foldl' lib.attrsets.recursiveUpdate { } (
+          map (
+            data:
+            if enabledServices.${data.service}.serverConfig.userService then
+              {
+                # user.services."${data.service}" = defaultServerConfig "" 0 data.service; # jarekk: fix 0
+              }
+            else
+              {
+                # services."${data.service}" = defaultServerConfig "" 0 data.service; # jarekk: fix 0
               }
           ) (lib.filter (data: data.client == "host") clientServicePairs)
         );
