@@ -234,20 +234,9 @@ in
         conflicts with other memory areas, such as PCI regions.
       '';
     };
-    enable_host = mkOption {
-      type = types.bool;
-      default = true;
-      description = mdDoc ''
-        Enables the memsocket functionality on the host system
-      '';
-    };
     shmSlots = mkOption {
       type = types.int;
-      default =
-        if cfg.enable_host then
-          (builtins.length clientServiceWithID) + 1
-        else
-          builtins.length clientServiceWithID;
+      default = builtins.length clientServiceWithID;
       description = mdDoc ''
         Number of memory slots allocated in the shared memory region
       '';
@@ -278,7 +267,7 @@ in
       clientConfigTemplate =
         data:
         let
-          base = builtins.trace data.service (
+          base =
             if cfg.service.${data.service}.clientConfig.userService then
               {
                 user.services."memsocket-${data.service}-client" = defaultClientConfig data;
@@ -286,8 +275,7 @@ in
             else
               {
                 services."memsocket-${data.service}-client" = defaultClientConfig data;
-              }
-          );
+              };
 
         in
         if data.client == "host" then
@@ -374,7 +362,7 @@ in
           "d /dev/hugepages 0755 ${user} ${group} - -"
         ];
       }
-      (mkIf cfg.enable_host {
+      (mkIf cfg.enable {
         environment.systemPackages = [
           (pkgs.callPackage ../../../packages/memsocket { inherit (cfg) shmSlots; })
         ];
