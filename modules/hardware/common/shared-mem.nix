@@ -85,7 +85,7 @@ in
     memSize = mkOption {
       type = types.int;
       default = 32;
-      description = mdDoc ''
+      description = ''
         Specifies the size of the shared memory region, measured in
         megabytes (MB)
       '';
@@ -236,7 +236,7 @@ in
     shmSlots = mkOption {
       type = types.int;
       default = builtins.length clientServiceWithID;
-      description = mdDoc ''
+      description = ''
         Number of memory slots allocated in the shared memory region
       '';
     };
