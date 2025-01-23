@@ -84,8 +84,8 @@ in
     };
     memSize = mkOption {
       type = types.int;
-      default = 16;
-      description = ''
+      default = 32;
+      description = mdDoc ''
         Specifies the size of the shared memory region, measured in
         megabytes (MB)
       '';
@@ -280,11 +280,11 @@ in
           base = builtins.trace data.service (
             if cfg.service.${data.service}.clientConfig.userService then
               {
-                user.services."memsocket-${data.service}" = defaultClientConfig data;
+                user.services."memsocket-${data.service}-client" = defaultClientConfig data;
               }
             else
               {
-                services."memsocket-${data.service}" = defaultClientConfig data;
+                services."memsocket-${data.service}-client" = defaultClientConfig data;
               }
           );
 
@@ -318,13 +318,15 @@ in
           base =
             if cfg.service.${service}.serverConfig.userService then
               {
-                user.services."memsocket-${service}${clientSuffix}" =
+                user.services."memsocket-${service}${clientSuffix}-service" =
                   defaultServerConfig clientSuffix clientId
                     service;
               }
             else
               {
-                services."memsocket-${service}${clientSuffix}" = defaultServerConfig clientSuffix clientId service;
+                services."memsocket-${service}${clientSuffix}-service" =
+                  defaultServerConfig clientSuffix clientId
+                    service;
               };
         in
         if cfg.service.${service}.serverConfig.runsOnVm then
@@ -414,39 +416,11 @@ in
           map clientConfigTemplate (lib.filter (data: data.client == "host") clientServicePairs)
         );
       }
-      #{
-
-      # add host systemd server services
+      # add host systemd servers services
       {
-         systemd = lib.foldl' lib.attrsets.recursiveUpdate {} (
-              map serverConfig (builtins.attrNames (enabledVmServices false)));
-      }
-        #   map (
-        #     data:
-        #     if enabledServices.${data.service}.serverConfig.userService then
-        #       {
-        #         user.services."${data.service}" = defaultServerConfig "" 0 data.service;
-        #       }
-        #     else
-        #       {
-        #         services."${data.service}" = defaultServerConfig "" 0 data.service;
-        #       }
-        #   ) [ ]
-        # );
-      {
-        #   systemd = foldl' lib.attrsets.recursiveUpdate { } (
-        #     map (
-        #       data:
-        #       if enabledServices.${data.service}.serverConfig.userService then
-        #         {
-        #           # user.services."${data.service}" = defaultServerConfig "" 0 data.service; # jarekk: fix 0
-        #         }
-        #       else
-        #         {
-        #           # services."${data.service}" = defaultServerConfig "" 0 data.service; # jarekk: fix 0
-        #         }
-        #     ) (lib.filter (data: data.client == "host") clientServicePairs)
-        #   );
+        systemd = lib.foldl' lib.attrsets.recursiveUpdate { } (
+          map serverConfig (builtins.attrNames (enabledVmServices false))
+        );
       }
       {
         microvm.vms =
