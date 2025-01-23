@@ -20,8 +20,8 @@ let
     types
     ;
   enabledServices = lib.filterAttrs (_name: serverAttrs: serverAttrs.enabled) cfg.service;
-  enabledVmServices = # jarekk fix the below?
-    isVM: lib.filterAttrs (_name: serverAttrs: serverAttrs.serverConfig == isVM) cfg.service;
+  enabledVmServices =
+    isVM: lib.filterAttrs (_name: serverAttrs: serverAttrs.serverConfig.runsOnVm == isVM) enabledServices;
   clientsPerService =
     service:
     lib.flatten (
@@ -37,6 +37,9 @@ let
       ) enabledServices
     )
   );
+  /* Returns a list of client-service pairs in the form of e.g.
+   * [ { client = "chrome-vm"; service = "audio"; } ... ]
+   */
   clientServicePairs = lib.flatten (
     lib.mapAttrsToList (
       serverName: serverAttrs:
@@ -113,7 +116,6 @@ in
             serverConfig = {
               runsOnVm = true;
             };
-            # serverConfig = true;
           };
         in
         {
@@ -179,7 +181,7 @@ in
           admin = lib.attrsets.recursiveUpdate (stdConfig "admin") {
             enabled = true;
             serverConfig = {
-              runsOnVm = true;
+              runsOnVm = false;
               userService = false;
               systemdParams = {
                 wantedBy = [ "default.target" ];
@@ -192,10 +194,10 @@ in
             };
             clients = [
               "host"
+              "chrome-vm"
             ];
             clientConfig = {
               userService = false;
-              runsOnVm = false;
               systemdParams = {
                 wantedBy = [ "default.target" ];
                 serviceConfig = {
@@ -271,21 +273,20 @@ in
             RuntimeDirectoryMode = "0750";
           };
         } cfg.service.${data.service}.clientConfig.systemdParams;
-      vmClientConfigTemplate = data: {
-        "${data.client}" = {
-          config = {
-            config =
-              if cfg.service.${data.service}.clientConfig.userService then
-                {
-                  systemd.user.services."memsocket-${data.service}" = defaultClientConfig data;
-                }
-              else
-                {
-                  systemd.services."memsocket-${data.service}" = defaultClientConfig data;
-                };
+      clientConfigTemplate = vmTemplate: data:
+      let base = 
+        if cfg.service.${data.service}.clientConfig.userService then
+          {
+            systemd.user.services."memsocket-${data.service}" = defaultClientConfig data;
+          }
+        else
+          {
+            systemd.services."memsocket-${data.service}" = defaultClientConfig data;
           };
-        };
-      };
+          
+        in 
+          {"${data.client}".config.config = base;};
+
       defaultServerConfig =
         clientSuffix: clientId: service:
         lib.attrsets.recursiveUpdate {
@@ -314,16 +315,8 @@ in
               systemd.services."memsocket-${service}${clientSuffix}" =
                 defaultServerConfig clientSuffix clientId
                   service;
-            }; 
-        # result = if cfg.service.${service}.serverConfig.multiProcess then
-        #   (lib.foldl' lib.attrsets.recursiveUpdate { } (
-        #     map (client: serverConfigTemplate "-${client}" (clientID client service) service) (
-        #       clientsPerService service
-        #     )
-        #   ))
-        # else
-        #   base;
-        result = if cfg.service.${service}.serverConfig.runsOnVm then
+            }; in
+        if cfg.service.${service}.serverConfig.runsOnVm then
           {
             "${cfg.service.${service}.server}" = {
               config = {
@@ -332,16 +325,15 @@ in
             };
           } else
             base;
-       in result;
       serverConfig =
         service:
         let
           multiProcess =
-            if lib.attrsets.hasAttr "multiProcess" cfg.service.${service}.serverConfig then
+            (if lib.attrsets.hasAttr "multiProcess" cfg.service.${service}.serverConfig then
               cfg.service.${service}.serverConfig.multiProcess
             else
-              false;
-          result =
+              false);
+        in
             if multiProcess then
               (lib.foldl' lib.attrsets.recursiveUpdate { } (
                 map (client: serverConfigTemplate "-${client}" (clientID client service) service) (
@@ -353,8 +345,6 @@ in
                 clientsArg.${service}
                 service
               );
-        in
-        result;
 
     in
     mkIf cfg.enable (mkMerge [
@@ -428,34 +418,34 @@ in
       }
       # add host systemd server services
       {
-        # systemd = foldl' lib.attrsets.recursiveUpdate { } (
-        #   map (
-        #     data:
-        #     if enabledServices.${data.service}.serverConfig.userService then
-        #       {
-        #         # user.services."${data.service}" = defaultServerConfig "" 0 data.service;
-        #       }
-        #     else
-        #       {
-        #         # services."${data.service}" = defaultServerConfig "" 0 data.service;
-        #       }
-        # );
-      }
-      {
         systemd = foldl' lib.attrsets.recursiveUpdate { } (
           map (
             data:
             if enabledServices.${data.service}.serverConfig.userService then
               {
-                # user.services."${data.service}" = defaultServerConfig "" 0 data.service; # jarekk: fix 0
+                user.services."${data.service}" = defaultServerConfig "" 0 data.service;
               }
             else
               {
-                # services."${data.service}" = defaultServerConfig "" 0 data.service; # jarekk: fix 0
+                services."${data.service}" = defaultServerConfig "" 0 data.service;
               }
-          ) (lib.filter (data: data.client == "host") clientServicePairs)
-        );
+        ) []);
       }
+      # {
+      #   systemd = foldl' lib.attrsets.recursiveUpdate { } (
+      #     map (
+      #       data:
+      #       if enabledServices.${data.service}.serverConfig.userService then
+      #         {
+      #           # user.services."${data.service}" = defaultServerConfig "" 0 data.service; # jarekk: fix 0
+      #         }
+      #       else
+      #         {
+      #           # services."${data.service}" = defaultServerConfig "" 0 data.service; # jarekk: fix 0
+      #         }
+      #     ) (lib.filter (data: data.client == "host") clientServicePairs)
+      #   );
+      # }
       {
         microvm.vms =
           let
@@ -495,7 +485,7 @@ in
               };
             };
             clientsConfig = foldl' lib.attrsets.recursiveUpdate { } (
-              map vmClientConfigTemplate clientServicePairs
+              map (clientConfigTemplate true /* get template for microvm */) (lib.filter (data: data.client != "host") clientServicePairs)
             );
             clientsAndServers = lib.foldl' lib.attrsets.recursiveUpdate clientsConfig (
               map serverConfig (builtins.attrNames (enabledVmServices true))
