@@ -37,10 +37,6 @@ let
       ) enabledServices
     )
   );
-  /*
-    Returns a list of client-service pairs in the form of e.g.
-    [ { client = "chrome-vm"; service = "audio"; } ... ]
-  */
   clientServicePairs = lib.flatten (
     lib.mapAttrsToList (
       serverName: serverAttrs:
