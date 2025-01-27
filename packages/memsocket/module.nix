@@ -26,11 +26,21 @@ stdenv.mkDerivation {
   ];
   nativeBuildInputs = kernel.moduleBuildDependencies;
 
-  makeFlags = [
-    "KDIR=${kernel.dev}/lib/modules/${kernel.modDirVersion}/build"
-    "MODULEDIR=$(out)/lib/modules/${kernel.modDirVersion}/kernel/drivers/char"
-    "CFLAGS_kvm_ivshmem.o=\"-DCONFIG_KVM_IVSHMEM_SHM_SLOTS=${builtins.toString shmSlots}\""
-  ];
+  makeFlags =
+    [
+      "KDIR=${kernel.dev}/lib/modules/${kernel.modDirVersion}/build"
+      "MODULEDIR=$(out)/lib/modules/${kernel.modDirVersion}/kernel/drivers/char"
+      "CFLAGS_kvm_ivshmem.o=\"-DCONFIG_KVM_IVSHMEM_SHM_SLOTS=${builtins.toString shmSlots}\""
+      "ARCH=${stdenv.hostPlatform.linuxArch}"
+      "INSTALL_MOD_PATH=${placeholder "out"}"
+    ]
+    ++ lib.optionals (stdenv.hostPlatform != stdenv.buildPlatform) [
+      "CROSS_COMPILE=${stdenv.cc}/bin/${stdenv.cc.targetPrefix}"
+    ];
+
+  CROSS_COMPILE = lib.optionalString (
+    stdenv.hostPlatform != stdenv.buildPlatform
+  ) "${stdenv.cc}/bin/${stdenv.cc.targetPrefix}";
 
   meta = with lib; {
     description = "Shared memory Linux kernel module";
