@@ -176,17 +176,13 @@ in
             };
           };
           admin = lib.attrsets.recursiveUpdate (stdConfig "admin") {
-            enabled = true;
+            enabled = config.givc.host.enable;
             serverConfig = {
-              runsOnVm = false;
+              runsOnVm = true;
               userService = false;
               systemdParams = {
-                wantedBy = [ "default.target" ];
-                after = [ "pipewire.service" ];
-                # serviceConfig = { # jarekk: fixme
-                #   User = "pipewire";
-                #   Group = "pipewire";
-                # };
+                wantedBy = [ "multi-user.target" ];
+                after = [ "givc-admin.service" ];
               };
             };
             clients = [
@@ -196,11 +192,8 @@ in
             clientConfig = {
               userService = false;
               systemdParams = {
-                wantedBy = [ "default.target" ];
-                serviceConfig = {
-                  # User = "appuser"; # jarekk: fixme
-                  # Group = "users";
-                };
+                before = [ "givc-${config.givc.host.agent.name}.service" ];
+                wantedBy = [ "multi-user.target" ];
               };
             };
           };
