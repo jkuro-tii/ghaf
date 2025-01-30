@@ -44,7 +44,7 @@ in
       };
       inherit (cfg) applications;
       tls.enable = config.ghaf.givc.enableTls;
-      admin = config.ghaf.givc.adminConfig;
+      admin = builtins.removeAttrs config.ghaf.givc.adminConfig ["addresses"];
     };
   };
 }

@@ -9,6 +9,10 @@ let
     mkIf
     types
     ;
+  inherit (import ./definitions.nix { inherit config lib; })
+    transportSubmodule
+    tlsSubmodule
+    ;
   mitmEnabled =
     config.ghaf.virtualization.microvm.idsvm.enable
     && config.ghaf.virtualization.microvm.idsvm.mitmproxy.enable;
@@ -52,6 +56,12 @@ in
           protocol = mkOption {
             description = "Protocol of admin server";
             type = types.str;
+          };
+          addresses = mkOption {
+            description = ''
+              List of addresses for the admin service to listen on. Requires a list of 'transportSubmodule'.
+            '';
+            type = types.listOf transportSubmodule;
           };
         };
       };

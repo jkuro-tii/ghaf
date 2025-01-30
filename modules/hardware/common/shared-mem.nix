@@ -399,6 +399,21 @@ in
           map serverConfig (builtins.attrNames (enabledVmServices false))
         );
       }
+      # override the default configuration of the host givc service
+      {
+        givc.host.admin = lib.mkIf (lib.elem "host" enabledServices.admin.clients) (lib.mkForce {
+          addr = builtins.toString enabledServices.admin.clientSocketPath;
+          protocol = "unix";
+        });
+      }
+      {
+        #config.ghaf.givc.adminvm 
+        # givc.admin.addresses = {
+        #   protocol = "unix";
+        #   # addr = (builtins.toString enabledServices.admin.serverSocketPath);
+        #   addr = builtins.toString enabledServices.admin.clientSocketPath;
+        # };
+      }
       {
         microvm.vms =
           let
@@ -437,9 +452,11 @@ in
                 };
               };
             };
+            # generate config for memsocket services  running in client mode on VMs
             clientsConfig = foldl' lib.attrsets.recursiveUpdate { } (
               map clientConfigTemplate (lib.filter (data: data.client != "host") clientServicePairs)
             );
+            # generate config for memsocket services running in server mode on VMs
             clientsAndServers = lib.foldl' lib.attrsets.recursiveUpdate clientsConfig (
               map serverConfig (builtins.attrNames (enabledVmServices true))
             );
