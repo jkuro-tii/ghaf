@@ -26,7 +26,7 @@ in
       };
       inherit (config.ghaf.givc) debug;
       tls.enable = config.ghaf.givc.enableTls;
-      admin = config.ghaf.givc.adminConfig;
+      admin = builtins.removeAttrs config.ghaf.givc.adminConfig ["addresses"];
       socketProxy = [
         {
           transport = {

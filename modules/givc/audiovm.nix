@@ -25,7 +25,7 @@ in
         port = "9000";
       };
       tls.enable = config.ghaf.givc.enableTls;
-      admin = config.ghaf.givc.adminConfig;
+      admin = builtins.removeAttrs config.ghaf.givc.adminConfig ["addresses"];
       socketProxy = [
         {
           transport = {
