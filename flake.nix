@@ -5,6 +5,7 @@
 
   nixConfig = {
     substituters = [
+      "http://172.31.107.24:8080"
       "https://prod-cache.vedenemo.dev"
       "https://cache.ssrcdevops.tii.ae"
       "https://ghaf-dev.cachix.org"
@@ -137,7 +138,8 @@
     };
 
     givc = {
-      url = "github:tiiuae/ghaf-givc/966559e0597e5584e3b740c8b3447129021f6446";
+      # url = "github:tiiuae/ghaf-givc/966559e0597e5584e3b740c8b3447129021f6446";
+      url = "path:/home/jaroslawkurowski/Project/Memshare/ghaf-givc";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         flake-parts.follows = "flake-parts";

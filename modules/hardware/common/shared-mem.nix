@@ -18,6 +18,9 @@ let
     mkOption
     types
     ;
+  # inherit (import ../../definitions.nix { inherit config lib; })
+    # transportSubmodule
+    # ;
   enabledServices = lib.filterAttrs (_name: serverAttrs: serverAttrs.enabled) cfg.service;
   enabledVmServices =
     isVM:
@@ -192,7 +195,7 @@ in
             clientConfig = {
               userService = false;
               systemdParams = {
-                before = [ "givc-${config.givc.host.agent.name}.service" ];
+                # before = [ "givc-${config.givc.host.agent.name}.service" ]; jarekk: The option `givc.host.agent' does not exist
                 wantedBy = [ "multi-user.target" ];
               };
             };
@@ -408,11 +411,10 @@ in
       }
       {
         #config.ghaf.givc.adminvm 
-        # givc.admin.addresses = {
+        # givc.admin.addresses = let memsocketAddr = {
+        #   addr = (builtins.toString enabledServices.admin.serverSocketPath);
         #   protocol = "unix";
-        #   # addr = (builtins.toString enabledServices.admin.serverSocketPath);
-        #   addr = builtins.toString enabledServices.admin.clientSocketPath;
-        # };
+        # }; in [ ];#memsocketAddr ];
       }
       {
         microvm.vms =
