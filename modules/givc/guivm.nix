@@ -19,10 +19,11 @@ in
     # Configure guivm service
     givc.sysvm = {
       enable = true;
-      agent = {
+      transport = {
         name = hostName;
         addr = address hostName;
         port = "9000";
+        protocol = "tcp";
       };
       inherit (config.ghaf.givc) debug;
       tls.enable = config.ghaf.givc.enableTls;

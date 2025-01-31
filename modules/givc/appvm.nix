@@ -37,10 +37,11 @@ in
     givc.appvm = {
       enable = true;
       inherit (config.ghaf.givc) debug;
-      agent = {
+      transport = {
         inherit (cfg) name;
         addr = address cfg.name;
         port = "9000";
+        protocol = "tcp";
       };
       inherit (cfg) applications;
       tls.enable = config.ghaf.givc.enableTls;

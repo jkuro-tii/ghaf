@@ -24,11 +24,11 @@ in
     givc.host = {
       enable = true;
       inherit (config.ghaf.givc) debug;
-      # agent = {
-      #   name = hostName;
-      #   addr = address hostName;
-      #   port = "9000";
-      # };
+      transport = {
+        name = hostName;
+        addr = address hostName;
+        port = "9000";
+      };
       services = [
         "reboot.target"
         "poweroff.target"

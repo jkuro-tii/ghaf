@@ -14,31 +14,32 @@ in
     enable = mkEnableOption "Enable adminvm givc module.";
     KKKKKK = mkEnableOption "Enable adminvm givc module.";
   };
-  options.ghaf.givc.admin = {
-    addresses = lib.mkOption {
-      description = ''
-        List of addresses for the admin service to listen on. Requires a list of 'transportSubmodule'.
-      '';
-      type = lib.types.listOf transportSubmodule;
-    };
-  };
+  # options.ghaf.givc.admin = {
+  #   addresses = lib.mkOption {
+  #     description = ''
+  #       List of addresses for the admin service to listen on. Requires a list of 'transportSubmodule'.
+  #     '';
+  #     type = lib.types.listOf transportSubmodule;
+  #   };
+  # };
   # givc.admin.addresses = config.ghaf.givc.adminConfig.addresses;
   config = mkIf (cfg.enable && config.ghaf.givc.enable) {
     # Configure admin service
     givc.admin = {
       enable = true;
       inherit (config.ghaf.givc) debug;
-      # inherit (config.ghaf.givc.adminConfig) name;
-      # config.microvm.vms.admin-vm.config. config.givc.admin.name
-      #       `microvm.vms.admin-vm.config. givc.admin.addresses' does not exist.
-      #
-      # config.ghaf.givc.adminConfig.addresses
-      # config.givc.admin.addresses <- needed !!!!!!!!!!!!!!!!!!!!
-      # config.ghaf.givc.adminvm <- local option
-      name = "??????";
+      inherit (config.ghaf.givc.adminConfig) name;
       # inherit (config.ghaf.givc.adminConfig) addresses;
-      inherit (config.ghaf.givc.adminConfig) port;
-      inherit (config.ghaf.givc.adminConfig) protocol;
+      # inherit (config.ghaf.givc.adminConfig) port;
+      # inherit (config.ghaf.givc.adminConfig) protocol;
+      addresses = [{
+        name = "admin-vm";
+        # addr = addrs.adminvm;
+        inherit (config.ghaf.givc.adminConfig) addr;
+        port = "9001";
+        protocol = "tcp";
+        }
+      ];
       services = [
         "givc-ghaf-host-debug.service"
         "givc-net-vm.service"

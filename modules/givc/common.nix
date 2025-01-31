@@ -57,12 +57,12 @@ in
             description = "Protocol of admin server";
             type = types.str;
           };
-          addresses = mkOption {
-            description = ''
-              List of addresses for the admin service to listen on. Requires a list of 'transportSubmodule'.
-            '';
-            type = types.listOf transportSubmodule;
-          };
+          # addresses = mkOption {
+          #   description = ''
+          #     List of addresses for the admin service to listen on. Requires a list of 'transportSubmodule'.
+          #   '';
+          #   type = types.listOf transportSubmodule;
+          # };
         };
       };
     };
@@ -75,10 +75,13 @@ in
         addr = lib.head (builtins.map (x: x.ip) adminvmEntry);
       in
       {
-        name = "admin-vm-debug";
-        inherit addr;
-        port = "9001";
-        protocol = "tcp";
+        # name = "admin-vm-debug"; # jarekk: should it be here?
+        # addresses = [{
+          name = "admin-vm-debug";
+          inherit addr;
+          port = "9001";
+          protocol = "tcp";
+        # }];
       };
   };
 }
