@@ -18,29 +18,21 @@ let
     mkOption
     types
     ;
-  enabledServices = lib.filterAttrs (_name: serverAttrs: serverAttrs.enabled) cfg.service;
-  clientsPerService =
-    service:
-    lib.flatten (
-      lib.mapAttrsToList (
-        name: value: if (name == service || service == "all") then value.clients else [ ]
-      ) enabledServices
-    );
+  enabledServices = lib.filterAttrs (_name: serverAttrs: serverAttrs.enabled) services;
+  clientsPerService = service: enabledServices.${service}.clients;
   allVMs = lib.unique (
-    lib.flatten (
-      lib.mapAttrsToList (
-        _serviceName: serviceAttrs: serviceAttrs.clients ++ [ serviceAttrs.server ]
-      ) enabledServices
-    )
+    lib.concatLists (map (s: s.clients ++ [ s.server ]) (builtins.attrValues enabledServices))
   );
-  clientServicePairs = lib.flatten (
-    lib.mapAttrsToList (
-      serverName: serverAttrs:
-      lib.map (client: {
-        service = serverName;
-        inherit client;
-      }) serverAttrs.clients
-    ) enabledServices
+  clientServicePairs = lib.unique (
+    lib.concatLists (
+      map (
+        s:
+        map (c: {
+          service = s.name;
+          client = c;
+        }) s.clients
+      ) (lib.mapAttrsToList (name: attrs: attrs // { inherit name; }) enabledServices)
+    )
   );
   clientServiceWithID = lib.foldl' (
     acc: pair: acc ++ [ (pair // { id = builtins.length acc; }) ]
@@ -64,6 +56,78 @@ let
       }
     )
   ) { } clientServiceWithID;
+
+  services =
+    let
+      stdConfig = service: {
+        server = "${service}-vm";
+        clientSocketPath = "/run/memsocket-${service}/${service}-client.sock";
+        serverSocketPath = service: suffix: "/run/memsocket-${service}/${service}${suffix}.sock";
+        userService = false;
+      };
+    in
+    {
+      gui = stdConfig "gui" // {
+        enabled = false; # //cfg.enableShmGui;
+        serverSocketPath = service: suffix: "/tmp/${service}${suffix}.sock";
+        serverConfig = {
+          userService = true;
+          systemdParams = {
+            wantedBy = [ "ghaf-session.target" ];
+          };
+          multiProcess = true;
+        };
+        clients = [
+          "chrome-vm"
+          "business-vm"
+          "comms-vm"
+          "gala-vm"
+          "zathura-vm"
+        ];
+        clientConfig = {
+          userService = false;
+          systemdParams = {
+            wantedBy = [ "default.target" ];
+            serviceConfig = {
+              User = "appuser";
+              Group = "users";
+            };
+          };
+        };
+      };
+      audio = stdConfig "audio" // {
+        enabled = false; # config.ghaf.services.audio.pulseaudioUseShmem;
+        serverSocketPath = _service: _suffix: config.ghaf.services.audio.pulseaudioUnixSocketPath;
+        serverConfig = {
+          userService = false;
+          systemdParams = {
+            wantedBy = [ "default.target" ];
+            after = [ "pipewire.service" ];
+            serviceConfig = {
+              User = "pipewire";
+              Group = "pipewire";
+            };
+          };
+        };
+        clients = [
+          "chrome-vm"
+          "business-vm"
+          "comms-vm"
+          "gala-vm"
+        ];
+        clientConfig = {
+          userService = false;
+          systemdParams = {
+            wantedBy = [ "default.target" ];
+            serviceConfig = {
+              User = "appuser";
+              Group = "users";
+            };
+          };
+        };
+      };
+    };
+
 in
 {
   options.ghaf.shm = {
@@ -97,84 +161,92 @@ in
           value;
     };
 
-    service = mkOption {
-      type = types.attrsOf types.anything;
-      default =
-        let
-          stdConfig = service: {
-            server = "${service}-vm";
-            clientSocketPath = "/run/memsocket-${service}/${service}-client.sock";
-            serverSocketPath = service: suffix: "/run/memsocket-${service}/${service}${suffix}.sock";
-            userService = false;
-          };
-        in
-        {
-          gui = stdConfig "gui" // {
-            enabled = true;
-            serverSocketPath = service: suffix: "/tmp/${service}${suffix}.sock";
-            serverConfig = {
-              userService = true;
-              systemdParams = {
-                wantedBy = [ "ghaf-session.target" ];
-              };
-              multiProcess = true;
-            };
-            clients = [
-              "chrome-vm"
-              "business-vm"
-              "comms-vm"
-              "gala-vm"
-              "zathura-vm"
-            ];
-            clientConfig = {
-              userService = false;
-              systemdParams = {
-                wantedBy = [ "default.target" ];
-                serviceConfig = {
-                  User = "appuser";
-                  Group = "users";
-                };
-              };
-            };
-          };
-          audio = stdConfig "audio" // {
-            enabled = config.ghaf.services.audio.pulseaudioUseShmem;
-            serverSocketPath = _service: _suffix: config.ghaf.services.audio.pulseaudioUnixSocketPath;
-            serverConfig = {
-              userService = false;
-              systemdParams = {
-                wantedBy = [ "default.target" ];
-                after = [ "pipewire.service" ];
-                serviceConfig = {
-                  User = "pipewire";
-                  Group = "pipewire";
-                };
-              };
-            };
-            clients = [
-              "chrome-vm"
-              "business-vm"
-              "comms-vm"
-              "gala-vm"
-            ];
-            clientConfig = {
-              userService = false;
-              systemdParams = {
-                wantedBy = [ "default.target" ];
-                serviceConfig = {
-                  User = "appuser";
-                  Group = "users";
-                };
-              };
-            };
-          };
-        };
+    enableShmGui = mkOption {
+      type = types.bool;
+      default = false;
       description = ''
-        Specifies the configuration of shared memory services:
-        server and client VMs. The server VMs are named after the 
-        service name.
+        Enables sending gui through shared memory
       '';
     };
+
+    # service = mkOption {
+    #   type = types.attrsOf types.anything;
+    #   default =
+    #     let
+    #       stdConfig = service: {
+    #         server = "${service}-vm";
+    #         clientSocketPath = "/run/memsocket-${service}/${service}-client.sock";
+    #         serverSocketPath = service: suffix: "/run/memsocket-${service}/${service}${suffix}.sock";
+    #         userService = false;
+    #       };
+    #     in
+    #     {
+    #       gui = stdConfig "gui" // {
+    #         enabled = true; #//cfg.enableShmGui;
+    #         serverSocketPath = service: suffix: "/tmp/${service}${suffix}.sock";
+    #         serverConfig = {
+    #           userService = true;
+    #           systemdParams = {
+    #             wantedBy = [ "ghaf-session.target" ];
+    #           };
+    #           multiProcess = true;
+    #         };
+    #         clients = [
+    #           "chrome-vm"
+    #           "business-vm"
+    #           "comms-vm"
+    #           "gala-vm"
+    #           "zathura-vm"
+    #         ];
+    #         clientConfig = {
+    #           userService = false;
+    #           systemdParams = {
+    #             wantedBy = [ "default.target" ];
+    #             serviceConfig = {
+    #               User = "appuser";
+    #               Group = "users";
+    #             };
+    #           };
+    #         };
+    #       };
+    #       audio = stdConfig "audio" // {
+    #         enabled = false;# config.ghaf.services.audio.pulseaudioUseShmem;
+    #         serverSocketPath = _service: _suffix: config.ghaf.services.audio.pulseaudioUnixSocketPath;
+    #         serverConfig = {
+    #           userService = false;
+    #           systemdParams = {
+    #             wantedBy = [ "default.target" ];
+    #             after = [ "pipewire.service" ];
+    #             serviceConfig = {
+    #               User = "pipewire";
+    #               Group = "pipewire";
+    #             };
+    #           };
+    #         };
+    #         clients = [
+    #           "chrome-vm"
+    #           "business-vm"
+    #           "comms-vm"
+    #           "gala-vm"
+    #         ];
+    #         clientConfig = {
+    #           userService = false;
+    #           systemdParams = {
+    #             wantedBy = [ "default.target" ];
+    #             serviceConfig = {
+    #               User = "appuser";
+    #               Group = "users";
+    #             };
+    #           };
+    #         };
+    #       };
+    #     };
+    #   description = ''
+    #     Specifies the configuration of shared memory services:
+    #     server and client VMs. The server VMs are named after the
+    #     service name.
+    #   '';
+    # };
 
     hostSocketPath = mkOption {
       type = types.path;
@@ -319,19 +391,19 @@ in
                     serviceConfig = {
                       Type = "simple";
                       ExecStart = "${memsocket}/bin/memsocket -c ${
-                        cfg.service.${data.service}.clientSocketPath
+                        services.${data.service}.clientSocketPath
                       } ${builtins.toString (clientID data.client data.service)}";
                       Restart = "always";
                       RestartSec = "1";
                       RuntimeDirectory = "memsocket-${data.service}";
                       RuntimeDirectoryMode = "0750";
                     };
-                  } cfg.service.${data.service}.clientConfig.systemdParams;
+                  } services.${data.service}.clientConfig.systemdParams;
                 in
                 {
                   config = {
                     config =
-                      if cfg.service.${data.service}.clientConfig.userService then
+                      if services.${data.service}.clientConfig.userService then
                         {
                           systemd.user.services."memsocket-${data.service}" = baseConfig;
                         }
@@ -343,7 +415,7 @@ in
                 };
             };
             configServer = clientSuffix: clientId: service: {
-              "${cfg.service.${service}.server}" =
+              "${services.${service}.server}" =
                 let
                   baseConfig = lib.attrsets.recursiveUpdate {
                     enable = true;
@@ -351,19 +423,19 @@ in
                     serviceConfig = {
                       Type = "simple";
                       ExecStart = "${memsocket}/bin/memsocket -s ${
-                        cfg.service.${service}.serverSocketPath service clientSuffix
+                        services.${service}.serverSocketPath service clientSuffix
                       } -l ${clientId}";
                       Restart = "always";
                       RestartSec = "1";
                       RuntimeDirectory = "memsocket-${service}";
                       RuntimeDirectoryMode = "0750";
                     };
-                  } cfg.service.${service}.serverConfig.systemdParams;
+                  } services.${service}.serverConfig.systemdParams;
                 in
                 {
                   config = {
                     config =
-                      if cfg.service.${service}.serverConfig.userService then
+                      if services.${service}.serverConfig.userService then
                         {
                           systemd.user.services."memsocket-${service}${clientSuffix}" = baseConfig;
                         }
@@ -380,10 +452,14 @@ in
                 service:
                 let
                   multiProcess =
-                    if lib.attrsets.hasAttr "multiProcess" cfg.service.${service}.serverConfig then
-                      cfg.service.${service}.serverConfig.multiProcess
-                    else
-                      false;
+                    let
+                      t =
+                        if lib.attrsets.hasAttr "multiProcess" services.${service}.serverConfig then
+                          services.${service}.serverConfig.multiProcess
+                        else
+                          false;
+                    in
+                    builtins.trace services.${service} t;
                   result =
                     if multiProcess then
                       (lib.foldl' lib.attrsets.recursiveUpdate { } (
