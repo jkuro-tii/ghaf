@@ -38,14 +38,15 @@ let
           {
             ghaf.givc.appvm = {
               enable = true;
-              name = lib.mkForce vmName;
               applications = givcApplications;
             };
           }
           (import ./common/vm-networking.nix {
-            inherit config lib vmName;
-            inherit (vm) macAddress;
-            internalIP = vmIndex + 100;
+            inherit
+              config
+              lib
+              vmName
+              ;
           })
 
           (import (./common/ghaf-audio.nix) {
@@ -96,7 +97,8 @@ let
                   nix-setup.enable = lib.mkDefault configHost.ghaf.development.nix-setup.enable;
                 };
 
-                # Systemd
+                # System
+                type = "app-vm";
                 systemd = {
                   enable = true;
                   withName = "appvm-systemd";

@@ -10,7 +10,7 @@
     ];
     givc-host.imports = [
       inputs.givc.nixosModules.host
-      inputs.givc.nixosModules.admin
+      inputs.givc.nixosModules.tls
       ./common.nix
       ./host.nix
       {

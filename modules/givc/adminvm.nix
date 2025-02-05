@@ -4,10 +4,10 @@
 let
   cfg = let tmp = config.ghaf.givc.adminvm; in builtins.trace tmp tmp;
   inherit (lib) mkEnableOption mkIf;
-  inherit (import ./definitions.nix { inherit config lib; })
-    transportSubmodule
-    tlsSubmodule
-    ;
+  inherit (config.ghaf.givc.adminConfig) name;
+  systemHosts = lib.lists.subtractLists (config.ghaf.common.appHosts ++ [ name ]) (
+    builtins.attrNames config.ghaf.networking.hosts
+  );
 in
 {
   options.ghaf.givc.adminvm = {
@@ -28,24 +28,17 @@ in
     givc.admin = {
       enable = true;
       inherit (config.ghaf.givc) debug;
-      inherit (config.ghaf.givc.adminConfig) name;
-      # inherit (config.ghaf.givc.adminConfig) addresses;
-      # inherit (config.ghaf.givc.adminConfig) port;
-      # inherit (config.ghaf.givc.adminConfig) protocol;
-      addresses = [{
-        name = "admin-vm";
-        # addr = addrs.adminvm;
-        inherit (config.ghaf.givc.adminConfig) addr;
-        port = "9001";
-        protocol = "tcp";
-        }
-      ];
-      services = [
-        "givc-ghaf-host-debug.service"
-        "givc-net-vm.service"
-        "givc-gui-vm.service"
-        "givc-audio-vm.service"
-      ];
+      inherit name;
+      inherit (config.ghaf.givc.adminConfig) addresses;
+      services = map (host: "givc-${host}.service") systemHosts;
+      # addresses = [{
+      #   name = "admin-vm";
+      #   # addr = addrs.adminvm;
+      #   inherit (config.ghaf.givc.adminConfig) addr;
+      #   port = "9001";
+      #   protocol = "tcp";
+      #   }
+      # ]
       tls.enable = config.ghaf.givc.enableTls;
     };
   };
