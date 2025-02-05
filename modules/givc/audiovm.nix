@@ -26,7 +26,7 @@ in
         protocol = "tcp";
       };
       tls.enable = config.ghaf.givc.enableTls;
-      admin = builtins.removeAttrs config.ghaf.givc.adminConfig ["addresses"];
+      admin = config.ghaf.givc.adminConfig;
       socketProxy = [
         {
           transport = {

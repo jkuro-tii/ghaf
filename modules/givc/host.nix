@@ -28,6 +28,7 @@ in
         name = hostName;
         addr = address hostName;
         port = "9000";
+        protocol = "tcp";
       };
       services = [
         "reboot.target"

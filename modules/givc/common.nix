@@ -9,10 +9,6 @@ let
     mkIf
     types
     ;
-  inherit (import ./definitions.nix { inherit config lib; })
-    transportSubmodule
-    tlsSubmodule
-    ;
   mitmEnabled =
     config.ghaf.virtualization.microvm.idsvm.enable
     && config.ghaf.virtualization.microvm.idsvm.mitmproxy.enable;
