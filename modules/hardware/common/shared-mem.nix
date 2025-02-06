@@ -110,7 +110,7 @@ in
         let
           stdConfig = service: {
             server = "${service}-vm";
-            clientSocketPath = "/run/memsocket-${service}/${service}-client.sock";
+            clientSocketPath = "/run/memsocket/${service}-client.sock";
             serverSocketPath = service: suffix: "/run/memsocket-${service}/${service}${suffix}.sock";
             userService = false;
             serverConfig = {
@@ -143,13 +143,17 @@ in
                 serviceConfig = {
                   User = "appuser";
                   Group = "users";
+                  #User = "root";
+                  # RuntimeDirectory = "memsocket-gui";
+                  # RuntimeDirectoryMode = "0757";
+                  # UMask = "0000";
                 };
               };
             };
           };
           audio = lib.attrsets.recursiveUpdate (stdConfig "audio") {
             enabled = true; # config.ghaf.services.audio.pulseaudioUseShmem; # jarekk: fixme
-            #serverSocketPath = _service: _suffix: config.ghaf.services.audio.pulseaudioUnixSocketPath;
+            serverSocketPath = _service: _suffix: config.ghaf.services.audio.pulseaudioUnixSocketPath;
             serverConfig = {
               userService = false;
               systemdParams = {
@@ -178,28 +182,28 @@ in
               };
             };
           };
-          admin = lib.attrsets.recursiveUpdate (stdConfig "admin") {
-            enabled = config.givc.host.enable;
-            serverConfig = {
-              runsOnVm = true;
-              userService = false;
-              systemdParams = {
-                wantedBy = [ "multi-user.target" ];
-                after = [ "givc-admin.service" ];
-              };
-            };
-            clients = [
-              "host"
-              "chrome-vm"
-            ];
-            clientConfig = {
-              userService = false;
-              systemdParams = {
-                # before = [ "givc-${config.givc.host.agent.name}.service" ]; jarekk: The option `givc.host.agent' does not exist
-                wantedBy = [ "multi-user.target" ];
-              };
-            };
-          };
+          # admin = lib.attrsets.recursiveUpdate (stdConfig "admin") {
+          #   enabled = config.givc.host.enable;
+          #   serverConfig = {
+          #     runsOnVm = true;
+          #     userService = false;
+          #     systemdParams = {
+          #       wantedBy = [ "multi-user.target" ];
+          #       after = [ "givc-admin.service" ];
+          #     };
+          #   };
+          #   clients = [
+          #     "host"
+          #     "chrome-vm"
+          #   ];
+          #   clientConfig = {
+          #     userService = false;
+          #     systemdParams = {
+          #       # before = [ "givc-${config.givc.host.agent.name}.service" ]; jarekk: The option `givc.host.agent' does not exist
+          #       wantedBy = [ "multi-user.target" ];
+          #     };
+          #   };
+          # };
         };
       description = ''
         Specifies the configuration of shared memory services:
@@ -252,7 +256,7 @@ in
             Restart = "always";
             RestartSec = "1";
             RuntimeDirectory = "memsocket";
-            RuntimeDirectoryMode = "0750";
+            RuntimeDirectoryMode = "0770";
           };
         } cfg.service.${data.service}.clientConfig.systemdParams;
       clientConfigTemplate =
@@ -403,11 +407,11 @@ in
         );
       }
       # override the default configuration of the host givc service
-      {
-        givc.host.admin = lib.mkIf (lib.elem "host" enabledServices.admin.clients) (lib.mkForce {
-          addr = builtins.toString enabledServices.admin.clientSocketPath;
-          protocol = "unix";
-        });
+      { # jarekk: fixme
+        # givc.host.admin = lib.mkIf (lib.elem "host" enabledServices.admin.clients) (lib.mkForce {
+        #   addr = builtins.toString enabledServices.admin.clientSocketPath;
+        #   protocol = "unix";
+        # });
       }
       {
         #config.ghaf.givc.adminvm 
