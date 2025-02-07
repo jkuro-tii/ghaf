@@ -30,23 +30,19 @@ let
       ) enabledServices
     ); in builtins.trace t t;
   allVMs = let t = lib.unique (
-    lib.flatten (
-      lib.mapAttrsToList (
-        _serviceName: serviceAttrs:
-        if serviceAttrs.serverConfig.runsOnVm then 
-        (lib.filter (client: client != "host")serviceAttrs.clients) ++ [ serviceAttrs.server ] else [ ]
-      ) enabledServices
-    )
+    lib.concatLists (map (s: (lib.filter (client: client != "host") s.clients) ++ [ s.server ]) (builtins.attrValues enabledServices))
   ); in builtins.trace t t; 
-  clientServicePairs = let t = (lib.flatten (
-    lib.mapAttrsToList (
-      serverName: serverAttrs:
-      lib.map (client: {
-        service = serverName;
-        inherit client;
-      }) serverAttrs.clients
-    ) enabledServices
-  )); in builtins.trace t t;
+  clientServicePairs = let t = lib.unique (
+    lib.concatLists (
+      map (
+        s:
+        map (c: {
+          service = s.name;
+          client = c;
+        }) s.clients
+      ) (lib.mapAttrsToList (name: attrs: attrs // { inherit name; }) enabledServices)
+    )
+  ); in builtins.trace t t;
   clientServiceWithID = lib.foldl' (
     acc: pair: acc ++ [ (pair // { id = builtins.length acc; }) ]
   ) [ ] clientServicePairs;
