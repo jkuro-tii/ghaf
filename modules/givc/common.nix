@@ -108,6 +108,12 @@ in
       inherit (adminAddress) name;
       addresses = [
         adminAddress
+        {
+          port = adminAddress.port; # the port value is set only because it's used by firewall
+          name = ""; 
+          addr = "/tmp/memsocket-admin-host";
+          protocol = "unix";       
+        }
       ];
     };
   };

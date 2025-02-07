@@ -174,12 +174,13 @@ in
           };
           admin = lib.attrsets.recursiveUpdate (stdConfig "admin") {
             enabled = true; #config.givc.host.enable;
+            serverSocketPath = _1: _2: (builtins.elemAt config.ghaf.givc.adminConfig.addresses 1).addr;
             serverConfig = {
               runsOnVm = true;
               userService = false;
               systemdParams = {
                 wantedBy = [ "multi-user.target" ];
-                after = [ "givc-admin.service" ];
+                before = [ "givc-admin.service" ];
               };
             };
             clients = [
