@@ -109,10 +109,10 @@ in
       addresses = [
         adminAddress
         {
-          port = adminAddress.port; # the port value is set only because it's used by firewall
-          name = ""; 
-          addr = "/tmp/memsocket-admin-host";
-          protocol = "unix";       
+          port = "9001"; # the port value is set only because it's used by firewall
+          name = "admin-vm"; 
+          addr = hosts."admin-vm".ipv4; #"tmp/memsocket-admin-host";
+          protocol = "tcp";       
         }
       ];
     };

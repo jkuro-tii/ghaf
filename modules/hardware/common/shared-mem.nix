@@ -22,13 +22,13 @@ let
   enabledVmServices =
     isVM:
     lib.filterAttrs (_name: serverAttrs: serverAttrs.serverConfig.runsOnVm == isVM) enabledServices;
-  clientsPerService =let t = 
+  clientsPerService =
     service:
     lib.flatten (
       lib.mapAttrsToList (
         name: value: if (name == service || service == "all") then value.clients else [ ]
       ) enabledServices
-    ); in builtins.trace t t;
+    );
   allVMs = let t = lib.unique (
     lib.concatLists (map (s: (lib.filter (client: client != "host") s.clients) ++ [ s.server ]) (builtins.attrValues enabledServices))
   ); in builtins.trace t t; 
@@ -174,7 +174,7 @@ in
           };
           admin = lib.attrsets.recursiveUpdate (stdConfig "admin") {
             enabled = true; #config.givc.host.enable;
-            serverSocketPath = _1: _2: (builtins.elemAt config.ghaf.givc.adminConfig.addresses 1).addr;
+            serverSocketPath = _1: _2: "(builtins.elemAt config.ghaf.givc.adminConfig.addresses 1).addr";
             serverConfig = {
               runsOnVm = true;
               userService = false;
@@ -185,12 +185,12 @@ in
             };
             clients = [
               "host"
-              "chrome-vm"
             ];
             clientConfig = {
               userService = false;
               systemdParams = {
                 # before = [ "givc-${config.givc.host.agent.name}.service" ]; jarekk: The option `givc.host.agent' does not exist
+                after = [ "ivshmemsrv.service" ];
                 wantedBy = [ "multi-user.target" ];
               };
             };
@@ -241,7 +241,12 @@ in
           description = "memsocket";
           serviceConfig = {
             Type = "simple";
-            ExecStart = "${memsocket}/bin/memsocket -c ${
+            ExecStart = let hostOpt = 
+              if data.client == "host" then 
+                "-h ${cfg.hostSocketPath}" 
+              else "";
+            in 
+            "${memsocket}/bin/memsocket ${hostOpt} -c ${
               cfg.service.${data.service}.clientSocketPath
             } ${builtins.toString (clientID data.client data.service)}";
             Restart = "always";
