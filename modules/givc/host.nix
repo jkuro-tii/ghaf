@@ -39,7 +39,7 @@ in
         "suspend.target"
       ] ++ map (vmName: "microvm@${vmName}.service") (attrNames config.microvm.vms);
       tls.enable = config.ghaf.givc.enableTls;
-      admin = head config.ghaf.givc.adminConfig.addresses;
+      admin = { port = "N/A"; name = "N/A"; protocol = "unix"; addr = config.shm.service.admin.clientSocketPath; }; # jarekk: TODO
     };
 
     givc.tls = {

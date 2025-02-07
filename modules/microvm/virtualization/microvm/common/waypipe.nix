@@ -15,7 +15,7 @@
 }:
 let
   cfg = config.ghaf.waypipe;
-  cfgShm = configHost.ghaf.shm.service;
+  cfgShm = configHost.shm.service;
   waypipePort = configHost.ghaf.virtualization.microvm.appvm.waypipeBasePort + vmIndex;
   waypipeBorder = lib.optionalString (
     cfg.waypipeBorder && vm.borderColor != null

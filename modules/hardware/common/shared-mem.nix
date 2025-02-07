@@ -10,7 +10,7 @@
   ...
 }:
 let
-  cfg = config.ghaf.shm;
+  cfg = config.shm;
   inherit (lib)
     foldl'
     mkMerge
@@ -18,29 +18,27 @@ let
     mkOption
     types
     ;
-  # inherit (import ../../definitions.nix { inherit config lib; })
-    # transportSubmodule
-    # ;
   enabledServices = lib.filterAttrs (_name: serverAttrs: serverAttrs.enabled) cfg.service;
   enabledVmServices =
     isVM:
     lib.filterAttrs (_name: serverAttrs: serverAttrs.serverConfig.runsOnVm == isVM) enabledServices;
-  clientsPerService =
+  clientsPerService =let t = 
     service:
     lib.flatten (
       lib.mapAttrsToList (
         name: value: if (name == service || service == "all") then value.clients else [ ]
       ) enabledServices
-    );
-  allVMs = lib.unique (
+    ); in builtins.trace t t;
+  allVMs = let t = lib.unique (
     lib.flatten (
       lib.mapAttrsToList (
         _serviceName: serviceAttrs:
-        if serviceAttrs.serverConfig.runsOnVm then serviceAttrs.clients ++ [ serviceAttrs.server ] else [ ]
+        if serviceAttrs.serverConfig.runsOnVm then 
+        (lib.filter (client: client != "host")serviceAttrs.clients) ++ [ serviceAttrs.server ] else [ ]
       ) enabledServices
     )
-  );
-  clientServicePairs = lib.flatten (
+  ); in builtins.trace t t; 
+  clientServicePairs = let t = (lib.flatten (
     lib.mapAttrsToList (
       serverName: serverAttrs:
       lib.map (client: {
@@ -48,7 +46,7 @@ let
         inherit client;
       }) serverAttrs.clients
     ) enabledServices
-  );
+  )); in builtins.trace t t;
   clientServiceWithID = lib.foldl' (
     acc: pair: acc ++ [ (pair // { id = builtins.length acc; }) ]
   ) [ ] clientServicePairs;
@@ -73,7 +71,7 @@ let
   ) { } clientServiceWithID;
 in
 {
-  options.ghaf.shm = {
+  options.shm = {
     enable = mkOption {
       type = types.bool;
       default = true;
@@ -143,16 +141,12 @@ in
                 serviceConfig = {
                   User = "appuser";
                   Group = "users";
-                  #User = "root";
-                  # RuntimeDirectory = "memsocket-gui";
-                  # RuntimeDirectoryMode = "0757";
-                  # UMask = "0000";
                 };
               };
             };
           };
           audio = lib.attrsets.recursiveUpdate (stdConfig "audio") {
-            enabled = true; # config.ghaf.services.audio.pulseaudioUseShmem; # jarekk: fixme
+            enabled = config.ghaf.services.audio.pulseaudioUseShmem; # jarekk: fixme
             serverSocketPath = _service: _suffix: config.ghaf.services.audio.pulseaudioUnixSocketPath;
             serverConfig = {
               userService = false;
@@ -182,28 +176,28 @@ in
               };
             };
           };
-          # admin = lib.attrsets.recursiveUpdate (stdConfig "admin") {
-          #   enabled = config.givc.host.enable;
-          #   serverConfig = {
-          #     runsOnVm = true;
-          #     userService = false;
-          #     systemdParams = {
-          #       wantedBy = [ "multi-user.target" ];
-          #       after = [ "givc-admin.service" ];
-          #     };
-          #   };
-          #   clients = [
-          #     "host"
-          #     "chrome-vm"
-          #   ];
-          #   clientConfig = {
-          #     userService = false;
-          #     systemdParams = {
-          #       # before = [ "givc-${config.givc.host.agent.name}.service" ]; jarekk: The option `givc.host.agent' does not exist
-          #       wantedBy = [ "multi-user.target" ];
-          #     };
-          #   };
-          # };
+          admin = lib.attrsets.recursiveUpdate (stdConfig "admin") {
+            enabled = true; #config.givc.host.enable;
+            serverConfig = {
+              runsOnVm = true;
+              userService = false;
+              systemdParams = {
+                wantedBy = [ "multi-user.target" ];
+                after = [ "givc-admin.service" ];
+              };
+            };
+            clients = [
+              "host"
+              "chrome-vm"
+            ];
+            clientConfig = {
+              userService = false;
+              systemdParams = {
+                # before = [ "givc-${config.givc.host.agent.name}.service" ]; jarekk: The option `givc.host.agent' does not exist
+                wantedBy = [ "multi-user.target" ];
+              };
+            };
+          };
         };
       description = ''
         Specifies the configuration of shared memory services:
@@ -401,11 +395,11 @@ in
         );
       }
       # add host systemd servers services
-      {
-        systemd = lib.foldl' lib.attrsets.recursiveUpdate { } (
-          map serverConfig (builtins.attrNames (enabledVmServices false))
-        );
-      }
+      # {
+      #   systemd = lib.foldl' lib.attrsets.recursiveUpdate { } (
+      #     map serverConfig (builtins.attrNames (enabledVmServices false))
+      #   );
+      # }
       # override the default configuration of the host givc service
       { # jarekk: fixme
         # givc.host.admin = lib.mkIf (lib.elem "host" enabledServices.admin.clients) (lib.mkForce {
