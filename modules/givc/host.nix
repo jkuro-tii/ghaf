@@ -26,12 +26,11 @@ in
     # Configure host service
     givc.host = {
       enable = true;
-      inherit (config.ghaf.givc) debug;
+      # inherit (config.ghaf.givc) debug;
+      debug = true;
       transport = {
-        name = hostName;
-        addr = hosts.${hostName}.ipv4;
-        port = "9000";
-        protocol = "tcp";
+        addr = config.shm.service.adminVm-host.serverSocketPath "givc" "-admin-vm";
+        protocol = "unix"; 
       };
       services = [
         "reboot.target"
@@ -39,7 +38,10 @@ in
         "suspend.target"
       ] ++ map (vmName: "microvm@${vmName}.service") (attrNames config.microvm.vms);
       tls.enable = config.ghaf.givc.enableTls;
-      admin = { port = "N/A"; name = "N/A"; protocol = "unix"; addr = config.shm.service.admin.clientSocketPath; }; # jarekk: TODO
+      admin = { 
+        addr = config.shm.service.host-adminVm.clientSocketPath; 
+        protocol = "unix"; 
+      }; # jarekk: TODO
     };
 
     givc.tls = {

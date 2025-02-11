@@ -109,10 +109,10 @@ in
       addresses = [
         adminAddress
         {
-          port = "9001"; # the port value is set only because it's used by firewall
-          name = "admin-vm"; 
-          addr = hosts."admin-vm".ipv4; #"tmp/memsocket-admin-host";
-          protocol = "tcp";       
+          port = "9000"; # jarekk: to be removed after givc is fixed: the port value is set only because it's used by firewall
+#          name = "admin-vm"; # jarekk: this is probably not needed
+          addr = "/tmp/memsocket-admin-host";
+          protocol = "unix";       
         }
       ];
     };

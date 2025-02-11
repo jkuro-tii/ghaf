@@ -105,7 +105,7 @@ in
           stdConfig = service: {
             server = "${service}-vm";
             clientSocketPath = "/run/memsocket/${service}-client.sock";
-            serverSocketPath = service: suffix: "/run/memsocket-${service}/${service}${suffix}.sock";
+            serverSocketPath = service: suffix: "/run/memsocket/${service}${suffix}.sock";
             userService = false;
             serverConfig = {
               runsOnVm = true;
@@ -172,9 +172,9 @@ in
               };
             };
           };
-          admin = lib.attrsets.recursiveUpdate (stdConfig "admin") {
-            enabled = true; #config.givc.host.enable;
-            serverSocketPath = _1: _2: "(builtins.elemAt config.ghaf.givc.adminConfig.addresses 1).addr";
+          host-adminVm = lib.attrsets.recursiveUpdate (stdConfig "admin") {
+            enabled = true; #config.givc.host.enable; # jarekk: fixme?
+            serverSocketPath = _1: _2: (builtins.elemAt config.ghaf.givc.adminConfig.addresses 1).addr;
             serverConfig = {
               runsOnVm = true;
               userService = false;
@@ -192,6 +192,29 @@ in
                 # before = [ "givc-${config.givc.host.agent.name}.service" ]; jarekk: The option `givc.host.agent' does not exist
                 after = [ "ivshmemsrv.service" ];
                 wantedBy = [ "multi-user.target" ];
+              };
+            };
+          };
+          adminVm-host = lib.attrsets.recursiveUpdate (stdConfig "admin") {
+            enabled = true; #config.givc.host.enable;
+            # serverSocketPath = _1: _2: (builtins.elemAt config.ghaf.givc.adminConfig.addresses 1).addr;
+            serverConfig = {
+              runsOnVm = false;
+              userService = false;
+              systemdParams = {
+                after = [ "ivshmemsrv.service" ];
+                wantedBy = [ "multi-user.target" ];
+              };
+            };
+            clients = [
+              "admin-vm"
+            ];
+            clientConfig = {
+              userService = false;
+              systemdParams = {
+                # before = [ "givc-${config.givc.host.agent.name}.service" ]; jarekk: The option `givc.host.agent' does not exist
+                wantedBy = [ "multi-user.target" ];
+                before = [ "givc-admin.service" ];
               };
             };
           };
@@ -277,15 +300,20 @@ in
           };
 
       defaultServerConfig =
-        clientSuffix: clientId: service:
+        clientSuffix: clientId: service: runsOnVm:
         lib.attrsets.recursiveUpdate {
           enable = true;
           description = "memsocket";
           serviceConfig = {
             Type = "simple";
-            ExecStart = "${memsocket}/bin/memsocket -s ${
+            ExecStart = let hostOpt = 
+              if !runsOnVm then 
+                "-h ${cfg.hostSocketPath}" 
+              else "";
+            in
+            "${memsocket}/bin/memsocket -s ${
               cfg.service.${service}.serverSocketPath service clientSuffix
-            } -l ${clientId}";
+            } ${hostOpt} -l ${clientId}";
             Restart = "always";
             RestartSec = "1";
             RuntimeDirectory = "memsocket";
@@ -299,14 +327,14 @@ in
             if cfg.service.${service}.serverConfig.userService then
               {
                 user.services."memsocket-${service}${clientSuffix}-service" =
-                  defaultServerConfig clientSuffix clientId
-                    service;
+                  defaultServerConfig clientSuffix clientId 
+                    service cfg.service.${service}.serverConfig.runsOnVm;
               }
             else
               {
                 services."memsocket-${service}${clientSuffix}-service" =
-                  defaultServerConfig clientSuffix clientId
-                    service;
+                  defaultServerConfig clientSuffix clientId 
+                    service cfg.service.${service}.serverConfig.runsOnVm;
               };
         in
         if cfg.service.${service}.serverConfig.runsOnVm then
@@ -396,12 +424,12 @@ in
           map clientConfigTemplate (lib.filter (data: data.client == "host") clientServicePairs)
         );
       }
-      # add host systemd servers services
-      # {
-      #   systemd = lib.foldl' lib.attrsets.recursiveUpdate { } (
-      #     map serverConfig (builtins.attrNames (enabledVmServices false))
-      #   );
-      # }
+      # add host systemd server services
+      {
+        systemd = lib.foldl' lib.attrsets.recursiveUpdate { } (
+          map serverConfig (builtins.attrNames (enabledVmServices false))
+        );
+      }
       # override the default configuration of the host givc service
       { # jarekk: fixme
         # givc.host.admin = lib.mkIf (lib.elem "host" enabledServices.admin.clients) (lib.mkForce {

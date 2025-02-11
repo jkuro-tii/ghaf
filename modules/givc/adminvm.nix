@@ -12,7 +12,6 @@ in
 {
   options.ghaf.givc.adminvm = {
     enable = mkEnableOption "Enable adminvm givc module.";
-    KKKKKK = mkEnableOption "Enable adminvm givc module.";
   };
   # options.ghaf.givc.admin = {
   #   addresses = lib.mkOption {
@@ -27,7 +26,8 @@ in
     # Configure admin service
     givc.admin = {
       enable = true;
-      inherit (config.ghaf.givc) debug;
+      # inherit (config.ghaf.givc) debug;
+      debug = true;
       inherit name;
       inherit (config.ghaf.givc.adminConfig) addresses;
       services = map (host: "givc-${host}.service") systemHosts;
