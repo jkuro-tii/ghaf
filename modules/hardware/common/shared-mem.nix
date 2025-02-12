@@ -197,7 +197,8 @@ in
           };
           adminVm-host = lib.attrsets.recursiveUpdate (stdConfig "admin") {
             enabled = true; #config.givc.host.enable;
-            # serverSocketPath = _1: _2: (builtins.elemAt config.ghaf.givc.adminConfig.addresses 1).addr;
+            serverSocketPath = _1: _2: "/run/memsocket/host-adminvm.sock";
+            clientSocketPath = "/run/memsocket/host-adminvm.sock";
             serverConfig = {
               runsOnVm = false;
               userService = false;

@@ -29,7 +29,7 @@ in
       # inherit (config.ghaf.givc) debug;
       debug = true;
       transport = {
-        addr = config.shm.service.adminVm-host.serverSocketPath "givc" "-admin-vm";
+        addr = config.shm.service.adminVm-host.serverSocketPath "" "";
         protocol = "unix"; 
       };
       services = [
@@ -41,6 +41,11 @@ in
       admin = { 
         addr = config.shm.service.host-adminVm.clientSocketPath; 
         protocol = "unix"; 
+          #         port = "9001"; # the port value is set only because it's used by firewall
+          # name = "admin-vm"; 
+          # addr = hosts."admin-vm".ipv4; #"tmp/memsocket-admin-host";
+          # protocol = "tcp";       
+
       }; # jarekk: TODO
     };
 
