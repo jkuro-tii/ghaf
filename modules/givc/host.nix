@@ -39,12 +39,12 @@ in
       ] ++ map (vmName: "microvm@${vmName}.service") (attrNames config.microvm.vms);
       tls.enable = config.ghaf.givc.enableTls;
       admin = { 
+        name = hostName;
         addr = config.shm.service.host-adminVm.clientSocketPath; 
+        #         port = "9001"; # the port value is set only because it's used by firewall
         protocol = "unix"; 
-          #         port = "9001"; # the port value is set only because it's used by firewall
-          # name = "admin-vm"; 
-          # addr = hosts."admin-vm".ipv4; #"tmp/memsocket-admin-host";
-          # protocol = "tcp";       
+        # addr = hosts."admin-vm".ipv4; #"tmp/memsocket-admin-host";
+        # protocol = "tcp";       
 
       }; # jarekk: TODO
     };

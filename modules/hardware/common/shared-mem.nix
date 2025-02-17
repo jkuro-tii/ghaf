@@ -256,7 +256,7 @@ in
     let
       user = "microvm";
       group = "kvm";
-      memsocket = pkgs.callPackage ../../../packages/memsocket { inherit (cfg) shmSlots; };
+      memsocket = pkgs.callPackage ../../../packages/memsocket { inherit (cfg) shmSlots; debug = true;};
       vectors = toString (2 * cfg.shmSlots);
       defaultClientConfig =
         data:

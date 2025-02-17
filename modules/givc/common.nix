@@ -110,7 +110,7 @@ in
         adminAddress
         {
           port = "9000"; # jarekk: to be removed after givc is fixed: the port value is set only because it's used by firewall
-#          name = "admin-vm"; # jarekk: this is probably not needed
+          name = "admin-vm";
           addr = "/tmp/memsocket-admin-host";
           protocol = "unix";       
         }
