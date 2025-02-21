@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 { config, lib, ... }:
 let
-  cfg = let tmp = config.ghaf.givc.adminvm; in builtins.trace tmp tmp;
+  cfg = config.ghaf.givc.adminvm;
   inherit (lib) mkEnableOption mkIf;
   inherit (config.ghaf.givc.adminConfig) name;
   systemHosts = lib.lists.subtractLists (config.ghaf.common.appHosts ++ [ name ]) (

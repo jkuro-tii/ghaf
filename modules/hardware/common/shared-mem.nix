@@ -29,10 +29,10 @@ let
         name: value: if (name == service || service == "all") then value.clients else [ ]
       ) enabledServices
     );
-  allVMs = let t = lib.unique (
+  allVMs = lib.unique (
     lib.concatLists (map (s: (lib.filter (client: client != "host") s.clients) ++ [ s.server ]) (builtins.attrValues enabledServices))
-  ); in builtins.trace t t; 
-  clientServicePairs = let t = lib.unique (
+  );
+  clientServicePairs = lib.unique (
     lib.concatLists (
       map (
         s:
@@ -42,7 +42,7 @@ let
         }) s.clients
       ) (lib.mapAttrsToList (name: attrs: attrs // { inherit name; }) enabledServices)
     )
-  ); in builtins.trace t t;
+  );
   clientServiceWithID = lib.foldl' (
     acc: pair: acc ++ [ (pair // { id = builtins.length acc; }) ]
   ) [ ] clientServicePairs;
@@ -175,12 +175,14 @@ in
           host-adminVm = lib.attrsets.recursiveUpdate (stdConfig "admin") {
             enabled = true; #config.givc.host.enable; # jarekk: fixme?
             serverSocketPath = _1: _2: (builtins.elemAt config.ghaf.givc.adminConfig.addresses 1).addr;
+            # /tmp/memsocket-host-admin.sock
+            clientSocketPath = "/tmp/memsocket-host-admin.sock";
             serverConfig = {
               runsOnVm = true;
               userService = false;
               systemdParams = {
                 wantedBy = [ "multi-user.target" ];
-                before = [ "givc-admin.service" ];
+                after = [ "givc-admin.service" ];
               };
             };
             clients = [
@@ -189,21 +191,21 @@ in
             clientConfig = {
               userService = false;
               systemdParams = {
-                # before = [ "givc-${config.givc.host.agent.name}.service" ]; jarekk: The option `givc.host.agent' does not exist
                 after = [ "ivshmemsrv.service" ];
+                before = [ "givc-${config.givc.host.transport.name}.service" ];
                 wantedBy = [ "multi-user.target" ];
               };
             };
           };
           adminVm-host = lib.attrsets.recursiveUpdate (stdConfig "admin") {
             enabled = true; #config.givc.host.enable;
-            serverSocketPath = _1: _2: "/run/memsocket/host-adminvm.sock";
-            clientSocketPath = "/run/memsocket/host-adminvm.sock";
+            serverSocketPath = _1: _2: "/run/memsocket/adminvm-host.sock";
+            clientSocketPath = "/run/memsocket/adminvm-host.sock";
             serverConfig = {
               runsOnVm = false;
               userService = false;
               systemdParams = {
-                after = [ "ivshmemsrv.service" ];
+                after = [ "ivshmemsrv.service" "givc-${config.givc.host.transport.name}.service" ];
                 wantedBy = [ "multi-user.target" ];
               };
             };
@@ -213,9 +215,8 @@ in
             clientConfig = {
               userService = false;
               systemdParams = {
-                # before = [ "givc-${config.givc.host.agent.name}.service" ]; jarekk: The option `givc.host.agent' does not exist
-                wantedBy = [ "multi-user.target" ];
                 before = [ "givc-admin.service" ];
+                wantedBy = [ "multi-user.target" ];
               };
             };
           };

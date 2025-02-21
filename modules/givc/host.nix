@@ -27,8 +27,10 @@ in
     givc.host = {
       enable = true;
       # inherit (config.ghaf.givc) debug;
+      # jarekk: revert!
       debug = true;
       transport = {
+        name = hostName;
         addr = config.shm.service.adminVm-host.serverSocketPath "" "";
         protocol = "unix"; 
       };
@@ -39,14 +41,11 @@ in
       ] ++ map (vmName: "microvm@${vmName}.service") (attrNames config.microvm.vms);
       tls.enable = config.ghaf.givc.enableTls;
       admin = { 
-        name = hostName;
+        name = "admin-vm";
         addr = config.shm.service.host-adminVm.clientSocketPath; 
-        #         port = "9001"; # the port value is set only because it's used by firewall
         protocol = "unix"; 
-        # addr = hosts."admin-vm".ipv4; #"tmp/memsocket-admin-host";
-        # protocol = "tcp";       
 
-      }; # jarekk: TODO
+      };
     };
 
     givc.tls = {

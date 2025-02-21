@@ -57,7 +57,7 @@ in
     enableTls = mkOption {
       description = "Enable TLS for gRPC communication globally, or disable for debugging.";
       type = types.bool;
-      default = true;
+      default = false;
     };
     idsExtraArgs = mkOption {
       description = "Extra arguments for applications when IDS/MITM is enabled.";
@@ -111,7 +111,7 @@ in
         {
           port = "9000"; # jarekk: to be removed after givc is fixed: the port value is set only because it's used by firewall
           name = "admin-vm";
-          addr = "/tmp/memsocket-admin-host";
+          addr = "/tmp/memsocket-host-admin.sock";
           protocol = "unix";       
         }
       ];
