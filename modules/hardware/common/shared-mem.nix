@@ -30,7 +30,11 @@ let
       ) enabledServices
     );
   allVMs = lib.unique (
-    lib.concatLists (map (s: (lib.filter (client: client != "host") s.clients) ++ [ s.server ]) (builtins.attrValues enabledServices))
+    lib.concatLists (
+      map (s: (lib.filter (client: client != "host") s.clients) ++ [ s.server ]) (
+        builtins.attrValues enabledServices
+      )
+    )
   );
   clientServicePairs = lib.unique (
     lib.concatLists (
@@ -173,9 +177,8 @@ in
             };
           };
           host-adminVm = lib.attrsets.recursiveUpdate (stdConfig "admin") {
-            enabled = true; #config.givc.host.enable; # jarekk: fixme?
+            enabled = true; # config.givc.host.enable; # jarekk: fixme?
             serverSocketPath = _1: _2: (builtins.elemAt config.ghaf.givc.adminConfig.addresses 1).addr;
-            # /tmp/memsocket-host-admin.sock
             clientSocketPath = "/tmp/memsocket-host-admin.sock";
             serverConfig = {
               runsOnVm = true;
@@ -198,14 +201,17 @@ in
             };
           };
           adminVm-host = lib.attrsets.recursiveUpdate (stdConfig "admin") {
-            enabled = true; #config.givc.host.enable;
+            enabled = true; # config.givc.host.enable;
             serverSocketPath = _1: _2: "/run/memsocket/adminvm-host.sock";
             clientSocketPath = "/run/memsocket/adminvm-host.sock";
             serverConfig = {
               runsOnVm = false;
               userService = false;
               systemdParams = {
-                after = [ "ivshmemsrv.service" "givc-${config.givc.host.transport.name}.service" ];
+                after = [
+                  "ivshmemsrv.service"
+                  "givc-${config.givc.host.transport.name}.service"
+                ];
                 wantedBy = [ "multi-user.target" ];
               };
             };
@@ -257,7 +263,10 @@ in
     let
       user = "microvm";
       group = "kvm";
-      memsocket = pkgs.callPackage ../../../packages/memsocket { inherit (cfg) shmSlots; debug = true;};
+      memsocket = pkgs.callPackage ../../../packages/memsocket {
+        inherit (cfg) shmSlots;
+        debug = false;
+      };
       vectors = toString (2 * cfg.shmSlots);
       defaultClientConfig =
         data:
@@ -266,14 +275,13 @@ in
           description = "memsocket";
           serviceConfig = {
             Type = "simple";
-            ExecStart = let hostOpt = 
-              if data.client == "host" then 
-                "-h ${cfg.hostSocketPath}" 
-              else "";
-            in 
-            "${memsocket}/bin/memsocket ${hostOpt} -c ${
-              cfg.service.${data.service}.clientSocketPath
-            } ${builtins.toString (clientID data.client data.service)}";
+            ExecStart =
+              let
+                hostOpt = if data.client == "host" then "-h ${cfg.hostSocketPath}" else "";
+              in
+              "${memsocket}/bin/memsocket ${hostOpt} -c ${
+                cfg.service.${data.service}.clientSocketPath
+              } ${builtins.toString (clientID data.client data.service)}";
             Restart = "always";
             RestartSec = "1";
             RuntimeDirectory = "memsocket";
@@ -308,14 +316,13 @@ in
           description = "memsocket";
           serviceConfig = {
             Type = "simple";
-            ExecStart = let hostOpt = 
-              if !runsOnVm then 
-                "-h ${cfg.hostSocketPath}" 
-              else "";
-            in
-            "${memsocket}/bin/memsocket -s ${
-              cfg.service.${service}.serverSocketPath service clientSuffix
-            } ${hostOpt} -l ${clientId}";
+            ExecStart =
+              let
+                hostOpt = if !runsOnVm then "-h ${cfg.hostSocketPath}" else "";
+              in
+              "${memsocket}/bin/memsocket -s ${
+                cfg.service.${service}.serverSocketPath service clientSuffix
+              } ${hostOpt} -l ${clientId}";
             Restart = "always";
             RestartSec = "1";
             RuntimeDirectory = "memsocket";
@@ -329,14 +336,14 @@ in
             if cfg.service.${service}.serverConfig.userService then
               {
                 user.services."memsocket-${service}${clientSuffix}-service" =
-                  defaultServerConfig clientSuffix clientId 
-                    service cfg.service.${service}.serverConfig.runsOnVm;
+                  defaultServerConfig clientSuffix clientId service
+                    cfg.service.${service}.serverConfig.runsOnVm;
               }
             else
               {
                 services."memsocket-${service}${clientSuffix}-service" =
-                  defaultServerConfig clientSuffix clientId 
-                    service cfg.service.${service}.serverConfig.runsOnVm;
+                  defaultServerConfig clientSuffix clientId service
+                    cfg.service.${service}.serverConfig.runsOnVm;
               };
         in
         if cfg.service.${service}.serverConfig.runsOnVm then
@@ -431,20 +438,6 @@ in
         systemd = lib.foldl' lib.attrsets.recursiveUpdate { } (
           map serverConfig (builtins.attrNames (enabledVmServices false))
         );
-      }
-      # override the default configuration of the host givc service
-      { # jarekk: fixme
-        # givc.host.admin = lib.mkIf (lib.elem "host" enabledServices.admin.clients) (lib.mkForce {
-        #   addr = builtins.toString enabledServices.admin.clientSocketPath;
-        #   protocol = "unix";
-        # });
-      }
-      {
-        #config.ghaf.givc.adminvm 
-        # givc.admin.addresses = let memsocketAddr = {
-        #   addr = (builtins.toString enabledServices.admin.serverSocketPath);
-        #   protocol = "unix";
-        # }; in [ ];#memsocketAddr ];
       }
       {
         microvm.vms =

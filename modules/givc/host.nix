@@ -12,7 +12,6 @@ let
   inherit (lib)
     mkEnableOption
     mkIf
-    head
     ;
   inherit (config.networking) hostName;
   inherit (config.ghaf.networking) hosts;
@@ -32,7 +31,7 @@ in
       transport = {
         name = hostName;
         addr = config.shm.service.adminVm-host.serverSocketPath "" "";
-        protocol = "unix"; 
+        protocol = "unix";
       };
       services = [
         "reboot.target"
@@ -40,10 +39,10 @@ in
         "suspend.target"
       ] ++ map (vmName: "microvm@${vmName}.service") (attrNames config.microvm.vms);
       tls.enable = config.ghaf.givc.enableTls;
-      admin = { 
+      admin = {
         name = "admin-vm";
-        addr = config.shm.service.host-adminVm.clientSocketPath; 
-        protocol = "unix"; 
+        addr = config.shm.service.host-adminVm.clientSocketPath;
+        protocol = "unix";
 
       };
     };

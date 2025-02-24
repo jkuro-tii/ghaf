@@ -112,7 +112,7 @@ in
           port = "9000"; # jarekk: to be removed after givc is fixed: the port value is set only because it's used by firewall
           name = "admin-vm";
           addr = "/tmp/memsocket-host-admin.sock";
-          protocol = "unix";       
+          protocol = "unix";
         }
       ];
     };

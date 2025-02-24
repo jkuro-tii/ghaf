@@ -5,7 +5,6 @@
 
   nixConfig = {
     substituters = [
-      "http://172.31.107.24:8080"
       "https://prod-cache.vedenemo.dev"
       "https://cache.ssrcdevops.tii.ae"
       "https://ghaf-dev.cachix.org"
@@ -111,7 +110,8 @@
 
     jetpack-nixos = {
       #url = "flake:mylocaljetpack";
-      url = "github:anduril/jetpack-nixos/d0b7275c03efdc1ca9d9a02597fffd18612cb28c";
+      #url = "github:anduril/jetpack-nixos/d1c82127de40e85c9c50295f157e1be59a9ad2a6";
+      url = "github:tiiuae/jetpack-nixos/final-stretch";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -138,8 +138,7 @@
     };
 
     givc = {
-      # url = "github:tiiuae/ghaf-givc/966559e0597e5584e3b740c8b3447129021f6446";
-      url = "path:/home/jaroslawkurowski/Project/Memshare/ghaf-givc";
+      url = "github:tiiuae/ghaf-givc/1e11144bfadaa46ceb7e403c714bcc75dea045b5";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         flake-parts.follows = "flake-parts";
@@ -151,7 +150,7 @@
     };
 
     ctrl-panel = {
-      url = "github:tiiuae/ghaf-ctrl-panel/5ca381ba51c05cf370299056f6e377cd6003283f";
+      url = "github:tiiuae/ghaf-ctrl-panel/ef4b843c975030a8156390e3aa6f5536da0ad5c9";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         flake-utils.follows = "flake-utils";
