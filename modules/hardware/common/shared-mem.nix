@@ -22,13 +22,7 @@ let
   enabledVmServices =
     isVM:
     lib.filterAttrs (_name: serverAttrs: serverAttrs.serverConfig.runsOnVm == isVM) enabledServices;
-  clientsPerService =
-    service:
-    lib.flatten (
-      lib.mapAttrsToList (
-        name: value: if (name == service || service == "all") then value.clients else [ ]
-      ) enabledServices
-    );
+  clientsPerService = service: enabledServices.${service}.clients;
   allVMs = lib.unique (
     lib.concatLists (
       map (s: (lib.filter (client: client != "host") s.clients) ++ [ s.server ]) (
