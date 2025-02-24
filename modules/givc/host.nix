@@ -30,7 +30,7 @@ in
       debug = true;
       transport = {
         name = hostName;
-        addr = config.shm.service.adminVm-host.serverSocketPath "" "";
+        addr = config.ghaf.shm.service.adminVm-host.serverSocketPath "" "";
         protocol = "unix";
       };
       services = [
@@ -41,7 +41,7 @@ in
       tls.enable = config.ghaf.givc.enableTls;
       admin = {
         name = "admin-vm";
-        addr = config.shm.service.host-adminVm.clientSocketPath;
+        addr = config.ghaf.shm.service.host-adminVm.clientSocketPath;
         protocol = "unix";
 
       };

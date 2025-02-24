@@ -10,7 +10,7 @@
   ...
 }:
 let
-  cfg = config.shm;
+  cfg = config.ghaf.shm;
   inherit (lib)
     foldl'
     mkMerge
@@ -18,12 +18,19 @@ let
     mkOption
     types
     ;
-  enabledServices = lib.filterAttrs (_name: serverAttrs: serverAttrs.enabled) cfg.service;
+  enabledServices = let t = lib.filterAttrs (_name: serverAttrs: serverAttrs.enable) cfg.service;
+  in builtins.trace t t;
   enabledVmServices =
     isVM:
     lib.filterAttrs (_name: serverAttrs: serverAttrs.serverConfig.runsOnVm == isVM) enabledServices;
-  clientsPerService = service: enabledServices.${service}.clients;
-  allVMs = lib.unique (
+  clientsPerService =
+    service:
+    lib.flatten (
+      lib.mapAttrsToList (
+        name: value: if (name == service || service == "all") then value.clients else [ ]
+      ) enabledServices
+    );
+    allVMs = lib.unique (
     lib.concatLists (
       map (s: (lib.filter (client: client != "host") s.clients) ++ [ s.server ]) (
         builtins.attrValues enabledServices
@@ -65,10 +72,10 @@ let
   ) { } clientServiceWithID;
 in
 {
-  options.shm = {
+  options.ghaf.shm = {
     enable = mkOption {
       type = types.bool;
-      default = true;
+      default = false;
       description = ''
         Enables shared memory communication between virtual machines (VMs) and the host
       '';
@@ -140,7 +147,7 @@ in
             };
           };
           audio = lib.attrsets.recursiveUpdate (stdConfig "audio") {
-            enabled = config.ghaf.services.audio.pulseaudioUseShmem; # jarekk: fixme
+            enabled = config.ghaf.services.audio.pulseaudioUseShmem;
             serverSocketPath = _service: _suffix: config.ghaf.services.audio.pulseaudioUnixSocketPath;
             serverConfig = {
               userService = false;
@@ -171,7 +178,7 @@ in
             };
           };
           host-adminVm = lib.attrsets.recursiveUpdate (stdConfig "admin") {
-            enabled = true; # config.givc.host.enable; # jarekk: fixme?
+            enabled = false;
             serverSocketPath = _1: _2: (builtins.elemAt config.ghaf.givc.adminConfig.addresses 1).addr;
             clientSocketPath = "/tmp/memsocket-host-admin.sock";
             serverConfig = {
@@ -195,7 +202,7 @@ in
             };
           };
           adminVm-host = lib.attrsets.recursiveUpdate (stdConfig "admin") {
-            enabled = true; # config.givc.host.enable;
+            enabled = false;
             serverSocketPath = _1: _2: "/run/memsocket/adminvm-host.sock";
             clientSocketPath = "/run/memsocket/adminvm-host.sock";
             serverConfig = {

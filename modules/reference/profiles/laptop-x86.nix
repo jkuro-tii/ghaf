@@ -135,6 +135,14 @@ in
         };
       };
 
+      # Shared memory
+      shm = {
+        enable = true;
+        service.gui.enable = true;
+        service.host-adminVm.enable = config.givc.host.enable;
+        adminVm-host.enable = config.givc.host.enable;
+      };
+
       reference.desktop.applications.enable = true;
     };
   };
