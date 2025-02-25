@@ -36,7 +36,7 @@ in
     };
     pulseaudioUseShmem = mkOption {
       type = types.bool;
-      default = true; # jarekk: reverse to false
+      default = false;
       description = "Use shared memory for audio service";
     };
   };

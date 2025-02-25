@@ -18,8 +18,7 @@ let
     mkOption
     types
     ;
-  enabledServices = let t = lib.filterAttrs (_name: serverAttrs: serverAttrs.enable) cfg.service;
-  in builtins.trace t t;
+  enabledServices = lib.filterAttrs (_name: serverAttrs: serverAttrs.enabled) cfg.service;
   enabledVmServices =
     isVM:
     lib.filterAttrs (_name: serverAttrs: serverAttrs.serverConfig.runsOnVm == isVM) enabledServices;
@@ -30,7 +29,7 @@ let
         name: value: if (name == service || service == "all") then value.clients else [ ]
       ) enabledServices
     );
-    allVMs = lib.unique (
+  allVMs = lib.unique (
     lib.concatLists (
       map (s: (lib.filter (client: client != "host") s.clients) ++ [ s.server ]) (
         builtins.attrValues enabledServices
@@ -80,6 +79,20 @@ in
         Enables shared memory communication between virtual machines (VMs) and the host
       '';
     };
+    gui = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Enables shared memory for transferring GUI data between virtual machines
+      '';
+    };
+    givcHost = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Enables shared memory for transferring GIVC data between the host and the admin VM
+      '';
+    };
     memSize = mkOption {
       type = types.int;
       default = 32;
@@ -119,7 +132,7 @@ in
         in
         {
           gui = lib.attrsets.recursiveUpdate (stdConfig "gui") {
-            enabled = true;
+            enabled = cfg.gui;
             serverSocketPath = service: suffix: "/tmp/${service}${suffix}.sock";
             serverConfig = {
               userService = true;
@@ -178,7 +191,7 @@ in
             };
           };
           host-adminVm = lib.attrsets.recursiveUpdate (stdConfig "admin") {
-            enabled = false;
+            enabled = config.givc.host.enable && cfg.givcHost;
             serverSocketPath = _1: _2: (builtins.elemAt config.ghaf.givc.adminConfig.addresses 1).addr;
             clientSocketPath = "/tmp/memsocket-host-admin.sock";
             serverConfig = {
@@ -202,7 +215,7 @@ in
             };
           };
           adminVm-host = lib.attrsets.recursiveUpdate (stdConfig "admin") {
-            enabled = false;
+            enabled = config.givc.host.enable && cfg.givcHost;
             serverSocketPath = _1: _2: "/run/memsocket/adminvm-host.sock";
             clientSocketPath = "/run/memsocket/adminvm-host.sock";
             serverConfig = {
@@ -414,7 +427,7 @@ in
           in
           {
             enable = true;
-            description = "Start qemu ivshmem memory server";
+            description = "qemu ivshmem memory server";
             path = [ ivShMemSrv ];
             wantedBy = [ "multi-user.target" ];
             serviceConfig = {

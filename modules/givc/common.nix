@@ -57,6 +57,7 @@ in
     enableTls = mkOption {
       description = "Enable TLS for gRPC communication globally, or disable for debugging.";
       type = types.bool;
+      # jarekk: revert
       default = false;
     };
     idsExtraArgs = mkOption {
@@ -109,7 +110,7 @@ in
       addresses = [
         adminAddress
         {
-          port = "9000"; # jarekk: to be removed after givc is fixed: the port value is set only because it's used by firewall
+          port = "9000";
           name = "admin-vm";
           addr = "/tmp/memsocket-host-admin.sock";
           protocol = "unix";
