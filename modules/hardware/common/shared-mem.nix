@@ -69,6 +69,57 @@ let
       }
     )
   ) { } clientServiceWithID;
+  enabledServices = lib.filterAttrs (_name: serverAttrs: serverAttrs.enabled) cfg.service;
+  enabledVmServices =
+    isVM:
+    lib.filterAttrs (_name: serverAttrs: serverAttrs.serverConfig.runsOnVm == isVM) enabledServices;
+  clientsPerService =
+    service:
+    lib.flatten (
+      lib.mapAttrsToList (
+        name: value: if (name == service || service == "all") then value.clients else [ ]
+      ) enabledServices
+    );
+  allVMs = lib.unique (
+    lib.concatLists (
+      map (s: (lib.filter (client: client != "host") s.clients) ++ [ s.server ]) (
+        builtins.attrValues enabledServices
+      )
+    )
+  );
+  clientServicePairs = lib.unique (
+    lib.concatLists (
+      map (
+        s:
+        map (c: {
+          service = s.name;
+          client = c;
+        }) s.clients
+      ) (lib.mapAttrsToList (name: attrs: attrs // { inherit name; }) enabledServices)
+    )
+  );
+  clientServiceWithID = lib.foldl' (
+    acc: pair: acc ++ [ (pair // { id = builtins.length acc; }) ]
+  ) [ ] clientServicePairs;
+  clientID =
+    client: service:
+    let
+      filtered = builtins.filter (x: x.client == client && x.service == service) clientServiceWithID;
+    in
+    if filtered != [ ] then (builtins.toString (builtins.head filtered).id) else null;
+  clientsArg = lib.foldl' (
+    acc: pair:
+    (
+      acc
+      // {
+        "${pair.service}" =
+          if (builtins.hasAttr "${pair.service}" acc) then
+            acc.${pair.service} + "," + (builtins.toString pair.id)
+          else
+            (builtins.toString pair.id);
+      }
+    )
+  ) { } clientServiceWithID;
 in
 {
   options.ghaf.shm = {
@@ -84,10 +135,19 @@ in
       default = false;
       description = ''
         Enables shared memory for transferring GUI data between virtual machines
+        Enables shared memory communication between virtual machines (VMs) and the host
+      '';
+    };
+    gui = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Enables shared memory for transferring GUI data between virtual machines
       '';
     };
     memSize = mkOption {
       type = types.int;
+      default = 32;
       default = 32;
       description = ''
         Specifies the size of the shared memory region, measured in
@@ -221,7 +281,9 @@ in
       '';
     };
     shmSlots = mkOption {
+    shmSlots = mkOption {
       type = types.int;
+      default = builtins.length clientServiceWithID;
       default = builtins.length clientServiceWithID;
       description = ''
         Number of memory slots allocated in the shared memory region
@@ -360,6 +422,7 @@ in
         ];
       }
       (mkIf cfg.enable {
+      (mkIf cfg.enable {
         environment.systemPackages = [
           memsocket
         ];
@@ -370,6 +433,7 @@ in
             pidFilePath = "/tmp/ivshmem-server.pid";
             ivShMemSrv =
               let
+                vectors = toString (2 * cfg.shmSlots);
                 vectors = toString (2 * cfg.shmSlots);
               in
               pkgs.writeShellScriptBin "ivshmemsrv" ''
@@ -382,6 +446,7 @@ in
           in
           {
             enable = true;
+            description = "qemu ivshmem memory server";
             description = "qemu ivshmem memory server";
             path = [ ivShMemSrv ];
             wantedBy = [ "multi-user.target" ];
@@ -408,9 +473,22 @@ in
           map serverConfig (builtins.attrNames (enabledVmServices false))
         );
       }
+      # add host systemd client services
+      {
+        systemd = foldl' lib.attrsets.recursiveUpdate { } (
+          map clientConfigTemplate (lib.filter (data: data.client == "host") clientServicePairs)
+        );
+      }
+      # add host systemd server services
+      {
+        systemd = lib.foldl' lib.attrsets.recursiveUpdate { } (
+          map serverConfig (builtins.attrNames (enabledVmServices false))
+        );
+      }
       {
         microvm.vms =
           let
+            configCommon = vmName: {
             configCommon = vmName: {
               ${vmName} = {
                 config = {
@@ -430,6 +508,7 @@ in
                       (pkgs.memsocket-module.override {
                         inherit (config.microvm.vms.${vmName}.config.config.boot.kernelPackages) kernel;
                         inherit (cfg) shmSlots;
+                        inherit (cfg) shmSlots;
                       })
                     ];
                     services = {
@@ -446,6 +525,19 @@ in
                 };
               };
             };
+            # generate config for memsocket services  running in client mode on VMs
+            clientsConfig = foldl' lib.attrsets.recursiveUpdate { } (
+              map clientConfigTemplate (lib.filter (data: data.client != "host") clientServicePairs)
+            );
+            # generate config for memsocket services running in server mode on VMs
+            clientsAndServers = lib.foldl' lib.attrsets.recursiveUpdate clientsConfig (
+              map serverConfig (builtins.attrNames (enabledVmServices true))
+            );
+            finalMicroVmsConfig = foldl' lib.attrsets.recursiveUpdate clientsAndServers (
+              map configCommon allVMs
+            );
+          in
+          finalMicroVmsConfig;
             # generate config for memsocket services  running in client mode on VMs
             clientsConfig = foldl' lib.attrsets.recursiveUpdate { } (
               map clientConfigTemplate (lib.filter (data: data.client != "host") clientServicePairs)
