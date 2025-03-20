@@ -2,7 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0
 {
   imports = [
-    ./nx-netvm-ethernet-pci-passthrough.nix
-    ./agx-netvm-wlan-pci-passthrough.nix
+    ./cuda.nix
+    ./debug-tools.nix
+    ./nix.nix
+    ./ssh.nix
+    ./usb-serial.nix
   ];
 }

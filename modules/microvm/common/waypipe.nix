@@ -1,67 +1,91 @@
 # Copyright 2022-2024 TII (SSRC) and the Ghaf contributors
 # SPDX-License-Identifier: Apache-2.0
 {
-  vmIndex,
-  vm,
-  configHost,
-  cid,
-}:
-{
   config,
   lib,
   pkgs,
-
   ...
 }:
 let
   cfg = config.ghaf.waypipe;
-  cfgShm = configHost.ghaf.shm.service;
-  waypipePort = configHost.ghaf.virtualization.microvm.appvm.waypipeBasePort + vmIndex;
-  waypipeBorder = lib.optionalString (
-    cfg.waypipeBorder && vm.borderColor != null
-  ) "--border \"${vm.borderColor}\"";
-  displayOptServer =
-    if cfgShm.gui.enabled then
-      "-s " + cfgShm.gui.serverSocketPath "gui" "-${vm.name}-vm"
-    else
-      "--vsock -s ${toString waypipePort}";
-  displayOptClient =
-    if cfgShm.gui.enabled && (lib.lists.elem "${vm.name}-vm" cfgShm.gui.clients) then
-      "-s " + cfgShm.gui.clientSocketPath
-    else
-      "--vsock -s ${toString waypipePort}";
+
+  inherit (lib)
+    mkEnableOption
+    mkOption
+    mkIf
+    types
+    strings
+    ;
+
+  inherit (config.ghaf.networking.hosts."${cfg.vm.name}-vm") cid;
+  guivmCID = config.ghaf.networking.hosts.gui-vm.cid;
+
+  waypipePort = cfg.waypipeBasePort + cid;
+  waypipeBorder = strings.optionalString (
+    cfg.waypipeBorder && cfg.vm.borderColor != null
+  ) "--border \"${cfg.vm.borderColor}\"";
   runWaypipe =
     let
-      script = ''
-        #!${pkgs.runtimeShell} -e
-        ${pkgs.waypipe}/bin/waypipe ${displayOptClient} server "$@"
-      '';
+      script =
+        if cfg.serverSocketPath != null then
+          ''
+            #!${pkgs.runtimeShell} -e
+            ${pkgs.waypipe}/bin/waypipe -s ${cfg.serverSocketPath} server "$@"
+          ''
+        else
+          ''
+            #!${pkgs.runtimeShell} -e
+            ${pkgs.waypipe}/bin/waypipe --vsock -s ${toString waypipePort} server "$@"
+          '';
     in
     pkgs.writeScriptBin "run-waypipe" script;
-  guivmCID = configHost.ghaf.virtualization.microvm.guivm.vsockCID;
+
 in
 {
-  options.ghaf.waypipe = with lib; {
+  options.ghaf.waypipe = {
     enable = mkEnableOption "Waypipe support";
 
-    proxyService = lib.mkOption {
-      type = lib.types.attrs;
+    vm = mkOption {
+      description = "The appvm submodule definition";
+      type = types.attrs;
+      # TODO should we centralize submodules?
+      default = { };
+    };
+
+    proxyService = mkOption {
       description = "vsockproxy service configuration for the AppVM";
+      type = types.attrs;
       readOnly = true;
       visible = false;
     };
 
-    waypipeService = lib.mkOption {
-      type = lib.types.attrs;
+    waypipeService = mkOption {
       description = "Waypipe service configuration for the AppVM";
+      type = types.attrs;
       readOnly = true;
       visible = false;
     };
 
-    waypipeBorder = lib.mkEnableOption "Waypipe window border";
+    waypipeBorder = mkEnableOption "Waypipe window border";
+
+    # Every AppVM has its own instance of Waypipe running in the GUIVM and
+    # listening for incoming connections from the AppVM on its own port.
+    # The port number each AppVM uses is waypipeBasePort + vm CID.
+    waypipeBasePort = mkOption {
+      description = "Waypipe base port number for AppVMs";
+      type = types.int;
+      readOnly = true;
+      default = 1100;
+    };
+
+    serverSocketPath = mkOption {
+      description = "Waypipe server socket path";
+      type = types.nullOr types.str;
+      default = null;
+    };
   };
 
-  config = lib.mkIf cfg.enable {
+  config = mkIf cfg.enable {
 
     environment.systemPackages = [
       pkgs.waypipe
@@ -76,15 +100,16 @@ in
       # Waypipe service runs in the GUIVM and listens for incoming connections from AppVMs
       waypipeService = {
         enable = true;
-        description = "Waypipe for ${vm.name}";
+        description = "Waypipe for ${cfg.vm.name}";
         serviceConfig = {
           Type = "simple";
           Restart = "always";
           RestartSec = "1";
-          ExecStart = "${pkgs.waypipe}/bin/waypipe --secctx \"${vm.name}\" ${waypipeBorder} ${displayOptServer} client";
-          # Waypipe does not handle the SIGTERM signal properly, which is the default signal sent
-          # by systemd when stopping a service
-          KillSignal = "SIGINT";
+          ExecStart =
+            if cfg.serverSocketPath != null then
+              "${pkgs.waypipe}/bin/waypipe --secctx \"${cfg.vm.name}\" ${waypipeBorder} -s ${cfg.serverSocketPath} client"
+            else
+              "${pkgs.waypipe}/bin/waypipe --vsock --secctx \"${cfg.vm.name}\" ${waypipeBorder} -s ${toString waypipePort} client";
         };
         startLimitIntervalSec = 0;
         partOf = [ "ghaf-session.target" ];
@@ -94,7 +119,7 @@ in
       # vsockproxy is used on host to forward data between AppVMs and GUIVM
       proxyService = {
         enable = true;
-        description = "vsockproxy for ${vm.name}";
+        description = "vsockproxy for ${cfg.vm.name}";
         serviceConfig = {
           Type = "simple";
           Restart = "always";

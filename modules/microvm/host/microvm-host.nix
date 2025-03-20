@@ -18,18 +18,13 @@ let
     ;
 
   has_remove_pci_device = config.ghaf.hardware.definition.audio.removePciDevice != null;
-  has_rescan_pci_device = config.ghaf.hardware.definition.audio.rescanPciDevice != null;
   has_acpi_path = config.ghaf.hardware.definition.audio.acpiPath != null;
-  rescan_pci_device =
-    if has_rescan_pci_device then
-      config.ghaf.hardware.definition.audio.rescanPciDevice
-    else
-      config.ghaf.hardware.definition.audio.removePciDevice;
 in
 {
   imports = [
     inputs.impermanence.nixosModules.impermanence
     inputs.self.nixosModules.givc
+    ./networking.nix
   ];
 
   options.ghaf.virtualization.microvm-host = {
@@ -55,6 +50,8 @@ in
   };
 
   config = mkMerge [
+    # Always set the hostname
+    { networking.hostName = lib.mkDefault "ghaf-host"; }
     (mkIf cfg.enable {
       microvm.host.enable = true;
       # microvm.host.useNotifySockets = true;
@@ -108,6 +105,10 @@ in
         ++ lib.optionals config.ghaf.logging.enable [
           "d /persist/storagevm/admin-vm/var/lib/private/alloy 0700 microvm kvm -"
         ]
+        # Allow permission to microvm user to read ACPI tables of soundcard mic array
+        ++ lib.optionals (config.ghaf.virtualization.microvm.audiovm.enable && has_acpi_path) [
+          "f ${config.ghaf.hardware.definition.audio.acpiPath} 0400 microvm kvm -"
+        ]
         ++ vmRootDirs
         ++ xdgRules;
 
@@ -116,13 +117,6 @@ in
         lib.optionalAttrs config.ghaf.virtualization.microvm.audiovm.enable
           {
             # The + here is a systemd feature to make the script run as root.
-            ExecStartPre = lib.mkIf has_acpi_path [
-              "+${pkgs.writeShellScript "ACPI-table-permission" ''
-                # The script gives permissionf sot a microvm user
-                # to read ACPI tables of soundcaed mic array.
-                ${pkgs.coreutils}/bin/chmod 444 ${config.ghaf.hardware.definition.audio.acpiPath}
-              ''}"
-            ];
             ExecStopPost = lib.mkIf has_remove_pci_device [
               "+${pkgs.writeShellScript "reload-audio" ''
                 # The script makes audio device internal state to reset
@@ -130,7 +124,7 @@ in
                 # state when the VM is being shutdown during audio mic recording
                 echo "1" > /sys/bus/pci/devices/${config.ghaf.hardware.definition.audio.removePciDevice}/remove
                 sleep 0.1
-                echo "1" > /sys/bus/pci/devices/${rescan_pci_device}/rescan
+                echo "1" > /sys/bus/pci/rescan
               ''}"
             ];
           };
@@ -155,8 +149,6 @@ in
       };
     })
     (mkIf cfg.sharedVmDirectory.enable {
-      ghaf.virtualization.microvm.guivm.extraModules = [ (import ./common/shared-directory.nix "") ];
-
       # Create directories required for sharing files with correct permissions.
       systemd.tmpfiles.rules =
         let
@@ -171,42 +163,49 @@ in
         ]
         ++ vmDirs;
     })
-    (mkIf (cfg.sharedVmDirectory.enable && cfg.sharedVmDirectory.inotifyPassthrough) {
-      # Enable passthrough of the shared folder inotify events from the host to the GUI VM
-      # This is required for the file manager to refresh the shared folder content when it is updated from AppVMs
-      systemd.services.vinotify = {
-        enable = true;
-        description = "vinotify";
-        wantedBy = [ "microvms.target" ];
-        before = [ "microvms.target" ];
-        serviceConfig = {
-          Type = "simple";
-          Restart = "always";
-          RestartSec = "1";
-          ExecStart = "${pkgs.vinotify}/bin/vinotify --cid ${toString config.ghaf.virtualization.microvm.guivm.vsockCID} --port 2000 --path /persist/storagevm/shared/shares --mode host";
-        };
-        startLimitIntervalSec = 0;
-      };
-
-      # Receive shared folder inotify events from the host to automatically refresh the file manager
-      ghaf.virtualization.microvm.guivm.extraModules = [
-        {
-          systemd.services.vinotify = {
-            enable = true;
-            description = "vinotify";
-            wantedBy = [ "multi-user.target" ];
-            serviceConfig = {
-              Type = "simple";
-              Restart = "always";
-              RestartSec = "1";
-              ExecStart = "${pkgs.vinotify}/bin/vinotify --port 2000 --path /Shares --mode guest";
-            };
-            startLimitIntervalSec = 0;
+    (mkIf
+      (
+        cfg.sharedVmDirectory.enable
+        && cfg.sharedVmDirectory.inotifyPassthrough
+        && config.ghaf.virtualization.microvm.guivm.enable
+      )
+      {
+        # Enable passthrough of the shared folder inotify events from the host to the GUI VM
+        # This is required for the file manager to refresh the shared folder content when it is updated from AppVMs
+        systemd.services.vinotify = {
+          enable = true;
+          description = "vinotify";
+          wantedBy = [ "microvms.target" ];
+          before = [ "microvms.target" ];
+          serviceConfig = {
+            Type = "simple";
+            Restart = "always";
+            RestartSec = "1";
+            ExecStart = "${pkgs.vinotify}/bin/vinotify --cid ${toString config.ghaf.networking.hosts.gui-vm.cid} --port 2000 --path /persist/storagevm/shared/shares --mode host";
           };
-        }
-      ];
-    })
-    (mkIf config.ghaf.profiles.debug.enable {
+          startLimitIntervalSec = 0;
+        };
+
+        # Receive shared folder inotify events from the host to automatically refresh the file manager
+        ghaf.virtualization.microvm.guivm.extraModules = [
+          {
+            systemd.services.vinotify = {
+              enable = true;
+              description = "vinotify";
+              wantedBy = [ "multi-user.target" ];
+              serviceConfig = {
+                Type = "simple";
+                Restart = "always";
+                RestartSec = "1";
+                ExecStart = "${pkgs.vinotify}/bin/vinotify --port 2000 --path /Shares --mode guest";
+              };
+              startLimitIntervalSec = 0;
+            };
+          }
+        ];
+      }
+    )
+    (mkIf (cfg.enable && config.ghaf.profiles.debug.enable) {
       # Host service to remove user
       systemd.services.remove-users =
         let
@@ -234,7 +233,7 @@ in
           };
         };
     })
-    (mkIf config.services.userborn.enable {
+    (mkIf (cfg.enable && config.services.userborn.enable) {
       system.activationScripts.microvm-host = lib.mkForce "";
       systemd.services."microvm-host-startup" =
         let

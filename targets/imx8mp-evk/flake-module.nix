@@ -22,10 +22,10 @@ let
         };
         modules = [
           nixos-hardware.nixosModules.nxp-imx8mp-evk
-          self.nixosModules.common
-          self.nixosModules.host
+          self.nixosModules.microvm
           self.nixosModules.imx8
           self.nixosModules.reference-personalize
+          self.nixosModules.profiles
           {
             boot = {
               kernelParams = lib.mkForce [ "root=/dev/mmcblk0p2" ];
@@ -62,13 +62,7 @@ let
                 ];
               };
 
-              overlays = [
-                inputs.ghafpkgs.overlays.default
-                inputs.givc.overlays.default
-                inputs.self.overlays.own-pkgs-overlay
-                inputs.self.overlays.custom-packages
-              ];
-
+              overlays = [ self.overlays.default ];
             };
 
             hardware.deviceTree.name = lib.mkForce "freescale/imx8mp-evk.dtb";

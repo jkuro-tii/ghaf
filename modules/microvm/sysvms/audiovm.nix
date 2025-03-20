@@ -15,19 +15,11 @@ let
     imports = [
       inputs.impermanence.nixosModules.impermanence
       inputs.self.nixosModules.givc
-      (import ../common/vm-networking.nix {
-        inherit
-          config
-          lib
-          vmName
-          ;
-      })
-      ../common/storagevm.nix
+      inputs.self.nixosModules.vm-modules
+      inputs.self.nixosModules.profiles
       (
         { lib, pkgs, ... }:
         {
-          imports = [ ../../common ];
-
           ghaf = {
             # Profiles
             profiles.debug.enable = lib.mkDefault configHost.ghaf.profiles.debug.enable;
@@ -64,6 +56,12 @@ let
             storagevm = {
               enable = true;
               name = vmName;
+            };
+
+            # Networking
+            virtualization.microvm.vm-networking = {
+              enable = true;
+              inherit vmName;
             };
 
             # Services

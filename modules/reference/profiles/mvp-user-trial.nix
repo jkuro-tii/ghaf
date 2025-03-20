@@ -37,37 +37,26 @@ in
         "chrome-vm"
       ];
 
-      reference =
-        let
-          vms = {
-            chrome-vm = true;
-            gala-vm = true;
-            zathura-vm = true;
-            comms-vm = true;
-            business-vm = true;
-          };
-        in
-        {
-          appvms =
-            {
-              enable = true;
-            }
-            // vms
-            // {
-              # Allow the above app VMs to access shared memory for GUI data handling
-              shm-gui-enabled-vms = builtins.attrNames vms;
-            }
-            # Allow the above app VMs to access shared memory for audio data handling
-            // {
-              shm-audio-enabled-vms = builtins.attrNames vms;
-            };
+      virtualization.microvm.appvm = {
+        enable = true;
+        vms = {
+          chrome.enable = true;
+          gala.enable = true;
+          zathura.enable = true;
+          comms.enable = true;
+          business.enable = true;
+        };
+      };
 
-          services = {
-            enable = true;
-            dendrite = true;
-            proxy-business = lib.mkForce config.ghaf.reference.appvms.business-vm;
-            google-chromecast = true;
-          };
+      reference = {
+        appvms.enable = true;
+
+        services = {
+          enable = true;
+          dendrite = true;
+          proxy-business = lib.mkForce config.ghaf.virtualization.microvm.appvm.vms.business.enable;
+          google-chromecast = true;
+        };
 
           personalize = {
             keys.enable = true;
@@ -85,11 +74,14 @@ in
             { ghaf.reference.personalize.keys.enable = true; }
           ];
           guivmExtraModules = [
+            ../services
             ../programs
             ../personalize
-            { ghaf.reference.personalize.keys.enable = true; }
+            {
+              ghaf.reference.personalize.keys.enable = true;
+              ghaf.reference.services.ollama = true;
+            }
           ];
-          inherit (config.ghaf.reference.appvms) enabled-app-vms;
         };
       };
 

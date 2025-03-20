@@ -9,30 +9,23 @@
 }:
 let
   vmName = "gui-vm";
+  #TODO do not import from a path like this
   inherit (import ../../../lib/launcher.nix { inherit pkgs lib; }) rmDesktopEntries;
   guivmBaseConfiguration = {
     imports = [
       inputs.self.nixosModules.profiles
       inputs.self.nixosModules.givc
       inputs.impermanence.nixosModules.impermanence
-      (import ../common/vm-networking.nix {
-        inherit
-          config
-          lib
-          vmName
-          ;
-      })
-
-      ../common/storagevm.nix
-      ../common/xdgitems.nix
+      inputs.self.nixosModules.vm-modules
 
       (
         { lib, pkgs, ... }:
         let
           # A list of applications from all AppVMs
+          enabledVms = lib.filterAttrs (_: vm: vm.enable) config.ghaf.virtualization.microvm.appvm.vms;
           virtualApps = lib.lists.concatMap (
             vm: map (app: app // { vmName = "${vm.name}-vm"; }) vm.applications
-          ) config.ghaf.virtualization.microvm.appvm.vms;
+          ) (lib.attrsets.mapAttrsToList (name: vm: { inherit name; } // vm) enabledVms);
 
           # Launchers for all virtualized applications that run in AppVMs
           virtualLaunchers = map (app: rec {
@@ -53,8 +46,6 @@ let
         in
         {
           imports = [
-            ../../common
-            ../../desktop
             #TODO: inception cross reference. FIX: this
             ../../reference/services
           ];
@@ -89,20 +80,29 @@ let
 
             givc.guivm.enable = true;
 
-            # Enable github service for control panel bug report
+            # Storage
+            storagevm = {
+              enable = true;
+              name = vmName;
+              shared-folders = {
+                enable = true;
+                isGuiVm = true;
+              };
+            };
+
+            # Networking
+            virtualization.microvm.vm-networking = {
+              enable = true;
+              inherit vmName;
+            };
+
+            # Services
             services.github = {
               enable = true;
               token = "xxxxxxxxxxxxxxxxxxxx"; # Will be updated when the user login
               owner = "tiiuae";
               repo = "ghaf-bugreports";
             };
-
-            storagevm = {
-              enable = true;
-              name = vmName;
-            };
-
-            # Services
 
             # Create launchers for regular apps running in the GUIVM and virtualized ones if GIVC is enabled
             graphics = {
@@ -113,7 +113,7 @@ let
                 securityContext = map (vm: {
                   identifier = vm.name;
                   color = vm.borderColor;
-                }) config.ghaf.virtualization.microvm.appvm.vms;
+                }) (lib.attrsets.mapAttrsToList (name: vm: { inherit name; } // vm) enabledVms);
               };
             };
 
@@ -126,8 +126,6 @@ let
                 fileManager = "${pkgs.pcmanfm}/bin/pcmanfm";
               };
             };
-
-            reference.services.ollama = true;
             xdgitems.enable = true;
           };
 
@@ -263,7 +261,7 @@ let
             qemu = {
               extraArgs = [
                 "-device"
-                "vhost-vsock-pci,guest-cid=${toString cfg.vsockCID}"
+                "vhost-vsock-pci,guest-cid=${toString config.ghaf.networking.hosts.${vmName}.cid}"
               ];
 
               machine =
@@ -298,20 +296,6 @@ in
         GUIVM's NixOS configuration.
       '';
       default = [ ];
-    };
-
-    # GUIVM uses a VSOCK which requires a CID
-    # There are several special addresses:
-    # VMADDR_CID_HYPERVISOR (0) is reserved for services built into the hypervisor
-    # VMADDR_CID_LOCAL (1) is the well-known address for local communication (loopback)
-    # VMADDR_CID_HOST (2) is the well-known address of the host
-    # CID 3 is the lowest available number for guest virtual machines
-    vsockCID = lib.mkOption {
-      type = lib.types.int;
-      default = 3;
-      description = ''
-        Context Identifier (CID) of the GUIVM VSOCK
-      '';
     };
 
     applications = lib.mkOption {

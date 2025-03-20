@@ -19,7 +19,7 @@ let
       netvmExtraModules = [
         {
           # The Nvidia Orin hardware dependent configuration is in
-          # modules/reference/hardware/jetpack and modules/reference/hardware/jetpack-microvm. Please refer to that
+          # modules/reference/hardware/jetpack Please refer to that
           # section for hardware dependent netvm configuration.
 
           # Wireless Configuration. Orin AGX has WiFi enabled where Orin NX does
@@ -47,11 +47,7 @@ let
           (nixos-generators + "/format-module.nix")
           ../../modules/reference/hardware/jetpack/nvidia-jetson-orin/format-module.nix
           jetpack-nixos.nixosModules.default
-          self.nixosModules.common
-          self.nixosModules.desktop
-          self.nixosModules.host
           self.nixosModules.jetpack
-          self.nixosModules.jetpack-microvm
           self.nixosModules.microvm
           self.nixosModules.profiles
           self.nixosModules.reference-host-demo-apps
@@ -131,13 +127,7 @@ let
                 ];
               };
 
-              overlays = [
-                inputs.ghafpkgs.overlays.default
-                inputs.givc.overlays.default
-                inputs.self.overlays.own-pkgs-overlay
-                inputs.self.overlays.custom-packages
-              ];
-
+              overlays = [ self.overlays.default ];
             };
           }
 

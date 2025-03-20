@@ -12,16 +12,17 @@ let
   vmName = "ids-vm";
   idsvmBaseConfiguration = {
     imports = [
-      (import ../../common/vm-networking.nix {
-        inherit
-          config
-          lib
-          vmName
-          ;
-      })
+      inputs.impermanence.nixosModules.impermanence
+      inputs.self.nixosModules.vm-modules
+      inputs.self.nixosModules.givc
+      inputs.self.nixosModules.profiles
       (
         { lib, ... }:
         {
+          imports = [
+            ./mitmproxy
+          ];
+
           ghaf = {
             type = "system-vm";
             profiles.debug.enable = lib.mkDefault configHost.ghaf.profiles.debug.enable;
@@ -35,6 +36,11 @@ let
               ssh.daemon.enable = lib.mkDefault configHost.ghaf.development.ssh.daemon.enable;
               debug.tools.enable = lib.mkDefault configHost.ghaf.development.debug.tools.enable;
               nix-setup.enable = lib.mkDefault configHost.ghaf.development.nix-setup.enable;
+            };
+            virtualization.microvm.vm-networking = {
+              enable = true;
+              isGateway = true;
+              inherit vmName;
             };
           };
 
@@ -61,11 +67,6 @@ let
             ];
             writableStoreOverlay = lib.mkIf config.ghaf.development.debug.tools.enable "/nix/.rw-store";
           };
-
-          imports = [
-            ../../../common
-            ./mitmproxy
-          ];
         }
       )
     ];

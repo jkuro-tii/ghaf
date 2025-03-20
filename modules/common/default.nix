@@ -5,9 +5,7 @@
 #
 {
   imports = [
-    ./boot/systemd-boot-dtb.nix
     ./common.nix
-    ./development
     ./firewall
     ./profiles
     ./security

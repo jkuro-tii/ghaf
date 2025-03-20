@@ -11,14 +11,17 @@ SPDX-License-Identifier = "Apache-2.0"
 SPDX-FileCopyrightText = "2022-2024 TII (SSRC) and the Ghaf contributors"
 precedence = "closest"
 path = [
+  ".github/dependabot.yml",
+  ".github/workflows/codeql.yml",
+  ".github/workflows/dependency-review.yml",
+  ".pre-commit-config.yaml",
   "flake.lock",
   ".version",
   "assets/**/*.png",
   "assets/**/*.svg",
-  "modules/common/development/audio_test/test_file1.mp3",
+  "modules/development/audio_test/test_file1.mp3",
   "modules/hardware/x86_64-generic/kernel/configs/ghaf_host_hardened_baseline-x86",
   "modules/reference/hardware/jetpack/ghaf_host_hardened_baseline-jetson-orin",
-  "modules/lanzaboote/demo-secure-boot-keys/**/*",
   "modules/microvm/sysvms/idsvm/mitmproxy/mitmproxy-ca/*"
 ]
 
@@ -96,9 +99,9 @@ SPDX-FileCopyrightText = [
 path = [
   "modules/reference/hardware/jetpack/nvidia-jetson-orin/virtualization/common/bpmp-virt-common/patches/*.patch",
   "modules/reference/hardware/jetpack/nvidia-jetson-orin/virtualization/host/bpmp-virt-host/patches/*.patch",
-  "modules/reference/hardware/jetpack-microvm/*.patch",
+  "modules/reference/hardware/jetpack/*.patch",
   "modules/reference/hardware/jetpack/nvidia-jetson-orin/virtualization/passthrough/uarti-net-vm/patches/net_vm_dtb_with_uarti.patch",
-  "modules/common/virtualisation/pkvm/0001-pkvm-enable-pkvm-on-intel-x86-6.1-lts.patch",
+  "modules/hardware/x86_64-generic/kernel/host/pkvm/0001-pkvm-enable-pkvm-on-intel-x86-6.1-lts.patch",
   "modules/microvm/sysvms/0001-x86-gpu-Don-t-reserve-stolen-memory-for-GPU-passthro.patch",
   "modules/reference/hardware/jetpack/nvidia-jetson-orin/virtualization/passthrough/uarti-net-vm/tegra234-netvm.dts"
 ]

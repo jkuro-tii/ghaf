@@ -8,16 +8,21 @@
   ...
 }:
 let
-  inherit (lib) mkOption types optional;
-
-  configHost = config;
   cfg = config.ghaf.virtualization.microvm.appvm;
+  configHost = config;
+
+  inherit (lib)
+    mkOption
+    types
+    optional
+    optionalAttrs
+    ;
+  inherit (configHost.ghaf.virtualization.microvm-host) sharedVmDirectory;
 
   makeVm =
-    { vm, vmIndex }:
+    { vm, vmIndex }: # TODO the vmIndex is not used. but it is passed when calling makeVm
     let
       vmName = "${vm.name}-vm";
-      cid = if vm.cid > 0 then vm.cid else cfg.vsockBaseCID + vmIndex;
       # A list of applications for the GIVC service
       givcApplications = map (app: {
         name = app.givcName;
@@ -27,48 +32,20 @@ let
       # Packages and extra modules from all applications defined in the appvm
       appPackages = builtins.concatLists (map (app: app.packages) vm.applications);
       appExtraModules = builtins.concatLists (map (app: app.extraModules) vm.applications);
-      sshKeysHelper = pkgs.callPackage ./ssh-keys-helper.nix { config = configHost; };
+      sshKeysHelper = pkgs.callPackage ./common/ssh-keys-helper.nix { config = configHost; };
 
       appvmConfiguration = {
         imports = [
           inputs.impermanence.nixosModules.impermanence
           inputs.self.nixosModules.givc
+          inputs.self.nixosModules.vm-modules
+          inputs.self.nixosModules.profiles
           {
             ghaf.givc.appvm = {
               enable = true;
               applications = givcApplications;
             };
           }
-          (import ./common/vm-networking.nix {
-            inherit
-              config
-              lib
-              vmName
-              ;
-          })
-
-          (import (./common/ghaf-audio.nix) {
-            inherit configHost;
-          })
-          ./common/storagevm.nix
-          ./common/xdgitems.nix
-          ./common/xdghandlers.nix
-
-          (
-            with configHost.ghaf.virtualization.microvm-host;
-            lib.optionalAttrs (sharedVmDirectory.enable && builtins.elem vmName sharedVmDirectory.vms) (
-              import ./common/shared-directory.nix vmName
-            )
-          )
-
-          (import ./common/waypipe.nix {
-            inherit
-              vm
-              vmIndex
-              configHost
-              cid
-              ;
-          })
           (
             {
               lib,
@@ -110,12 +87,7 @@ let
                   withHardenedConfigs = true;
                 };
 
-                ghaf-audio = {
-                  inherit (vm.ghafAudio) enable;
-                  inherit (vm.ghafAudio) useTunneling;
-                  name = "${vm.name}";
-                };
-
+                # Storage
                 storagevm = {
                   enable = true;
                   name = vmName;
@@ -127,11 +99,30 @@ let
                     "Documents"
                     "Videos"
                   ];
+                  shared-folders.enable = sharedVmDirectory.enable && builtins.elem vmName sharedVmDirectory.vms;
                 };
 
-                waypipe.enable = true;
+                # Networking
+                virtualization.microvm.vm-networking = {
+                  enable = true;
+                  inherit vmName;
+                };
 
-                # Logging
+                # Services
+                waypipe =
+                  {
+                    enable = true;
+                    inherit vm;
+                  }
+                  // optionalAttrs configHost.ghaf.shm.enable {
+                    inherit (configHost.ghaf.shm) serverSocketPath;
+                  };
+
+                ghaf-audio = {
+                  inherit (vm.ghafAudio) enable;
+                  inherit (vm.ghafAudio) useTunneling;
+                  name = "${vm.name}";
+                };
                 logging.client.enable = configHost.ghaf.logging.enable;
               };
 
@@ -174,6 +165,8 @@ let
               microvm = {
                 optimize.enable = false;
                 mem = vm.ramMb;
+                balloonMem = builtins.ceil (vm.ramMb * vm.balloonRatio);
+                deflateOnOOM = false;
                 vcpu = vm.cores;
                 hypervisor = "qemu";
                 shares = [
@@ -198,7 +191,7 @@ let
                       "-M"
                       "accel=kvm:tcg,mem-merge=on,sata=off"
                       "-device"
-                      "vhost-vsock-pci,guest-cid=${toString cid}"
+                      "vhost-vsock-pci,guest-cid=${toString config.ghaf.networking.hosts."${vm.name}-vm".cid}"
                       "-device"
                       "qemu-xhci"
                     ]
@@ -221,8 +214,6 @@ let
                 };
               };
               fileSystems."${configHost.ghaf.security.sshKeys.waypipeSshPublicKeyDir}".options = [ "ro" ];
-
-              imports = [ ../common ];
             }
           )
         ];
@@ -243,15 +234,10 @@ in
       description = ''
         List of AppVMs to be created
       '';
-      type = types.listOf (
+      type = types.attrsOf (
         types.submodule {
           options = {
-            name = mkOption {
-              description = ''
-                Name of the AppVM
-              '';
-              type = types.str;
-            };
+            enable = lib.mkEnableOption "this virtual machine";
             applications = mkOption {
               description = ''
                 Applications to include in the AppVM
@@ -323,9 +309,16 @@ in
             };
             ramMb = mkOption {
               description = ''
-                Amount of RAM for this AppVM
+                Minimum amount of RAM for this AppVM
               '';
               type = types.int;
+            };
+            balloonRatio = mkOption {
+              description = ''
+                Amount of dynamic RAM for this AppVM as a multiple of ramMb
+              '';
+              type = types.number;
+              default = 2;
             };
             cores = mkOption {
               description = ''
@@ -339,14 +332,6 @@ in
                 appvm's NixOS configuration.
               '';
               default = [ ];
-            };
-            cid = mkOption {
-              description = ''
-                VSOCK context identifier (CID) for the AppVM
-                Default value 0 means auto-assign using vsockBaseCID and AppVM index
-              '';
-              type = types.int;
-              default = 0;
             };
             borderColor = mkOption {
               description = ''
@@ -363,7 +348,7 @@ in
           };
         }
       );
-      default = [ ];
+      default = { };
     };
 
     extraModules = mkOption {
@@ -373,45 +358,26 @@ in
       '';
       default = [ ];
     };
-
-    # Base VSOCK CID which is used for auto assigning CIDs for all AppVMs
-    # For example, when it's set to 100, AppVMs will get 100, 101, 102, etc.
-    # It is also possible to override the auto assinged CID using the vms.cid option
-    vsockBaseCID = lib.mkOption {
-      type = lib.types.int;
-      default = 100;
-      description = ''
-        Context Identifier (CID) of the AppVM VSOCK
-      '';
-    };
-
-    # Every AppVM has its own instance of Waypipe running in the GUIVM and
-    # listening for incoming connections from the AppVM on its own port.
-    # The port number each AppVM uses is waypipeBasePort + vmIndex.
-    waypipeBasePort = lib.mkOption {
-      type = lib.types.int;
-      default = 1100;
-      description = ''
-        Waypipe base port number for AppVMs
-      '';
-    };
   };
 
   config =
     let
+      vms = lib.filterAttrs (_: vm: vm.enable) cfg.vms;
+
       makeSwtpmService =
-        { vm }:
+        name: vm:
         let
+
           swtpmScript = pkgs.writeShellApplication {
-            name = "${vm.name}-swtpm";
+            name = "${name}-swtpm";
             runtimeInputs = with pkgs; [
               coreutils
               swtpm
             ];
             text = ''
-              mkdir -p /var/lib/swtpm/${vm.name}-state
-              swtpm socket --tpmstate dir=/var/lib/swtpm/${vm.name}-state \
-                --ctrl type=unixio,path=/var/lib/swtpm/${vm.name}-sock \
+              mkdir -p /var/lib/swtpm/${name}-state
+              swtpm socket --tpmstate dir=/var/lib/swtpm/${name}-state \
+                --ctrl type=unixio,path=/var/lib/swtpm/${name}-sock \
                 --tpm2 \
                 --log level=20
             '';
@@ -419,7 +385,7 @@ in
         in
         lib.mkIf vm.vtpm.enable {
           enable = true;
-          description = "swtpm service for ${vm.name}";
+          description = "swtpm service for ${name}";
           path = [ swtpmScript ];
           wantedBy = [ "microvms.target" ];
           serviceConfig = {
@@ -429,50 +395,51 @@ in
             StateDirectory = "swtpm";
             StandardOutput = "journal";
             StandardError = "journal";
-            ExecStart = "${swtpmScript}/bin/${vm.name}-swtpm";
+            ExecStart = "${swtpmScript}/bin/${name}-swtpm";
           };
         };
-      vmsWithWaypipe = lib.filter (
-        vm: config.microvm.vms."${vm.name}-vm".config.config.ghaf.waypipe.enable
-      ) cfg.vms;
+
+      vmsWithWaypipe = lib.filterAttrs (
+        name: _vm: config.microvm.vms."${name}-vm".config.config.ghaf.waypipe.enable
+      ) vms;
+
     in
     lib.mkIf cfg.enable {
       # Define microvms for each AppVM configuration
       microvm.vms =
         let
-          vms = lib.imap0 (vmIndex: vm: { "${vm.name}-vm" = makeVm { inherit vmIndex vm; }; }) cfg.vms;
+          vms' = lib.attrsets.mapAttrsToList (name: vm: { inherit name; } // vm) vms;
+          vms'' = lib.imap0 (vmIndex: vm: { "${vm.name}-vm" = makeVm { inherit vmIndex vm; }; }) vms';
         in
-        lib.foldr lib.recursiveUpdate { } vms;
+        lib.foldr lib.recursiveUpdate { } vms'';
 
       # Apply host service dependencies, add swtpm
       systemd.services =
         let
-          serviceDependencies = map (vm: {
-            "microvm@${vm.name}-vm" = {
+          serviceDependencies = lib.mapAttrsToList (name: vm: {
+            "microvm@${name}-vm" = {
               # Host service dependencies
               after = optional config.ghaf.services.audio.enable "pulseaudio.service";
               requires = optional config.ghaf.services.audio.enable "pulseaudio.service";
               # Sleep appvms to give gui-vm time to start
               serviceConfig.ExecStartPre = "/bin/sh -c 'sleep 8'";
             };
-            "${vm.name}-swtpm" = makeSwtpmService { inherit vm; };
-          }) cfg.vms;
+            "${name}-vm-swtpm" = makeSwtpmService name vm;
+          }) vms;
           # Each AppVM with waypipe needs its own instance of vsockproxy on the host
-          proxyServices = map (vm: {
-            "vsockproxy-${vm.name}" =
-              config.microvm.vms."${vm.name}-vm".config.config.ghaf.waypipe.proxyService;
-          }) vmsWithWaypipe;
+          proxyServices = map (name: {
+            "vsockproxy-${name}-vm" = config.microvm.vms."${name}-vm".config.config.ghaf.waypipe.proxyService;
+          }) (builtins.attrNames vmsWithWaypipe);
         in
         lib.foldr lib.recursiveUpdate { } (serviceDependencies ++ proxyServices);
 
       # GUIVM needs to have a dedicated waypipe instance for each AppVM
       ghaf.virtualization.microvm.guivm.extraModules = [
         {
-          systemd.user.services = lib.foldr lib.recursiveUpdate { } (
-            map (vm: {
-              "waypipe-${vm.name}" = config.microvm.vms."${vm.name}-vm".config.config.ghaf.waypipe.waypipeService;
-            }) vmsWithWaypipe
-          );
+          systemd.user.services = lib.mapAttrs' (name: _: {
+            name = "waypipe-${name}-vm";
+            value = config.microvm.vms."${name}-vm".config.config.ghaf.waypipe.waypipeService;
+          }) vmsWithWaypipe;
         }
       ];
     };

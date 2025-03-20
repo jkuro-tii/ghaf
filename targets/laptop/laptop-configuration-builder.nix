@@ -22,6 +22,7 @@ let
           self.nixosModules.profiles-laptop
           self.nixosModules.laptop
           self.nixosModules.microvm
+          self.nixosModules.mem-manager
 
           {
             ghaf = {
@@ -46,14 +47,7 @@ let
                 ];
               };
 
-              overlays = [
-                inputs.ghafpkgs.overlays.default
-                inputs.ctrl-panel.overlays.default
-                inputs.givc.overlays.default
-                inputs.self.overlays.own-pkgs-overlay
-                inputs.self.overlays.custom-packages
-              ];
-
+              overlays = [ self.overlays.default ];
             };
           }
         ] ++ extraModules;

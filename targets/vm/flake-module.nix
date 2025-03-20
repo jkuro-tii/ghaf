@@ -17,9 +17,6 @@ let
         inherit system;
         modules = [
           nixos-generators.nixosModules.vm
-          self.nixosModules.common
-          self.nixosModules.desktop
-          self.nixosModules.host
           self.nixosModules.microvm
           self.nixosModules.profiles
           self.nixosModules.reference-host-demo-apps
@@ -69,12 +66,7 @@ let
                 ];
               };
 
-              overlays = [
-                inputs.ghafpkgs.overlays.default
-                inputs.givc.overlays.default
-                inputs.self.overlays.own-pkgs-overlay
-                inputs.self.overlays.custom-packages
-              ];
+              overlays = [ self.overlays.default ];
             };
           }
         ];

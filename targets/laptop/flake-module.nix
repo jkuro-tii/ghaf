@@ -18,7 +18,6 @@ let
   commonModules = [
     self.nixosModules.disko-debug-partition
     self.nixosModules.reference-profiles
-    inputs.lanzaboote.nixosModules.lanzaboote
   ];
 
   # concatinate modules that are specific to a target
@@ -31,6 +30,7 @@ let
       {
         ghaf = {
           reference.profiles.mvp-user-trial.enable = true;
+          partitioning.disko.enable = true;
         };
       }
     ]))
@@ -39,6 +39,7 @@ let
       {
         ghaf = {
           reference.profiles.mvp-user-trial.enable = true;
+          partitioning.disko.enable = true;
         };
       }
     ]))
@@ -47,6 +48,7 @@ let
       {
         ghaf = {
           reference.profiles.mvp-user-trial.enable = true;
+          partitioning.disko.enable = true;
         };
       }
     ]))
@@ -55,6 +57,7 @@ let
       {
         ghaf = {
           reference.profiles.mvp-user-trial-extras.enable = true;
+          partitioning.disko.enable = true;
         };
       }
     ]))
@@ -63,6 +66,7 @@ let
       {
         ghaf = {
           reference.profiles.mvp-user-trial.enable = true;
+          partitioning.disko.enable = true;
         };
       }
     ]))
@@ -71,6 +75,7 @@ let
       {
         ghaf = {
           reference.profiles.mvp-user-trial.enable = true;
+          partitioning.disko.enable = true;
         };
       }
     ]))
@@ -79,6 +84,7 @@ let
       {
         ghaf = {
           reference.profiles.mvp-user-trial.enable = true;
+          partitioning.disko.enable = true;
         };
       }
     ]))
@@ -89,6 +95,7 @@ let
       {
         ghaf = {
           reference.profiles.mvp-user-trial.enable = true;
+          partitioning.disko.enable = true;
         };
       }
     ]))
@@ -97,6 +104,7 @@ let
       {
         ghaf = {
           reference.profiles.mvp-user-trial.enable = true;
+          partitioning.disko.enable = true;
         };
       }
 
@@ -106,6 +114,7 @@ let
       {
         ghaf = {
           reference.profiles.mvp-user-trial.enable = true;
+          partitioning.disko.enable = true;
         };
       }
     ]))
@@ -114,6 +123,7 @@ let
       {
         ghaf = {
           reference.profiles.mvp-user-trial-extras.enable = true;
+          partitioning.disko.enable = true;
         };
       }
     ]))
@@ -123,6 +133,7 @@ let
       {
         ghaf = {
           reference.profiles.mvp-user-trial.enable = true;
+          partitioning.disko.enable = true;
         };
       }
     ]))
@@ -131,6 +142,7 @@ let
       {
         ghaf = {
           reference.profiles.mvp-user-trial.enable = true;
+          partitioning.disko.enable = true;
         };
       }
     ]))
@@ -139,6 +151,7 @@ let
       {
         ghaf = {
           reference.profiles.mvp-user-trial.enable = true;
+          partitioning.disko.enable = true;
         };
       }
     ]))

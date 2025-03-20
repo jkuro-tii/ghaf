@@ -3,7 +3,8 @@
 #
 # Reference hardware modules
 #
-_: {
+{ inputs, ... }:
+{
   flake.nixosModules = {
     hardware-alienware-m18-r2.imports = [
       {
@@ -39,8 +40,13 @@ _: {
       }
     ];
     imx8.imports = [ ./imx8 ];
-    jetpack.imports = [ ./jetpack ];
-    jetpack-microvm.imports = [ ./jetpack-microvm ];
+    #TODO: Technically all the module imports can happen at this level
+    # without the need to drive the inputs down another level.
+    # could make discoverability easier.
+    jetpack.imports = [
+      ./jetpack
+      inputs.self.nixosModules.aarch64-generic
+    ];
     polarfire.imports = [ ./polarfire ];
   };
 }

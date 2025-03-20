@@ -42,9 +42,6 @@ let
         inherit system;
         modules = [
           nixos-generators.nixosModules.raw-efi
-          self.nixosModules.common
-          self.nixosModules.desktop
-          self.nixosModules.host
           self.nixosModules.microvm
           self.nixosModules.hw-x86_64-generic
           self.nixosModules.profiles
@@ -117,13 +114,7 @@ let
                 ];
               };
 
-              overlays = [
-                inputs.ghafpkgs.overlays.default
-                inputs.givc.overlays.default
-                inputs.self.overlays.own-pkgs-overlay
-                inputs.self.overlays.custom-packages
-              ];
-
+              overlays = [ self.overlays.default ];
             };
 
             #TODO: how to handle the majority of laptops that need a little

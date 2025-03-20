@@ -14,14 +14,8 @@ let
     imports = [
       inputs.impermanence.nixosModules.impermanence
       inputs.self.nixosModules.givc
-      (import ../common/vm-networking.nix {
-        inherit
-          config
-          lib
-          vmName
-          ;
-      })
-      ../common/storagevm.nix
+      inputs.self.nixosModules.vm-modules
+      inputs.self.nixosModules.profiles
       (
         { lib, ... }:
         {
@@ -59,6 +53,12 @@ let
                 "/etc/locale-givc.conf"
                 "/etc/timezone.conf"
               ];
+            };
+
+            # Networking
+            virtualization.microvm.vm-networking = {
+              enable = true;
+              inherit vmName;
             };
 
             # Services
@@ -109,7 +109,6 @@ let
 
             writableStoreOverlay = lib.mkIf config.ghaf.development.debug.tools.enable "/nix/.rw-store";
           };
-          imports = [ ../../common ];
         }
       )
     ];

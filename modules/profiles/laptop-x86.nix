@@ -5,21 +5,6 @@ let
   cfg = config.ghaf.profiles.laptop-x86;
 in
 {
-  imports = [
-    ./graphics.nix
-    ../common
-    ../host
-    #TODO how to reference the miocrovm module here?
-    #self.nixosModules.microvm
-    #../microvm
-    ../hardware/x86_64-generic
-    ../hardware/common
-    ../hardware/definition.nix
-
-    #TODO should lanzaboote be here?
-    ../lanzaboote
-  ];
-
   options.ghaf.profiles.laptop-x86 = {
     enable = lib.mkEnableOption "Enable the basic x86 laptop config";
 
@@ -35,14 +20,6 @@ in
         List of additional modules to be passed to the guivm.
       '';
       default = [ ];
-    };
-
-    enabled-app-vms = lib.mkOption {
-      type = lib.types.listOf lib.types.attrs;
-      default = [ ];
-      description = ''
-        List of appvms to include in the Ghaf reference appvms module
-      '';
     };
   };
 
@@ -94,11 +71,6 @@ in
           audiovm = {
             enable = true;
             audio = true;
-          };
-
-          appvm = {
-            enable = true;
-            vms = cfg.enabled-app-vms;
           };
         };
       };
