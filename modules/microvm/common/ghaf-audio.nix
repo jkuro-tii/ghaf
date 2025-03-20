@@ -1,9 +1,6 @@
 # Copyright 2022-2024 TII (SSRC) and the Ghaf contributors
 # SPDX-License-Identifier: Apache-2.0
 {
-  configHost,
-}:
-{
   config,
   lib,
   pkgs,
@@ -14,8 +11,8 @@ let
   audiovmHost = "audio-vm";
   audiovmPort = config.ghaf.services.audio.pulseaudioTcpPort;
   address =
-    if configHost.ghaf.shm.service.audio.enabled then
-      "unix:${configHost.ghaf.shm.service.audio.clientSocketPath}"
+    if config.ghaf.services.audio.pulseaudioUseShmem then
+      "unix:${config.ghaf.services.audio.pulseaudioClientUnixSocketPath}"
     else
       "tcp:${audiovmHost}:${toString audiovmPort}";
   reconnectMs = 1000;

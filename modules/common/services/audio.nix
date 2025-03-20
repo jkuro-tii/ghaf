@@ -29,7 +29,12 @@ in
       default = 4714;
       description = "TCP port used by Pipewire-pulseaudio control";
     };
-    pulseaudioUnixSocketPath = mkOption {
+    pulseaudioClientUnixSocketPath = mkOption {
+      type = types.path;
+      default = "/run/memsocket-audio/client.sock";
+      description = "Path to Unix socket used by Pipewire-pulseaudio clients";
+    };
+    pulseaudioServerUnixSocketPath = mkOption {
       type = types.path;
       default = "/run/pipewire/pulseaudio-0";
       description = "Path to Unix socket used by Pipewire-pulseaudio service";
@@ -61,7 +66,7 @@ in
                   {
                     address =
                       if cfg.pulseaudioUseShmem then
-                        "unix:${cfg.pulseaudioUnixSocketPath}"
+                        "unix:${cfg.pulseaudioServerUnixSocketPath}"
                       else
                         "tcp:0.0.0.0:${toString cfg.pulseaudioTcpPort}";
                     "client.access" = "restricted";

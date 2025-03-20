@@ -136,9 +136,9 @@ in
                   userService = true;
                   systemdParams = service: suffix: {
                     wantedBy = [ "ghaf-session.target" ];
-                    after = [ "waypipe${builtins.replaceStrings [ "-vm" ] [ "" ] suffix}.service" ];
-                    partOf = [ "waypipe${builtins.replaceStrings [ "-vm" ] [ "" ] suffix}.service" ];
-                    bindsTo = [ "waypipe${builtins.replaceStrings [ "-vm" ] [ "" ] suffix}.service" ];
+                    after = [ "waypipe${suffix}.service" ];
+                    partOf = [ "waypipe${suffix}.service" ];
+                    bindsTo = [ "waypipe${suffix}.service" ];
                     serviceConfig = {
                       KillSignal = "SIGTERM";
                       ExecStop = "${pkgs.coreutils}/bin/rm -f ${cfg.service.gui.serverSocketPath service suffix}";
@@ -146,7 +146,7 @@ in
                   };
                   multiProcess = true;
                 };
-                clients = config.ghaf.reference.appvms.shm-gui-enabled-vms;
+                clients = config.ghaf.virtualization.microvm.appvm.shm-gui-enabled-vms;
                 clientConfig = {
                   userService = false;
                   systemdParams = {
@@ -167,7 +167,7 @@ in
             mkIf cfg.enable (
               lib.attrsets.recursiveUpdate (stdConfig "audio") {
                 inherit enabled;
-                serverSocketPath = _service: _suffix: config.ghaf.services.audio.pulseaudioUnixSocketPath;
+                serverSocketPath = _service: _suffix: config.ghaf.services.audio.pulseaudioServerUnixSocketPath;
                 serverConfig = {
                   userService = false;
                   systemdParams = _a: _b: {
@@ -176,7 +176,7 @@ in
                     bindsTo = [ "pipewire.service" ];
                     serviceConfig = {
                       KillSignal = "SIGTERM";
-                      ExecStop = "${pkgs.coreutils}/bin/rm -f ${config.ghaf.services.audio.pulseaudioUnixSocketPath}";
+                      ExecStop = "${pkgs.coreutils}/bin/rm -f ${config.ghaf.services.audio.pulseaudioServerUnixSocketPath}";
                     };
                     after = [
                       "pipewire.service"
@@ -188,8 +188,9 @@ in
                     };
                   };
                 };
-                clients = config.ghaf.reference.appvms.shm-audio-enabled-vms;
+                clients = config.ghaf.virtualization.microvm.appvm.shm-audio-enabled-vms;
                 clientConfig = {
+                  clientSocketPath = config.ghaf.services.audio.pulseaudioClientUnixSocketPath; #"/run/memsocket-${service}/client.sock";
                   userService = false;
                   systemdParams = {
                     wantedBy = [ "default.target" ];

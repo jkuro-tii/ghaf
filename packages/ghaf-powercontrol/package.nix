@@ -68,7 +68,9 @@ writeShellApplication {
       logout)
         wayland-logout
         loginctl terminate-user "$USER"
-        sleep 3
+        sleep 2
+        loginctl kill-user "$USER" -s SIGTERM
+        sleep 2
         loginctl kill-user "$USER" -s SIGKILL
         ;;
       help|--help)

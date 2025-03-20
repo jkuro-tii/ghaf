@@ -86,6 +86,7 @@ in
       # Shared memory configuration
       shm.enable = true;
       shm.gui = true;
+      services.audio.pulseaudioUseShmem = true;
     };
   };
 }
