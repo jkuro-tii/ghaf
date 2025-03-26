@@ -59,6 +59,7 @@ let
   commonModule = {
     config.ghaf = {
       inherit (configHost.ghaf) common;
+      services.audio.pulseaudioUseShmem = config.ghaf.shm.audio;
     };
   };
 

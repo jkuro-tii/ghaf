@@ -85,6 +85,15 @@ in
       description = ''
         Enables shared memory for transferring GUI data between virtual machines
       '';
+      apply = value: if value then cfg.enable else false;
+    };
+    audio = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Enables shared memory for transferring audio data between virtual machines
+      '';
+      apply = value: if value then cfg.enable else false;
     };
     memSize = mkOption {
       type = types.int;
@@ -124,84 +133,76 @@ in
           };
         in
         {
-          gui =
-            let
-              enabled = cfg.enable && cfg.gui;
-            in
-            mkIf cfg.enable (
-              lib.attrsets.recursiveUpdate (stdConfig "gui") {
-                inherit enabled;
-                serverSocketPath = service: suffix: "/tmp/${service}${suffix}.sock";
-                serverConfig = {
-                  userService = true;
-                  systemdParams = service: suffix: {
-                    wantedBy = [ "ghaf-session.target" ];
-                    after = [ "waypipe${suffix}.service" ];
-                    partOf = [ "waypipe${suffix}.service" ];
-                    bindsTo = [ "waypipe${suffix}.service" ];
-                    serviceConfig = {
-                      KillSignal = "SIGTERM";
-                      ExecStop = "${pkgs.coreutils}/bin/rm -f ${cfg.service.gui.serverSocketPath service suffix}";
-                    };
-                  };
-                  multiProcess = true;
-                };
-                clients = config.ghaf.virtualization.microvm.appvm.shm-gui-enabled-vms;
-                clientConfig = {
-                  userService = false;
-                  systemdParams = {
-                    wantedBy = [ "default.target" ];
-                    serviceConfig = {
-                      KillSignal = "SIGTERM";
-                      User = "appuser";
-                      Group = "users";
-                    };
+          gui = mkIf cfg.gui (
+            lib.attrsets.recursiveUpdate (stdConfig "gui") {
+              enabled = true;
+              serverSocketPath = service: suffix: "/tmp/${service}${suffix}.sock";
+              serverConfig = {
+                userService = true;
+                systemdParams = service: suffix: {
+                  wantedBy = [ "ghaf-session.target" ];
+                  after = [ "waypipe${suffix}.service" ];
+                  partOf = [ "waypipe${suffix}.service" ];
+                  bindsTo = [ "waypipe${suffix}.service" ];
+                  serviceConfig = {
+                    KillSignal = "SIGTERM";
+                    ExecStop = "${pkgs.coreutils}/bin/rm -f ${cfg.service.gui.serverSocketPath service suffix}";
                   };
                 };
-              }
-            );
-          audio =
-            let
-              enabled = cfg.enable && config.ghaf.services.audio.pulseaudioUseShmem;
-            in
-            mkIf cfg.enable (
-              lib.attrsets.recursiveUpdate (stdConfig "audio") {
-                inherit enabled;
-                serverSocketPath = _service: _suffix: config.ghaf.services.audio.pulseaudioServerUnixSocketPath;
-                serverConfig = {
-                  userService = false;
-                  systemdParams = _a: _b: {
-                    wantedBy = [ "default.target" ];
-                    partOf = [ "pipewire.service" ];
-                    bindsTo = [ "pipewire.service" ];
-                    serviceConfig = {
-                      KillSignal = "SIGTERM";
-                      ExecStop = "${pkgs.coreutils}/bin/rm -f ${config.ghaf.services.audio.pulseaudioServerUnixSocketPath}";
-                    };
-                    after = [
-                      "pipewire.service"
-                      "pipewire-pulse.socket"
-                    ];
-                    serviceConfig = {
-                      User = "pipewire";
-                      Group = "pipewire";
-                    };
+                multiProcess = true;
+              };
+              clients = config.ghaf.virtualization.microvm.appvm.shm-gui-enabled-vms;
+              clientConfig = {
+                userService = false;
+                systemdParams = {
+                  wantedBy = [ "default.target" ];
+                  serviceConfig = {
+                    KillSignal = "SIGTERM";
+                    User = "appuser";
+                    Group = "users";
                   };
                 };
-                clients = config.ghaf.virtualization.microvm.appvm.shm-audio-enabled-vms;
-                clientConfig = {
-                  clientSocketPath = config.ghaf.services.audio.pulseaudioClientUnixSocketPath; #"/run/memsocket-${service}/client.sock";
-                  userService = false;
-                  systemdParams = {
-                    wantedBy = [ "default.target" ];
-                    serviceConfig = {
-                      User = "appuser";
-                      Group = "users";
-                    };
+              };
+            }
+          );
+          audio = mkIf config.ghaf.shm.audio (
+            lib.attrsets.recursiveUpdate (stdConfig "audio") {
+              enabled = true;
+              serverSocketPath = _service: _suffix: config.ghaf.services.audio.pulseaudioServerUnixSocketPath;
+              serverConfig = {
+                userService = false;
+                systemdParams = _a: _b: {
+                  wantedBy = [ "default.target" ];
+                  partOf = [ "pipewire.service" ];
+                  bindsTo = [ "pipewire.service" ];
+                  serviceConfig = {
+                    KillSignal = "SIGTERM";
+                    ExecStop = "${pkgs.coreutils}/bin/rm -f ${config.ghaf.services.audio.pulseaudioServerUnixSocketPath}";
+                  };
+                  after = [
+                    "pipewire.service"
+                    "pipewire-pulse.socket"
+                  ];
+                  serviceConfig = {
+                    User = "pipewire";
+                    Group = "pipewire";
                   };
                 };
-              }
-            );
+              };
+              clients = config.ghaf.virtualization.microvm.appvm.shm-audio-enabled-vms;
+              clientConfig = {
+                clientSocketPath = config.ghaf.services.audio.pulseaudioClientUnixSocketPath; # "/run/memsocket-${service}/client.sock";
+                userService = false;
+                systemdParams = {
+                  wantedBy = [ "default.target" ];
+                  serviceConfig = {
+                    User = "appuser";
+                    Group = "users";
+                  };
+                };
+              };
+            }
+          );
         };
       description = ''
         Specifies the configuration of shared memory services:
