@@ -13,8 +13,8 @@ stdenv.mkDerivation {
   src = fetchFromGitHub {
     owner = "tiiuae";
     repo = "shmsockproxy";
-    rev = "2228b8863fd55375bfd4e56f9604ba8a3c430e88";
-    sha256 = "sha256-vU9z1LF0n4ilCQq1q9T5C7IjcrcZggTUdBC4BVz0QaM=";
+    rev = "fa83ff1b62796ca2379d2871683bad0683e0c542";
+    sha256 = "sha256-Ai4qGI/osmai3SAn0tFF2OGO6nQ4qUS/zDYMj7bgw2w=";
   };
 
   CFLAGS = "-O2 -DSHM_SLOTS=" + (toString shmSlots) + (if debug then " -DDEBUG_ON" else "");
