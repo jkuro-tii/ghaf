@@ -86,6 +86,14 @@ in
         Enables shared memory for transferring GUI data between virtual machines
       '';
     };
+    audio = mkOption {
+      type = types.bool;
+      default = true;
+      description = ''
+        Enables shared memory for transferring audio data between virtual machines
+      '';
+      apply = value: if value then cfg.enable else false;
+    };
     memSize = mkOption {
       type = types.int;
       default = 32;
@@ -160,6 +168,47 @@ in
                 };
               }
             );
+          audio = mkIf config.ghaf.shm.audio (
+            lib.attrsets.recursiveUpdate (stdConfig "audio") {
+              enabled = true;
+              serverSocketPath =
+                _service: _suffix: "config.ghaf.services.audio.pulseaudioServerUnixSocketPath" # jarekk: TODO:
+              ;
+              serverConfig = {
+                userService = false;
+                systemdParams = _a: _b: {
+                  wantedBy = [ "default.target" ];
+                  partOf = [ "pipewire.service" ];
+                  bindsTo = [ "pipewire.service" ];
+                  serviceConfig = {
+                    KillSignal = "SIGTERM";
+                    # ExecStop = "${pkgs.coreutils}/bin/rm -f ${config.ghaf.services.audio.pulseaudioServerUnixSocketPath}";
+                  };
+                  after = [
+                    "pipewire.service"
+                    "pipewire-pulse.socket"
+                  ];
+                  serviceConfig = {
+                    User = "pipewire";
+                    Group = "pipewire";
+                  };
+                };
+              };
+              clients = config.ghaf.virtualization.microvm.appvm.shm-audio-enabled-vms;
+              clientConfig = {
+                clientSocketPath = # jarekk: TODO: config.ghaf.services.audio.pulseaudioClientUnixSocketPath; #
+                  "/run/memsocket-audio/client.sock";
+                userService = false;
+                systemdParams = {
+                  wantedBy = [ "default.target" ];
+                  serviceConfig = {
+                    User = "appuser";
+                    Group = "users";
+                  };
+                };
+              };
+            }
+          );
         };
       description = ''
         Specifies the configuration of shared memory services:
@@ -376,6 +425,8 @@ in
         boot.extraModulePackages = [
           (pkgs.memsocket-secmem.override {
             inherit (config.boot.kernelPackages) kernel;
+            inherit (cfg) shmSlots;
+            inherit (cfg) memSize;
             inherit clientServiceWithID;
           })
         ];
