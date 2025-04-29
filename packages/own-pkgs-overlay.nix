@@ -26,6 +26,7 @@
     make-checks = final.callPackage ./pkgs-by-name/make-checks/package.nix { };
     memsocket-app = final.callPackage ./pkgs-by-name/memsocket/package.nix { };
     memsocket-module = final.callPackage ./pkgs-by-name/memsocket/module.nix { };
+    memsocket-secmem = final.callPackage ./pkgs-by-name/memsocket/secmem.nix { };
     open-normal-extension = final.callPackage ./pkgs-by-name/open-normal-extension/package.nix { };
     qemuqmp = final.python3Packages.callPackage ./python-packages/qemuqmp/package.nix { };
     rtl8126 = final.callPackage ./pkgs-by-name/rtl8126/package.nix { };

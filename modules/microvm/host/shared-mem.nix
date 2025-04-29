@@ -372,6 +372,14 @@ in
             };
           };
       }
+      {
+        boot.extraModulePackages = [
+          (pkgs.memsocket-secmem.override {
+            inherit (config.boot.kernelPackages) kernel;
+            inherit clientServiceWithID;
+          })
+        ];
+      }
       # add host systemd client services
       {
         systemd = foldl' lib.attrsets.recursiveUpdate { } (
