@@ -377,7 +377,10 @@ in
           requires = [ "dev-hugepages.mount" ];
           serviceConfig = {
             Type = "oneshot";
-            ExecStart = [ "/run/current-system/sw/bin/chown ${user}:${group} /dev/hugepages" ];
+            ExecStart = [ # jarekk: TODO: remove this when the new driver is ready
+              "/run/current-system/sw/bin/chown ${user}:${group} /dev/hugepages /dev/secshm"
+              "/run/current-system/sw/bin/chmod 0660 /dev/secshm"
+            ];
             RemainAfterExit = true;
           };
         };
@@ -427,9 +430,13 @@ in
             inherit (config.boot.kernelPackages) kernel;
             inherit (cfg) shmSlots;
             inherit (cfg) memSize;
+            inherit (cfg) hugePageSz;
             inherit clientServiceWithID;
           })
         ];
+      }
+      {
+        boot.kernelModules = [ "secshm" ];
       }
       # add host systemd client services
       {
