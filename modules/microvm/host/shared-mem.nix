@@ -18,10 +18,16 @@ let
     mkOption
     types
     ;
+  # Get the list of enabled only services
   enabledServices = lib.filterAttrs (_name: serverAttrs: serverAttrs.enabled) cfg.service;
+
+  # Get the list of enabled services that run on VMs (i.e. excluding host services)
   enabledVmServices =
     isVM:
     lib.filterAttrs (_name: serverAttrs: serverAttrs.serverConfig.runsOnVm == isVM) enabledServices;
+
+  # Get the list of clients for a given service
+  # Sample output: (clientsPerService "gui-vm") -> ["chrome-vm" "business-vm" "comms-vm"]
   clientsPerService =
     service:
     lib.flatten (
@@ -29,6 +35,9 @@ let
         name: value: if (name == service || service == "all") then value.clients else [ ]
       ) enabledServices
     );
+
+  # Get the list of all VMs (clients and servers)
+  # Sample output: ["chrome-vm" "business-vm" "comms-vm"]
   allVMs = lib.unique (
     lib.concatLists (
       map (s: (lib.filter (client: client != "host") s.clients) ++ [ s.server ]) (
@@ -36,6 +45,10 @@ let
       )
     )
   );
+
+  # Get the list of client-service pairs
+  # Sample output:
+  # [ {client = "chrome-vm"; service = "audio";} {client = "business-vm"; service = "audio";} ]
   clientServicePairs = lib.unique (
     lib.concatLists (
       map (
@@ -47,15 +60,47 @@ let
       ) (lib.mapAttrsToList (name: attrs: attrs // { inherit name; }) enabledServices)
     )
   );
+
+  # Get the list of client-service pairs with their assigned IDs
+  # Sample output:
+  # [ {client = "chrome-vm";   id = 0; service = "audio";}
+  #   {client = "business-vm"; id = 1; service = "audio";}]
   clientServiceWithID = lib.foldl' (
     acc: pair: acc ++ [ (pair // { id = builtins.length acc; }) ]
   ) [ ] clientServicePairs;
+  
+  # Get the client slot ID (integer) for a given client and service
   clientID =
     client: service:
     let
       filtered = builtins.filter (x: x.client == client && x.service == service) clientServiceWithID;
     in
     if filtered != [ ] then (builtins.toString (builtins.head filtered).id) else null;
+  
+  # Get a local slot offset (integer) for a given client and service
+  # Local slots are counted from 0 to N-1, where N is the number of slots
+  # used by a client
+  # E.g.: chrome-vm is using slot 0 for audio, slot 3 for gui ([0 3])
+  # Sample output: (clientSlot "chrome-vm" "audio") -> 0
+  #                (clientSlot "chrome-vm" "gui") -> 1
+  clientSlot = client: service:
+    let
+      # Filter the client-service pairs to find the matching client
+      clientServices = builtins.filter (x: x.client == client) clientServiceWithID;
+      # Get sorted list of IDs for this client - e.g. [0, 3]
+      sortedIds = builtins.sort builtins.lessThan (map (x: x.id) clientServices);
+      # generate list [0, 1, 2, ...]
+      # This is used to get the index of the client in the sorted list
+      indices = builtins.genList (i: i) (builtins.length sortedIds);
+      # Filter the indices to find the index of the client in the sorted list
+      matched =  builtins.trace ("---->" + (builtins.toJSON clientServiceWithID))
+      (builtins.filter (i: (builtins.elemAt sortedIds i) == (lib.strings.toInt (clientID client service))) indices);
+    in
+      if matched != [ ] then (builtins.toString (builtins.head matched)) else null;
+
+  # Generate a string of comma-separated client IDs for a given service, to be used in command line
+  # arguments for the memsocket server
+  # Sample output:  { audio = "0,1,2"; gui = "3,4,5,6,7"; }
   clientsArg = lib.foldl' (
     acc: pair:
     (
@@ -261,7 +306,8 @@ in
             ExecStart =
               let
                 hostOpt = if data.client == "host" then "-h ${cfg.hostSocketPath}" else "";
-              in
+              # jarekk: TODO: remove this
+              in builtins.trace ("clientSlot: ${data.client} ${data.service}: ${clientSlot data.client data.service}")
               "${memsocket}/bin/memsocket ${hostOpt} -c ${
                 cfg.service.${data.service}.clientSocketPath
               } ${builtins.toString (clientID data.client data.service)}";
@@ -361,11 +407,13 @@ in
       {
         boot.kernelParams =
           let
-            hugepages = if cfg.hugePageSz == "2M" then cfg.memSize / 2 else cfg.memSize / 1024;
+            hugepages = if cfg.hugePageSz == "2M" then cfg.memSize / 2 else (lib.max 1 (cfg.memSize / 1024));
           in
           [
             "hugepagesz=${cfg.hugePageSz}"
-            "hugepages=${toString hugepages}"
+            # jarekk: TODO: remove this
+            # "hugepages= ${toString hugepages}"
+            "hugepages=64"
           ];
       }
       {
@@ -377,9 +425,10 @@ in
           requires = [ "dev-hugepages.mount" ];
           serviceConfig = {
             Type = "oneshot";
-            ExecStart = [ # jarekk: TODO: remove this when the new driver is ready
-              "/run/current-system/sw/bin/chown ${user}:${group} /dev/hugepages /dev/secshm"
-              "/run/current-system/sw/bin/chmod 0660 /dev/secshm"
+            ExecStart = [
+              # jarekk: TODO: remove this when the new driver is ready
+              "/run/current-system/sw/bin/chown ${user}:${group} /dev/hugepages /dev/ivshmem"
+              "/run/current-system/sw/bin/chmod 0660 /dev/ivshmem"
             ];
             RemainAfterExit = true;
           };
@@ -403,7 +452,9 @@ in
                   echo Erasing ${cfg.hostSocketPath} ${pidFilePath}
                   rm -f ${cfg.hostSocketPath}
                 fi
-                ${pkgs.qemu_kvm}/bin/ivshmem-server -p ${pidFilePath} -n ${vectors} -m /dev/hugepages/ -l ${(toString cfg.memSize) + "M"}
+                # jarekk: TODO: fix
+                ${pkgs.qemu_kvm}/bin/ivshmem-server -p ${pidFilePath} -n ${vectors} -m /dev -l ${(toString cfg.memSize) + "M"}
+                # ${pkgs.qemu_kvm}/bin/ivshmem-server -p ${pidFilePath} -n ${vectors} -m /dev/hugepages/ -l ${(toString cfg.memSize) + "M"}
               '';
           in
           {
@@ -429,12 +480,13 @@ in
           (pkgs.memsocket-secmem.override {
             inherit (config.boot.kernelPackages) kernel;
             inherit (cfg) shmSlots;
-            inherit (cfg) memSize;
+            memSize = cfg.memSize * 1024 * 1024;
             inherit (cfg) hugePageSz;
             inherit clientServiceWithID;
           })
         ];
       }
+      # shared memory driver for the host with slots control
       {
         boot.kernelModules = [ "secshm" ];
       }
