@@ -77,27 +77,6 @@ let
     in
     if filtered != [ ] then (builtins.toString (builtins.head filtered).id) else null;
   
-  # Get a local slot offset (integer) for a given client and service
-  # Local slots are counted from 0 to N-1, where N is the number of slots
-  # used by a client
-  # E.g.: chrome-vm is using slot 0 for audio, slot 3 for gui ([0 3])
-  # Sample output: (clientSlot "chrome-vm" "audio") -> 0
-  #                (clientSlot "chrome-vm" "gui") -> 1
-  clientSlot = client: service:
-    let
-      # Filter the client-service pairs to find the matching client
-      clientServices = builtins.filter (x: x.client == client) clientServiceWithID;
-      # Get sorted list of IDs for this client - e.g. [0, 3]
-      sortedIds = builtins.sort builtins.lessThan (map (x: x.id) clientServices);
-      # generate list [0, 1, 2, ...]
-      # This is used to get the index of the client in the sorted list
-      indices = builtins.genList (i: i) (builtins.length sortedIds);
-      # Filter the indices to find the index of the client in the sorted list
-      matched =  builtins.trace ("---->" + (builtins.toJSON clientServiceWithID))
-      (builtins.filter (i: (builtins.elemAt sortedIds i) == (lib.strings.toInt (clientID client service))) indices);
-    in
-      if matched != [ ] then (builtins.toString (builtins.head matched)) else null;
-
   # Generate a string of comma-separated client IDs for a given service, to be used in command line
   # arguments for the memsocket server
   # Sample output:  { audio = "0,1,2"; gui = "3,4,5,6,7"; }
@@ -306,8 +285,7 @@ in
             ExecStart =
               let
                 hostOpt = if data.client == "host" then "-h ${cfg.hostSocketPath}" else "";
-              # jarekk: TODO: remove this
-              in builtins.trace ("clientSlot: ${data.client} ${data.service}: ${clientSlot data.client data.service}")
+              in
               "${memsocket}/bin/memsocket ${hostOpt} -c ${
                 cfg.service.${data.service}.clientSocketPath
               } ${builtins.toString (clientID data.client data.service)}";
