@@ -68,7 +68,7 @@ let
   clientServiceWithID = lib.foldl' (
     acc: pair: acc ++ [ (pair // { id = builtins.length acc; }) ]
   ) [ ] clientServicePairs;
-  
+
   # Get the client slot ID (integer) for a given client and service
   clientID =
     client: service:
@@ -76,7 +76,7 @@ let
       filtered = builtins.filter (x: x.client == client && x.service == service) clientServiceWithID;
     in
     if filtered != [ ] then (builtins.toString (builtins.head filtered).id) else null;
-  
+
   # Generate a string of comma-separated client IDs for a given service, to be used in command line
   # arguments for the memsocket server
   # Sample output:  { audio = "0,1,2"; gui = "3,4,5,6,7"; }
@@ -125,20 +125,6 @@ in
         Specifies the size of the shared memory region, measured in
         megabytes (MB)
       '';
-    };
-    hugePageSz = mkOption {
-      type = types.str;
-      default = "2M";
-      description = ''
-        Specifies the size of the large memory page area. Supported kernel
-        values are 2 MB and 1 GB
-      '';
-      apply =
-        value:
-        if value != "2M" && value != "1G" then
-          builtins.throw "Invalid huge memory area page size"
-        else
-          value;
     };
 
     service = mkOption {
@@ -383,29 +369,14 @@ in
     in
     mkIf cfg.enable (mkMerge [
       {
-        boot.kernelParams =
-          let
-            hugepages = if cfg.hugePageSz == "2M" then cfg.memSize / 2 else (lib.max 1 (cfg.memSize / 1024));
-          in
-          [
-            "hugepagesz=${cfg.hugePageSz}"
-            # jarekk: TODO: remove this
-            # "hugepages= ${toString hugepages}"
-            "hugepages=64"
-          ];
-      }
-      {
-        systemd.services.setHugepagesOwnership = {
-          description = "Set ownership for /dev/hugepages";
+        systemd.services.setShmOwnership = {
+          description = "Set ownership for /dev/ivshmem";
           wantedBy = [ "sysinit.target" ];
           before = [ "ivshmemsrv.service" ];
-          after = [ "dev-hugepages.mount" ];
-          requires = [ "dev-hugepages.mount" ];
           serviceConfig = {
             Type = "oneshot";
             ExecStart = [
-              # jarekk: TODO: remove this when the new driver is ready
-              "/run/current-system/sw/bin/chown ${user}:${group} /dev/hugepages /dev/ivshmem"
+              "/run/current-system/sw/bin/chown ${user}:${group} /dev/ivshmem"
               "/run/current-system/sw/bin/chmod 0660 /dev/ivshmem"
             ];
             RemainAfterExit = true;
@@ -430,9 +401,7 @@ in
                   echo Erasing ${cfg.hostSocketPath} ${pidFilePath}
                   rm -f ${cfg.hostSocketPath}
                 fi
-                # jarekk: TODO: fix
                 ${pkgs.qemu_kvm}/bin/ivshmem-server -p ${pidFilePath} -n ${vectors} -m /dev -l ${(toString cfg.memSize) + "M"}
-                # ${pkgs.qemu_kvm}/bin/ivshmem-server -p ${pidFilePath} -n ${vectors} -m /dev/hugepages/ -l ${(toString cfg.memSize) + "M"}
               '';
           in
           {
@@ -440,14 +409,13 @@ in
             description = "qemu ivshmem memory server";
             path = [ ivShMemSrv ];
             wantedBy = [ "sysinit.target" ];
+            requires = [ "setShmOwnership.service" ];
             serviceConfig = {
               Type = "simple";
               RemainAfterExit = true;
               StandardOutput = "journal";
               StandardError = "journal";
               ExecStart = "${ivShMemSrv}/bin/ivshmemsrv";
-              After = [ "setHugepagesOwnership.service" ];
-              Requires = [ "setHugepagesOwnership.service" ];
               User = user;
               Group = group;
             };
@@ -459,7 +427,6 @@ in
             inherit (config.boot.kernelPackages) kernel;
             inherit (cfg) shmSlots;
             memSize = cfg.memSize * 1024 * 1024;
-            inherit (cfg) hugePageSz;
             inherit clientServiceWithID;
           })
         ];

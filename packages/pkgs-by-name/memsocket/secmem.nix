@@ -6,7 +6,6 @@
   kernel ? null,
   shmSlots ? null,
   memSize ? null,
-  hugePageSz ? null,
   fetchFromGitHub,
   clientServiceWithID ? null,
   ...
@@ -17,8 +16,8 @@ stdenv.mkDerivation {
   src = fetchFromGitHub {
     owner = "tiiuae";
     repo = "shmsockproxy";
-    rev = "da94c7a947bcf6b1ecc46d8e2c967b130ac1cca2";
-    sha256 = "sha256-xdMOcBEdFaJx7IPn8Q4o43cK5lwqPCfE+UAG1cIMtdc=";
+    rev = "0f4f21e817136c72151360b50b50543a9c597710";
+    sha256 = "sha256-AUTEp41UOplhZsauh15i4oTykS2QrvB/QnPDFDJcZ3c=";
   };
   /*
     Convert clientServiceWithID into C structure to be
@@ -56,13 +55,6 @@ stdenv.mkDerivation {
               "  {\"${service}-vm\", 0x${lib.toHexString mask}}"
             ) serviceNames
           );
-          pageSize =
-            if hugePageSz == "2M" then
-              2 * 1024 * 1024
-            else if hugePageSz == "1G" then
-              1024 * 1024 * 1024
-            else
-              builtins.abort "Invalid huge page size: ${hugePageSz}";
         in
         ''
             cat > secshm_config.h <<EOF
@@ -71,11 +63,10 @@ stdenv.mkDerivation {
 
             #define SHM_SLOTS ${builtins.toString shmSlots}
             #define SHM_SIZE ${builtins.toString memSize}
-            #define SHM_HUGE_PAGE_SZ ${builtins.toString pageSize}
 
             struct client_entry {
               const char* name;
-              int bitmask;
+              long long int bitmask;
             };
 
             static const struct client_entry CLIENT_TABLE[] = {
