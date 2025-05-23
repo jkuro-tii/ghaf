@@ -16,8 +16,8 @@ stdenv.mkDerivation {
   src = fetchFromGitHub {
     owner = "tiiuae";
     repo = "shmsockproxy";
-    rev = "0f4f21e817136c72151360b50b50543a9c597710";
-    sha256 = "sha256-AUTEp41UOplhZsauh15i4oTykS2QrvB/QnPDFDJcZ3c=";
+    rev = "51331983ab3bad350fcb2c788c4deb52cad22544";
+    sha256 = "sha256-TW21matXJSrhtCe1Mi5paqY7vp2H9Cf5MpPXQRD/rfU=";
   };
   /*
     Convert clientServiceWithID into C structure to be

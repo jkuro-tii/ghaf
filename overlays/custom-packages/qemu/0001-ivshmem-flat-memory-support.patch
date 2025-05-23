@@ -129,7 +129,7 @@ index de49d1b..1a65fb8 100644
 +    if (s->flataddr) {
 +
 +        ptr = mmap(0, size, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_HUGETLB*0|MAP_LOCKED*1,
-+                fd, 0); fprintf(stderr, "------------ivshmem mmap %p\n", ptr);
++                fd, 0);
 +        s->flat_dev = sysbus_create_simple(TYPE_IVSHMEM_FLAT, -1, 0);
 +        memset(ptr, 0, size);
 +        memory_region_init_ram_ptr(&s->flat_mem, OBJECT(IVSHMEM_FLAT(s->flat_dev)),
