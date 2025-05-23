@@ -43,8 +43,12 @@ in
         {
           enable = true;
           inherit vms;
-          shm-gui-enabled-vms = vmNames;
-          shm-audio-enabled-vms = vmNames;
+          shm-gui-enabled-vms = ["chrome-vm"];# "comms-vm"];
+          shm-audio-enabled-vms = [
+            "chrome-vm"
+            "comms-vm"
+            "gala-vm"
+          ]; # jarekk: TODO
         };
 
       reference = {
