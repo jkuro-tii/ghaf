@@ -16,73 +16,72 @@ stdenv.mkDerivation {
   src = fetchFromGitHub {
     owner = "tiiuae";
     repo = "shmsockproxy";
-    rev = "0f4f21e817136c72151360b50b50543a9c597710";
-    sha256 = "sha256-AUTEp41UOplhZsauh15i4oTykS2QrvB/QnPDFDJcZ3c=";
+    rev = "51331983ab3bad350fcb2c788c4deb52cad22544";
+    sha256 = "sha256-TW21matXJSrhtCe1Mi5paqY7vp2H9Cf5MpPXQRD/rfU=";
   };
   /*
     Convert clientServiceWithID into C structure to be
-    included into driver's config table
+    included into on-host driver's source code.
+    The structure is defined in secshm_config.h and
+    is used to generate the client table and service table
+    for the driver.
   */
   patchPhase =
     let
-      t =
-        let
-          pow = base: exp: if exp == 0 then 1 else base * (pow base (exp - 1));
+      pow = base: exp: if exp == 0 then 1 else base * (pow base (exp - 1));
 
-          clientNames = lib.unique (map (x: x.client) clientServiceWithID);
-          serviceNames = lib.unique (map (x: x.service) clientServiceWithID);
+      clientNames = lib.unique (map (x: x.client) clientServiceWithID);
+      serviceNames = lib.unique (map (x: x.service) clientServiceWithID);
 
-          clientTable = builtins.concatStringsSep ",\n  " (
-            map (
-              client:
-              let
-                mask = builtins.foldl' (
-                  acc: x: if x.client == client then acc + (pow 2 x.id) else acc
-                ) 0 clientServiceWithID;
-              in
-              "  {\"${client}\", 0x${lib.toHexString mask}}"
-            ) clientNames
-          );
+      clientTable = builtins.concatStringsSep ",\n  " (
+        map (
+          client:
+          let
+            mask = builtins.foldl' (
+              acc: x: if x.client == client then acc + (pow 2 x.id) else acc
+            ) 0 clientServiceWithID;
+          in
+          "  {\"${client}\", 0x${lib.toHexString mask}}"
+        ) clientNames
+      );
 
-          serviceTable = builtins.concatStringsSep ",\n  " (
-            map (
-              service:
-              let
-                mask = builtins.foldl' (
-                  acc: x: if x.service == service then acc + (pow 2 x.id) else acc
-                ) 0 clientServiceWithID;
-              in
-              "  {\"${service}-vm\", 0x${lib.toHexString mask}}"
-            ) serviceNames
-          );
-        in
-        ''
-            cat > secshm_config.h <<EOF
-            #ifndef SECSHM_CONFIG_H
-            #define SECSHM_CONFIG_H
-
-            #define SHM_SLOTS ${builtins.toString shmSlots}
-            #define SHM_SIZE ${builtins.toString memSize}
-
-            struct client_entry {
-              const char* name;
-              long long int bitmask;
-            };
-
-            static const struct client_entry CLIENT_TABLE[] = {
-              ${clientTable},
-              ${serviceTable}
-            };
-
-            #define CLIENT_TABLE_SIZE ${
-              builtins.toString (builtins.length clientNames + builtins.length serviceNames)
-            }
-
-            #endif // SECSHM_CONFIG_H
-          EOF
-        '';
+      serviceTable = builtins.concatStringsSep ",\n  " (
+        map (
+          service:
+          let
+            mask = builtins.foldl' (
+              acc: x: if x.service == service then acc + (pow 2 x.id) else acc
+            ) 0 clientServiceWithID;
+          in
+          "  {\"${service}-vm\", 0x${lib.toHexString mask}}"
+        ) serviceNames
+      );
     in
-    builtins.trace t t;
+    ''
+        cat > secshm_config.h <<EOF
+        #ifndef SECSHM_CONFIG_H
+        #define SECSHM_CONFIG_H
+
+        #define SHM_SLOTS ${builtins.toString shmSlots}
+        #define SHM_SIZE ${builtins.toString memSize}
+
+        struct client_entry {
+          const char* name;
+          long long int bitmask;
+        };
+
+        static const struct client_entry CLIENT_TABLE[] = {
+          ${clientTable},
+          ${serviceTable}
+        };
+
+        #define CLIENT_TABLE_SIZE ${
+          builtins.toString (builtins.length clientNames + builtins.length serviceNames)
+        }
+
+        #endif // SECSHM_CONFIG_H
+      EOF
+    '';
 
   sourceRoot = "source/secure_shmem";
   hardeningDisable = [

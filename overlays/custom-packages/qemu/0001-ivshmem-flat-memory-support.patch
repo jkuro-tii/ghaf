@@ -128,7 +128,7 @@ index de49d1b..1a65fb8 100644
  
 +    if (s->flataddr) {
 +
-+        ptr = mmap(0, size, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_HUGETLB|MAP_LOCKED,
++        ptr = mmap(0, size, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_LOCKED,
 +                fd, 0);
 +        s->flat_dev = sysbus_create_simple(TYPE_IVSHMEM_FLAT, -1, 0);
 +
