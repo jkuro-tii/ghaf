@@ -393,18 +393,27 @@ in
       {
         boot.kernelModules = [ "secshm" ];
       }
-      # add host systemd client services
-      {
-        systemd = foldl' lib.attrsets.recursiveUpdate { } (
-          map clientConfigTemplate (lib.filter (data: data.client == "host") clientServicePairs)
-        );
-      }
-      # add host systemd server services
-      {
-        systemd = lib.foldl' lib.attrsets.recursiveUpdate { } (
-          map serverConfig (builtins.attrNames (enabledVmServices false))
-        );
-      }
+      # {
+      #   services = {
+      #     udev = {
+      #       extraRules = ''
+      #         SUBSYSTEM=="misc",KERNEL=="ivshmem",GROUP="kvm",MODE="0666"
+      #       '';
+      #     };
+      #   };
+      # }
+      # # add host systemd client services
+      # {
+      #   systemd = foldl' lib.attrsets.recursiveUpdate { } (
+      #     map clientConfigTemplate (lib.filter (data: data.client == "host") clientServicePairs)
+      #   );
+      # }
+      # # add host systemd server services
+      # {
+      #   systemd = lib.foldl' lib.attrsets.recursiveUpdate { } (
+      #     map serverConfig (builtins.attrNames (enabledVmServices false))
+      #   );
+      # }
       {
         microvm.vms =
           let
@@ -451,9 +460,10 @@ in
             clientsAndServers = lib.foldl' lib.attrsets.recursiveUpdate clientsConfig (
               map serverConfig (builtins.attrNames (enabledVmServices true))
             );
-            finalMicroVmsConfig = foldl' lib.attrsets.recursiveUpdate clientsAndServers (
-              map configCommon allVMs
-            );
+            # finalMicroVmsConfig = foldl' lib.attrsets.recursiveUpdate clientsAndServers (
+            #   map configCommon allVMs
+            # );
+            finalMicroVmsConfig = {};
           in
           finalMicroVmsConfig;
       }

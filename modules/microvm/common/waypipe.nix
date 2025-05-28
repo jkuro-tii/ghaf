@@ -29,12 +29,12 @@ let
   runWaypipe =
     let
       script =
-        if cfg.serverSocketPath != null then
-          ''
-            #!${pkgs.runtimeShell} -e
-            ${pkgs.waypipe}/bin/waypipe -s ${cfg.clientSocketPath} server "$@"
-          ''
-        else
+        # if cfg.serverSocketPath != null then
+        #   ''
+        #     #!${pkgs.runtimeShell} -e
+        #     ${pkgs.waypipe}/bin/waypipe -s ${cfg.clientSocketPath} server "$@"
+        #   ''
+        # else
           ''
             #!${pkgs.runtimeShell} -e
             ${pkgs.waypipe}/bin/waypipe --vsock -s ${toString waypipePort} server "$@"
