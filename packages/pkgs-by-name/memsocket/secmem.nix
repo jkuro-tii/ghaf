@@ -16,8 +16,8 @@ stdenv.mkDerivation {
   src = fetchFromGitHub {
     owner = "tiiuae";
     repo = "shmsockproxy";
-    rev = "51331983ab3bad350fcb2c788c4deb52cad22544";
-    sha256 = "sha256-TW21matXJSrhtCe1Mi5paqY7vp2H9Cf5MpPXQRD/rfU=";
+    rev = "0fddc6299ea253b9735526edbbe17d69be5acb3c";
+    sha256 = "sha256-BjNej9tNE+dKHZ1Nd8R02NNGHDikMPbine3Qur+eEv8=";
   };
   /*
     Convert clientServiceWithID into C structure to be
@@ -26,7 +26,7 @@ stdenv.mkDerivation {
     is used to generate the client table and service table
     for the driver.
   */
-  patchPhase =
+  patchPhase = let t =
     let
       pow = base: exp: if exp == 0 then 1 else base * (pow base (exp - 1));
 
@@ -81,7 +81,7 @@ stdenv.mkDerivation {
 
         #endif // SECSHM_CONFIG_H
       EOF
-    '';
+    ''; in builtins.trace t t;
 
   sourceRoot = "source/secure_shmem";
   hardeningDisable = [

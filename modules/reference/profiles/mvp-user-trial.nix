@@ -43,7 +43,7 @@ in
         {
           enable = true;
           inherit vms;
-          shm-gui-enabled-vms = vmNames;
+          shm-gui-enabled-vms = [ "chrome-vm"  "business-vm" ];
           shm-audio-enabled-vms = vmNames;
         };
 
