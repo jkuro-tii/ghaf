@@ -7,6 +7,7 @@
   shmSlots ? null,
   memSize ? null,
   fetchFromGitHub,
+  debug ? false,
   clientServiceWithID ? null,
   ...
 }:
@@ -16,13 +17,13 @@ stdenv.mkDerivation {
   src = fetchFromGitHub {
     owner = "tiiuae";
     repo = "shmsockproxy";
-    rev = "51331983ab3bad350fcb2c788c4deb52cad22544";
-    sha256 = "sha256-TW21matXJSrhtCe1Mi5paqY7vp2H9Cf5MpPXQRD/rfU=";
+    rev = "2c0a4bad482ec2e076aee9a1ce550b3d9891f05e";
+    sha256 = "sha256-4cXNdG1k45/mF+yqBsfvfYkRK6N9kgsGeeqGB6mRSj4=";
   };
   /*
     Convert clientServiceWithID into C structure to be
     included into on-host driver's source code.
-    The structure is defined in secshm_config.h and
+    The structure is put into the secshm_config.h and
     is used to generate the client table and service table
     for the driver.
   */
@@ -41,7 +42,7 @@ stdenv.mkDerivation {
               acc: x: if x.client == client then acc + (pow 2 x.id) else acc
             ) 0 clientServiceWithID;
           in
-          "  {\"${client}\", 0x${lib.toHexString mask}}"
+          "  { .name = \"${client}\", .bitmask = 0x${lib.toHexString mask}, .pid = 0 }"
         ) clientNames
       );
 
@@ -53,7 +54,7 @@ stdenv.mkDerivation {
               acc: x: if x.service == service then acc + (pow 2 x.id) else acc
             ) 0 clientServiceWithID;
           in
-          "  {\"${service}-vm\", 0x${lib.toHexString mask}}"
+          "  { .name = \"${service}-vm\", .bitmask = 0x${lib.toHexString mask}, .pid = 0 }"
         ) serviceNames
       );
     in
@@ -67,10 +68,11 @@ stdenv.mkDerivation {
 
         struct client_entry {
           const char* name;
-          long long int bitmask;
+          const long long int bitmask;
+          pid_t pid;
         };
 
-        static const struct client_entry CLIENT_TABLE[] = {
+        static struct client_entry client_table[] = {
           ${clientTable},
           ${serviceTable}
         };
@@ -99,6 +101,9 @@ stdenv.mkDerivation {
     ]
     ++ lib.optionals (stdenv.hostPlatform != stdenv.buildPlatform) [
       "CROSS_COMPILE=${stdenv.cc}/bin/${stdenv.cc.targetPrefix}"
+    ]
+    ++ lib.optionals debug [
+      "EXTRA_CFLAGS=-DDEBUG_ON"
     ];
 
   CROSS_COMPILE = lib.optionalString (
