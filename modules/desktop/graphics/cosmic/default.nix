@@ -309,7 +309,8 @@ in
         XDG_VIDEOS_DIR = "$HOME/Videos";
         XCURSOR_THEME = "Cosmic";
         XCURSOR_SIZE = 24;
-        RUST_LOG = "error";
+        # RUST_LOG = "error,cosmic_applet_audio=trace,sound=trace";
+        RUST_LOG = "trace";
       }
       // lib.optionalAttrs (cfg.renderDevice != null) {
         COSMIC_RENDER_DEVICE = cfg.renderDevice;

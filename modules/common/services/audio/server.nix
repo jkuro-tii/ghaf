@@ -90,7 +90,21 @@ in
             socketActivation = false;
             alsa.enable = config.ghaf.development.debug.tools.enable;
             systemWide = true;
+            # serviceConfig.Environment = [
+            #   "PIPEWIRE_DEBUG=4"  # Levels: 0=off, 1=error, 2=warn, 3=info, 4=debug, 5=trace
+            # ];
             extraConfig = {
+              pipewire.serviceConfig.Environment = [
+                "PIPEWIRE_DEBUG=2" # Levels: 0=off, 1=error, 2=warn, 3=info, 4=debug, 5=trace
+              ];
+              pipewire."99-debug" = {
+                "context.properties" = {
+                  "log.level" = 2;
+                };
+              };
+              pipewire-pulse.serviceConfig.Environment = [
+                "PIPEWIRE_DEBUG=2" # Levels: 0=off, 1=error, 2=warn, 3=info, 4=debug, 5=trace
+              ];
               pipewire-pulse."10-main-server" = {
                 "context.modules" = [ ];
                 "pulse.properties" = {
@@ -154,21 +168,21 @@ in
 
         systemd.services =
           let
-            debugLevel = if cfg.server.debug then "2" else "0";
+            debugLevel = if cfg.server.debug then "2" else "2";
           in
           {
             pipewire = {
               wantedBy = [ "multi-user.target" ];
-              environment.PIPEWIRE_DEBUG = debugLevel;
+              environment.PIPEWIRE_DEBUG = "pw.*:2"; # debugLevel;
             };
             pipewire-pulse = {
               wantedBy = [ "multi-user.target" ];
               serviceConfig.ExecStart = lib.mkIf (debugLevel != "0") [
                 ""
-                "${lib.getExe' pkgs.pipewire "pipewire-pulse"} -vv"
+                "${lib.getExe' pkgs.pipewire "pipewire-pulse"}" # -vv"
               ];
             };
-            wireplumber.environment.WIREPLUMBER_DEBUG = debugLevel;
+            wireplumber.environment.WIREPLUMBER_DEBUG = "2"; # debugLevel;
           };
 
         ghaf = lib.mkMerge [

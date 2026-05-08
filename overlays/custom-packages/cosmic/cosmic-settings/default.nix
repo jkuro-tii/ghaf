@@ -4,6 +4,10 @@
 # Ref: https://github.com/pop-os/cosmic-settings/blob/master/cosmic-settings/Cargo.toml
 { prev }:
 (prev.cosmic-settings.overrideAttrs (oldAttrs: {
+  patches = (oldAttrs.patches or [ ]) ++ [
+    ./lib.patch
+  ];
+
   cargoBuildNoDefaultFeatures = true;
   cargoBuildFeatures = [
     "a11y"
