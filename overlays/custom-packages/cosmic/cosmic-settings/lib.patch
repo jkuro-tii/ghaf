@@ -1,5 +1,5 @@
 diff --git a/subscriptions/sound/src/lib.rs b/subscriptions/sound/src/lib.rs
-index adac229..a56938f 100644
+index adac229..99e4cd3 100644
 --- a/subscriptions/sound/src/lib.rs
 +++ b/subscriptions/sound/src/lib.rs
 @@ -8,6 +8,7 @@ use futures::{SinkExt, Stream};
@@ -218,17 +218,27 @@ index adac229..a56938f 100644
          if let Some(pos) = self.sink_node_ids.iter().position(|&node_id| node_id == id) {
              self.sink_node_ids.remove(pos);
              self.sinks.remove(pos);
-@@ -747,6 +782,10 @@ impl Model {
+@@ -747,9 +782,12 @@ impl Model {
  
      /// Set the default sink device by its the node ID.
      fn set_default_sink_id(&mut self, node_id: NodeId) {
-+        eprintln!("=== Message eprintl::set_default_sink_id 782 ===");
-+        println!("=== Message::printl set_default_sink_id 782 ===");
 +        tracing::error!("=== tracing Message::set_default_sink_id 782 ===");
 +
          self.active_sink = self.sink_node_ids.iter().position(|&id| id == node_id);
          self.active_sink_node = Some(node_id);
          self.active_sink_node_name = self.node_names.get(node_id).cloned().unwrap_or_default();
++        tracing::error!("=== tracing Message::set_default_sink_id active_sink_node_name={} ===", self.active_sink_node_name);
+         self.active_sink_device = self
+             .device_ids
+             .iter()
+@@ -761,6 +799,7 @@ impl Model {
+         self.active_source = self.source_node_ids.iter().position(|&id| id == node_id);
+         self.active_source_node = Some(node_id);
+         self.active_source_node_name = self.node_names.get(node_id).cloned().unwrap_or_default();
++        tracing::error!("=== tracing Message::set_default_source_id active_source_node_name={} ===", self.active_source_node_name);
+         self.active_source_device = self
+             .device_ids
+             .iter()
 @@ -804,7 +843,7 @@ impl Model {
                  continue;
              };
