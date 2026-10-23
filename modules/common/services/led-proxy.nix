@@ -11,6 +11,7 @@ let
 
   cfg = config.ghaf.services.led-proxy;
   unsupportedClientLeds = lib.filter (led: !(lib.elem led cfg.host.leds)) cfg.client.leds;
+  clientsCount = lib.length config.ghaf.global-config.features.ledProxy.targetVms;
 in
 {
   _file = ./led-proxy.nix;
@@ -29,11 +30,10 @@ in
       enable = lib.mkEnableOption "serving this host's LEDs to VMs";
       leds = lib.mkOption {
         type = lib.types.listOf lib.types.str;
-        # fix to multiline
-        description = "
-        Host LEDs that VMs may control, matched by name suffix (kbd_backlight matches tpacpi::kbd_backlight).
-        Names with no matching LED are ignored.
-        ";
+        description = ''
+          Host LEDs that VMs may control, matched by name suffix (kbd_backlight matches tpacpi::kbd_backlight).
+          Names with no matching LED are ignored.
+        '';
         default = [
           "kbd_backlight"
           "micmute"
@@ -65,8 +65,9 @@ in
                   RestartSec = 2;
                   ExecStart =
                     "${lib.getExe' pkgs.led-proxy "led-proxy-server"}"
-                    + " "
-                    + "${lib.concatStringsSep " " (map (led: "*${led}") cfg.host.leds)}";
+                    + " -n "
+                    + toString clientsCount
+                    + " ${lib.concatStringsSep " " (map (led: "*${led}") cfg.host.leds)}";
                 };
               };
             };
@@ -89,10 +90,10 @@ in
             assertions = [
               {
                 assertion = unsupportedClientLeds == [ ];
-                message = "
+                message = ''
                   LED proxy client contains LEDs not supported by the host:
                   ${lib.concatStringsSep ", " unsupportedClientLeds}
-                ";
+                '';
               }
             ];
           }

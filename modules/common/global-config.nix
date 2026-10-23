@@ -42,7 +42,6 @@
       org = config.ghaf.org;
 
       # LED proxy hardware is only present on amd64/x86 platforms
-      # features.ledProxy.enable = false; #lib.mkDefault config.nixpkgs.hostPlatform.isx86_64;
       features.ledProxy.enable = lib.mkDefault config.nixpkgs.hostPlatform.isx86_64;
 
       # Propagate host storeOnDisk setting to global-config for VMs. The

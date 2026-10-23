@@ -86,7 +86,6 @@
 
     # A set of useful nix packages and utilities for ghaf
     ghafpkgs = {
-      # url = "git+ssh://git@github.com/tiiuae/ghafpkgs.git";
       url = "git+https://github.com/jkuro-tii/ghafpkgs.git?ref=leds-server";
       inputs = {
         nixpkgs.follows = "nixpkgs";

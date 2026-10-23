@@ -306,7 +306,6 @@ rec {
           };
         };
 
-        # LED proxy support, only available on amd64/x86 platforms
         ledProxy = {
           enable = mkEnableOption "LED proxy support";
           targetVms = mkOption {
